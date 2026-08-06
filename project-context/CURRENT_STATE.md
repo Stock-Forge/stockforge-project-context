@@ -75,3 +75,42 @@ git log --oneline # b9e8cb3 → ce26346 → 793309a → 657fb05 → 89d4b4f
 
 1. Device B clone verification (user).
 2. Day 3: stockforge-contracts (see above).
+
+---
+
+## HOW TO BEGIN THE NEXT DAY (paste this into a new AI session)
+
+**Rule for the user:** copy-paste the FULL content of
+`stockforge-project-context\project-context\START_OF_DAY.md` into the new AI session.
+That file IS the begin-day prompt. It does not need editing each day.
+
+**CENTRAL-STATE RULE (also baked into START_OF_DAY.md):** project state is updated
+ONLY in this repository (`stockforge-project-context`) — `CURRENT_STATE.md`,
+`SESSION_PROMPTS.md`, `PROJECT_CONTEXT.md`, `DAY_BY_DAY_GUIDE.md`, `CHANGELOG.md`.
+We often work in a DIFFERENT repo that day (e.g. `stockforge-contracts`); that repo
+gets only its own code, tests, and README. State updates happen HERE, always, and are
+pushed HERE. Both repos are committed and pushed every day.
+
+**Quick-start summary for the new AI (START_OF_DAY.md expands this):**
+
+```
+StockForge. New session, zero memory.
+
+1. git pull in stockforge-project-context (and in any other repo being touched).
+2. Read PROJECT_CONTEXT.md, CURRENT_STATE.md, latest entry in SESSION_PROMPTS.md.
+3. Check git status / branch / log -5. Reconcile state vs prompt vs repo. Investigate
+   before coding if they disagree. Report: Project reconstructed + phase/day/repo/
+   branch/last task/incomplete/next task.
+4. Work ONE ~30-minute day per DAY_BY_DAY_GUIDE.md. Teach while building. If not
+   finished, record incomplete work openly (reason/state/remains/next).
+5. End of day (mandatory):
+   - run tests
+   - update the working repo's own README
+   - CENTRAL-STATE RULE: update PROJECT_CONTEXT.md (if architecture changed),
+     CURRENT_STATE.md, SESSION_PROMPTS.md, DAY_BY_DAY_GUIDE.md, CHANGELOG.md
+     HERE in stockforge-project-context — never in the working repo
+   - git status + git diff review
+   - git add + git commit (message describes the change, not the day)
+   - git push in BOTH repos; verify (git status -sb up to date)
+   - never claim saved until pushes are verified
+```

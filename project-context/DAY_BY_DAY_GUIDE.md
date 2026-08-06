@@ -401,6 +401,11 @@ Rule of thumb: **we first build it locally and understand it, then we ask
 
 ## HOUSEKEEPING
 
+- **Central-state rule:** ALL project state lives in `stockforge-project-context`.
+  When we work in a different repo (e.g. `stockforge-contracts`), that repo receives
+  only its own code/tests/README — state updates (`CURRENT_STATE.md`,
+  `SESSION_PROMPTS.md`, `PROJECT_CONTEXT.md`, `DAY_BY_DAY_GUIDE.md`, `CHANGELOG.md`)
+  happen HERE and are pushed HERE. Both repos are committed and pushed each day.
 - **Commit messages describe the change, not the day.** Write what was actually done
   (e.g. "Add OpenAPI spec for orders API"), not "Day 3". Day numbers only appear in
   `CURRENT_STATE.md` / `SESSION_PROMPTS.md` / `CHANGELOG.md`.

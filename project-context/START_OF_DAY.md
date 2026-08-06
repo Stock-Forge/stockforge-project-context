@@ -64,22 +64,29 @@ Next 30-minute task:
 
 ## PHASE 3 — END OF DAY (mandatory sequence, no exceptions)
 
+**CENTRAL-STATE RULE: ALL project state lives in `stockforge-project-context`.**
+Even when today's work is done in a different repo (e.g. `stockforge-contracts`),
+steps 3-7 below are performed HERE, in `stockforge-project-context`, and pushed HERE.
+The working repo only receives its own code, tests, and its own README — it never
+receives project state files. Both repos are committed and pushed each day.
+
 1. Stop at a clean point.
-2. Run the appropriate tests.
-3. Update the relevant repo README(s) if functionality changed.
-4. Update `PROJECT_CONTEXT.md` if architecture changed (mark statuses correctly).
-5. Update `CURRENT_STATE.md` (date, phase, day, repo, branch, commit, completed,
-   incomplete, files changed, tests, next exact task).
-6. Add a "Session N" entry to `SESSION_PROMPTS.md` and update the Day N entry in
-   `DAY_BY_DAY_GUIDE.md` (mark it done, note what remains).
-7. Update `CHANGELOG.md` with one line for the day.
-8. `git status` — review what changed.
+2. Run the appropriate tests (in whichever repo the work was done).
+3. Update the working repo's README if functionality changed (own README only).
+4. **Here in `stockforge-project-context`:** update `PROJECT_CONTEXT.md` if architecture
+   changed (mark statuses correctly).
+5. **Here:** update `CURRENT_STATE.md` (date, phase, day, repo worked on, branch, commit,
+   completed, incomplete, files changed, tests, next exact task).
+6. **Here:** add a "Session N" entry to `SESSION_PROMPTS.md` and update the Day N entry
+   in `DAY_BY_DAY_GUIDE.md` (mark it done, note what remains).
+7. **Here:** update `CHANGELOG.md` with one line for the day.
+8. `git status` — review what changed (in this repo AND the working repo).
 9. `git diff` — review the changes themselves.
 10. `git add`
 11. `git commit` — **commit message describes the change, NOT the day number**
     (e.g. "Add OpenAPI spec for orders API", not "Day 3").
-12. `git push`
-13. Verify the push: `git status -sb` shows up to date; confirm on GitHub if possible.
+12. `git push` — push THIS repo; push the working repo too.
+13. Verify both pushes: `git status -sb` shows up to date; confirm on GitHub if possible.
 
 Before you declare the session complete, verify the working tree is clean and the
 latest commit is on the remote. If something is intentionally uncommitted, say so
