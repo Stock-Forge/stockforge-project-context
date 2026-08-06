@@ -13,11 +13,14 @@
 ## HOW TO USE THIS GUIDE
 
 1. Before starting an AI session: `git pull` (on the device you're using).
-2. Read the **current day** section below (it tells you what the AI session will do and what *you* must do manually).
-3. Do your manual steps (e.g. create a GitHub repo, run a command).
-4. Let the AI build on your machine, teaching as it goes.
-5. End of day: the AI updates state files, commits, pushes. **You verify the push.**
-6. On the other device next time: `git pull` → read state → continue.
+2. **Copy-paste the `START_OF_DAY.md` prompt into the new AI session** — it makes the AI
+   reconstruct the project from files, work today's 30-minute day, and do the end-of-day
+   sequence automatically.
+3. Read the **current day** section below (it tells you what the AI session will do and what *you* must do manually).
+4. Do your manual steps (e.g. create a GitHub repo, run a command).
+5. Let the AI build on your machine, teaching as it goes.
+6. End of day: the AI updates state files, commits, pushes. **You verify the push.**
+7. On the other device next time: `git pull` → paste `START_OF_DAY.md` → continue.
 
 The guide grows day by day. Later days are outlines; near-term days are detailed.
 

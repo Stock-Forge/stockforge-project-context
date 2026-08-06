@@ -11,38 +11,41 @@ device, can reconstruct the entire project with zero conversation history.
 ```
 stockforge-project-context/
 │
-├── README.md
+├── README.md                  # This file
+├── CHANGELOG.md               # One line per project day
 └── project-context/
-    ├── MASTER_PROMPT.md      # The complete StockForge master prompt
-    ├── PROJECT_CONTEXT.md    # Permanent architecture/context document
-    ├── CURRENT_STATE.md      # Current progress state (update after every session)
-    ├── SESSION_PROMPTS.md    # Resume prompt + continuation-prompt history
-    └── adr/                  # Architecture Decision Records
+    ├── START_OF_DAY.md        # COPY-PASTE THIS EVERY DAY to start a session
+    ├── MASTER_PROMPT.md       # The complete StockForge master prompt
+    ├── PROJECT_CONTEXT.md     # Permanent architecture/context document (APPROVED)
+    ├── CURRENT_STATE.md       # Current progress state (update after every session)
+    ├── SESSION_PROMPTS.md     # Resume prompt + continuation-prompt history
+    ├── DAY_BY_DAY_GUIDE.md    # Manual companion: GitHub setup + day-by-day plan
+    ├── JOURNEY_SO_FAR.md      # Plain-language summary of everything done so far
+    └── adr/                   # Architecture Decision Records
 ```
 
-## How to start a new AI session
-
-Follow the **NEW SESSION RESUME PROMPT** in `project-context/SESSION_PROMPTS.md`:
+## How to start each day (both devices)
 
 1. `git pull`
-2. Read `PROJECT_CONTEXT.md`
-3. Read `CURRENT_STATE.md`
-4. Read latest continuation prompt in `SESSION_PROMPTS.md`
-5. Inspect `git status` / `git branch` / `git log -5`
-6. Reconcile state vs prompt vs repo
-7. Continue with the next 30-minute task
+2. **Copy-paste `project-context/START_OF_DAY.md` into the new AI session.**
+   It reconstructs the project from these files, works one ~30-minute day, and runs
+   the mandatory end-of-day sequence (update state → tests → README → commit → push →
+   verify).
+3. Do any manual steps listed in the current-day section of `DAY_BY_DAY_GUIDE.md`.
 
 ## Two-device workflow
 
-- GitHub is the shared source of truth.
+- GitHub is the shared source of truth (`https://github.com/Stock-Forge`).
 - Before working: `git pull`.
 - After every day/phase: update state files → commit → push → verify.
+- Commit messages describe the change, not the day number.
 
 ## Status
 
-Phase 0 — Architecture and planning (foundation). See `project-context/CURRENT_STATE.md`.
+Phase 1 — Git/GitHub organization and repository foundation (Day 2 complete).
+See `project-context/CURRENT_STATE.md` for the live state.
 
 ## Known limitations
 
-- No GitHub org/repo created yet — remote not configured, nothing pushed.
-- No application code (by design — Phase 0 is architecture only).
+- Device B clone + round-trip not yet exercised (see Day 2 section of the guide).
+- No application code yet — starts Day 3 (`stockforge-contracts`).

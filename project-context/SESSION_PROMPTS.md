@@ -8,6 +8,10 @@
 
 ## NEW SESSION RESUME PROMPT (copy-paste this into a completely new AI session)
 
+> **Every day:** use `project-context/START_OF_DAY.md` — it is the canonical daily-start
+> prompt (reconstruct → work one 30-minute day → mandatory end-of-day sequence).
+> The prompt below is the same protocol in compact form.
+
 ```
 STOCKFORGE — NEW SESSION RESUME PROMPT
 
