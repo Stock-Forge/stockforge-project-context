@@ -150,7 +150,7 @@ C:\CODE\HFT Application\            (or any agreed root — must be identical on
 | stockforge-market-data | Simulated market, price gen, bid/ask, LTP, volume, depth, WS | `PLANNED` |
 | stockforge-portfolio | Balances, positions, holdings, P&L, trade history | `PLANNED` |
 | stockforge-notification | Order/execution/system notifications | `PLANNED` |
-| stockforge-contracts | OpenAPI, API contracts, Kafka schemas, message schemas | `PLANNED` |
+| stockforge-contracts | OpenAPI, API contracts, Kafka schemas, message schemas | `IMPLEMENTED` (foundation: OpenAPI v1.0.0 + 7 events) |
 | stockforge-performance | Scenarios (smoke/load/stress/soak), tests, data, baselines, thresholds, reports, regression logic | `PLANNED` |
 | stockforge-infrastructure | IaC (local → Docker → Compose → local K8s → AWS: VPC/EKS/RDS/Redis/Kafka/ALB/ECR/monitoring) | `PLANNED` |
 | stockforge-deployment | K8s manifests, Helm charts, env config, version pinning per environment | `PLANNED` |
@@ -416,7 +416,7 @@ Phase 26   HFT evolution
 Repo creation order (progressive, each with explanation before creation):
 
 1. `stockforge-project-context` ✅ (exists)
-2. `stockforge-contracts` (Phase 1 — contracts/schemas first so services don't break each other)
+2. `stockforge-contracts` ✅ (Phase 1 — contracts/schemas first so services don't break each other)
 3. `stockforge-web` + `stockforge-api` (Phase 2)
 4. `stockforge-auth` (Phase 3)
 5. `stockforge-order-service` (Phase 4)

@@ -12,11 +12,11 @@
 |---|---|
 | Date | 2026-08-06 |
 | Phase | Phase 1 — Git/GitHub organization and repository foundation |
-| Day | **Day 3 — starting (contracts)** |
-| Status | Previous day complete and pushed; next day ready to start |
-| Current repository | stockforge-project-context (state repo) — Day 3 work repo: `stockforge-contracts` |
+| Day | **Day 3 (complete) — next: Day 4** |
+| Status | Day 3 done and pushed; Day 4 ready to start |
+| Current repository | stockforge-contracts (work repo, pushed) + stockforge-project-context (state repo) |
 | Current branch | main |
-| Current commit | `cb9af31` (pushed to `origin/main`) |
+| Current commit | stockforge-project-context: `c3141d4` → new closeout commit; stockforge-contracts: `e1d65cb` |
 
 ---
 
@@ -28,8 +28,8 @@
 | 1 | Phase 0 architecture proposal | ✅ done |
 | 1.5 | Architecture approved + day-by-day guide | ✅ done |
 | 2 | GitHub org `Stock-Forge` + repo created + pushed + git round-trip practiced | ✅ done |
-| 3 | `stockforge-contracts` — API & event contracts | ⏭️ **NEXT** |
-| 4 | `stockforge-web` — React trading UI scaffold | planned |
+| 3 | `stockforge-contracts` — API & event contracts (OpenAPI v1.0.0 + 7 events) | ✅ done |
+| 4 | `stockforge-web` — React trading UI scaffold | ⏭️ **NEXT** |
 | 5 | `stockforge-api` — Spring Boot gateway scaffold | planned |
 | 6-7 | `stockforge-auth` — register/login (bcrypt + JWT), roles | planned |
 | 8-9 | `stockforge-order-service` — order lifecycle (in-memory), risk mock | planned |
@@ -37,87 +37,79 @@
 
 ---
 
-## What the previous session (Day 2) completed
+## What Day 3 completed
 
-- GitHub org **`Stock-Forge`** created (hyphenated; product name stays `StockForge`).
-- Repo `stockforge-project-context` created on GitHub, remote `origin` added, `main` pushed + tracking set.
-- Docs updated to actual org name; 30-minute roadmap expanded to Day 39+ (`PROJECT_CONTEXT.md` §21).
-- Git round-trip practiced: branch → commit → push -u → merge → push → delete branch.
-- `CHANGELOG.md` created. Commit `cb9af31` on `origin/main` (working tree clean).
+- GitHub repo **`stockforge-contracts`** created (empty) by the user; local repo created as its own git repo (sibling to project-context, never nested).
+- Built contract-first deliverables:
+  - `contracts/openapi.yaml` — OpenAPI 3.0.3, 10 paths (auth, market-data, orders, portfolio), 14 schemas, JWT bearer security. Validated as parseable YAML.
+  - `contracts/events/` — 7 event contracts (OrderCreated, OrderAccepted, OrderRejected, OrderExecuted, OrderCancelled, PositionUpdated, MarketPriceUpdated), each with schema, producer→consumer, downstream effects, failure handling (idempotency, ordering, DLQ notes), plus `INDEX.md` (topics, partition keys, cross-cutting rules).
+  - `README.md` — why contract-first, layout, contract rules, status.
+- Committed `e1d65cb` and pushed to `Stock-Forge/stockforge-contracts` (tracking set).
 
 ## What is deliberately NOT done
 
-- **Device B clone + round-trip not yet exercised** — user action on the other machine:
+- **Device B clone still unverified** (user-owned) — both repos should be cloned there:
   ```
-  cd C:\CODE
   git clone https://github.com/Stock-Forge/stockforge-project-context.git
-  cd stockforge-project-context
-  git log --oneline      # expect 9 commits ending in cb9af31
+  git clone https://github.com/Stock-Forge/stockforge-contracts.git
   ```
-- No application code (starts Day 3 with contracts).
-- Branch protection + PR workflow not enabled (planned Phase 14 / GitHub Actions).
+- No application code (starts Day 4 with `stockforge-web`).
+- Contract validation tooling (swagger-cli / schema registry) and contract tests not yet added (planned when services arrive / Phase 14).
+- `stockforge-contracts` has no CI yet (Phase 14).
 
-## Incomplete work (open items carried into Day 3)
+## Incomplete work (open items carried forward)
 
 ```
 - Device B clone verification (user-owned, do anytime).
-- stockforge-contracts repo does not exist yet (user creates on GitHub at Day 3 start).
+- Contract tooling + contract tests (deferred to service phases / Phase 14).
 ```
 
 ---
 
-## NEXT DAY PROMPT — DAY 3: `stockforge-contracts`
+## NEXT DAY PROMPT — DAY 4: `stockforge-web`
 
 **How to start:** copy-paste the FULL content of
 `stockforge-project-context\project-context\START_OF_DAY.md` into the new AI session.
 Below is the day-specific plan the AI must follow.
 
-### Day 3 — API & event contracts (Phase 1 foundation)
+### Day 4 — React trading UI scaffold
 
-**Goal:** create the contracts repo — the *agreement* between services: what endpoints
-exist, what requests/responses look like, what Kafka events carry. No application code.
+**Goal:** a working (ugly) web app: Vite + React + TypeScript, page shell with a login
+placeholder and a dashboard that shows "connected" state. First real frontend repo.
 
-**Why / production thinking:** 10 services can silently break each other unless the
-interface is pinned and versioned. Enterprises are **contract-first**: the API spec is
-written before the service, so frontend and backend are built in parallel against the
-same contract (OpenAPI, AsyncAPI/event registry, contract tests in CI later).
+**Why / production thinking:** the browser is where users interact; a frontend repo owns
+its UI, its own CI, its own deploy even though it talks to many backends. We scaffold
+frontend first so there is always something visible; the API comes Day 5.
 
 **Step 1 — You (manual, on GitHub):**
-- In org `Stock-Forge`, create an empty repo `stockforge-contracts` (no README,
-  no .gitignore, no license) — same flow as A.3 in the guide.
+- In org `Stock-Forge`, create empty repo `stockforge-web` (no README/.gitignore/license).
+- Make sure Node.js LTS is installed (`node --version` — Node v24 is installed on this machine).
 
 **Step 2 — AI session does:**
 1. Startup protocol (pull here, read context/state/prompts, reconcile).
-2. Create local folder `C:\CODE\HFT Application\stockforge-contracts` — its OWN git
-   repo (sibling to this one, never nested).
-3. Build:
-   - `contracts/openapi.yaml` — auth + orders + portfolio endpoints (from
-     PROJECT_CONTEXT.md §7 catalogue) with basic request/response schemas
-   - `contracts/events/` — the 7 Kafka events (OrderCreated, OrderAccepted,
-     OrderRejected, OrderExecuted, OrderCancelled, PositionUpdated,
-     MarketPriceUpdated) with producer/consumer/payload notes
-   - `README.md` explaining contract-first, layout, and versioning rules
-   - Explain every important section while writing.
-4. Commit + push to `Stock-Forge/stockforge-contracts` (message describes the change).
-5. **CENTRAL-STATE RULE:** update state HERE — `CURRENT_STATE.md` (mark Day 3 done,
-   move pointer to Day 4), `SESSION_PROMPTS.md` (add Session 3 entry),
-   `DAY_BY_DAY_GUIDE.md` (mark Day 3 done), `CHANGELOG.md` (add Day 3 line),
-   `PROJECT_CONTEXT.md` if architecture changed.
-6. Commit + push this repo. Verify BOTH pushes (`git status -sb` up to date).
+2. Create local folder `C:\CODE\HFT Application\stockforge-web` — its OWN git repo.
+3. Scaffold with Vite: `npm create vite@latest . -- --template react-ts`
+   - explain `package.json`, `tsconfig`, `index.html`, `src/` structure
+   - page shell: simple login placeholder + dashboard showing "API not connected yet"
+   - `npm run dev` works at `localhost:5173`
+4. Commit + push to `Stock-Forge/stockforge-web` (message describes the change).
+5. **CENTRAL-STATE RULE:** update state HERE — `CURRENT_STATE.md` (Day 4 done → pointer to
+   Day 5), `SESSION_PROMPTS.md` (Session 4 entry), `DAY_BY_DAY_GUIDE.md` (mark Day 4 done),
+   `CHANGELOG.md`, `PROJECT_CONTEXT.md` if changed.
+6. Commit + push this repo. Verify BOTH pushes.
 
-**Expected result:** `stockforge-contracts` on GitHub with `openapi.yaml`, `events/`
-(7 event files), and a README; this repo's state points at Day 4.
+**Expected result:** `stockforge-web` on GitHub with a runnable React+TS app; this repo's
+state points at Day 5.
 
-**Expected commit for this repo after closeout:** a new commit on `main` (current `cb9af31`).
+**Environment note:** Node.js v24.14.1 already installed on this machine.
 
 ---
 
 ## GIT STATUS (verify on the other device)
 
 ```
-git status        # clean
-git branch -a     # only main (local + origin/main)
-git log --oneline # 9 commits, HEAD = cb9af31
+git status        # clean in both repos
+git log --oneline # project-context → closeout commit; contracts → e1d65cb
 ```
 
 ---

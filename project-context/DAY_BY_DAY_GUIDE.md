@@ -219,9 +219,13 @@ difference later is branch protection + PRs instead of direct pushes.
 
 ---
 
-### Day 3 — `stockforge-contracts`: API & event contracts (NEXT SESSION)
+### Day 3 ✅ — `stockforge-contracts`: API & event contracts (DONE 2026-08-06)
 
 **Goal:** create the contracts repo with OpenAPI spec + Kafka event schema stubs.
+
+**Result:** repo `stockforge-contracts` created + pushed (`e1d65cb`) with
+`contracts/openapi.yaml` (10 paths, 14 schemas) and `contracts/events/` (7 events +
+INDEX). Contract-first rule documented in README.
 
 **What we build:** `stockforge-contracts` — the *agreement* between services:
 what endpoints exist, what requests/responses look like, what Kafka events carry.
@@ -242,6 +246,9 @@ the spec, commits, pushes.
 and `events/` with the 7 event definitions, plus a README explaining the layout.
 
 **Production lesson:** interfaces are contracts; change them with versioning, never silently.
+
+**Done note:** the `openapi.yaml` lesson — a `.yaml` file must be pure YAML, not Markdown
+wrapped in a ```yaml fence (the first version failed validation; rewritten as pure YAML).
 
 ---
 

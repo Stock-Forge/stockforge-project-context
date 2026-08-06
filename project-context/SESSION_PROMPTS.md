@@ -238,6 +238,31 @@ Git verification: committed (yes)  pushed (yes)  verified (yes)
 
 ---
 
+## Day 3 — `stockforge-contracts` contracts (2026-08-06)
+
+What was implemented:
+
+- Repo `stockforge-contracts` created (user made empty repo on GitHub) and pushed (`e1d65cb`).
+- `contracts/openapi.yaml` — OpenAPI 3.0.3, 10 paths (auth, market-data, orders, portfolio), 14 schemas, JWT bearer. Validated (pure YAML — first version wrapped in Markdown failed validation).
+- `contracts/events/` — 7 event contracts + INDEX (topics, partition keys, idempotency, failure handling).
+- README explaining contract-first + contract rules.
+
+What was learned:
+
+- A `.yaml` file must be pure YAML; Markdown fenced blocks are invalid in `.yaml`.
+- YAML validation: `python -c "import yaml; yaml.safe_load(open(...))"`.
+- Contract-first: interfaces pinned before code; version, don't break.
+
+Exact next task (Day 4):
+
+- **User:** create empty repo `stockforge-web`; Node v24 already installed.
+- **AI:** scaffold Vite React+TS app (login placeholder + dashboard), explain structure,
+  push, then update state HERE and push.
+
+Git verification: committed (yes, both repos)  pushed (yes)  verified (yes)
+
+---
+
 ## Day 3 — Upcoming: `stockforge-contracts` (next session pointer)
 
 Current state at the end of Day 2 / before Day 3 (see `CURRENT_STATE.md`):

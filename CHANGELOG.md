@@ -2,6 +2,11 @@
 
 All notable changes per project day. Format: date — Day N — summary.
 
+## 2026-08-06 — Day 3
+
+- `stockforge-contracts` repo created and pushed: OpenAPI v1.0.0 (10 paths, 14 schemas)
+  + 7 Kafka event contracts + README. Contract-first established.
+
 ## 2026-08-06 — Day 2
 
 - GitHub org `Stock-Forge` created (project/product name remains `StockForge`).
