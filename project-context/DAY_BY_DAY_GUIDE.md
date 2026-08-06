@@ -398,6 +398,9 @@ Rule of thumb: **we first build it locally and understand it, then we ask
 
 ## HOUSEKEEPING
 
+- **Commit messages describe the change, not the day.** Write what was actually done
+  (e.g. "Add OpenAPI spec for orders API"), not "Day 3". Day numbers only appear in
+  `CURRENT_STATE.md` / `SESSION_PROMPTS.md` / `CHANGELOG.md`.
 - **Never push without the day's state files updated** (CURRENT_STATE.md,
   SESSION_PROMPTS.md). The AI does this; you verify.
 - **If you see unexpected changes after `git pull`: STOP** and ask the AI to
