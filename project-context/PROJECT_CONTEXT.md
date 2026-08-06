@@ -4,17 +4,18 @@
 > A completely new AI must understand the whole project from this file.
 > Keep this file up to date. Never let it become stale.
 >
-> Status legend: `PLANNED` | `IMPLEMENTED` | `IN PROGRESS` | `DEPRECATED`
+> Status legend: `PLANNED` | `PROPOSED` | `IMPLEMENTED` | `IN PROGRESS` | `DEPRECATED`
+> `PROPOSED` = written in Phase 0, awaiting user approval.
 
 ---
 
 ## 1. Project Purpose
 
-Build **StockForge** — a production-style stock trading platform and engineering laboratory. The project is a long-term learning and engineering program for someone who is a Performance Engineer but relatively new to software development, backend/frontend, Git/GitHub, CI/CD, Jenkins, Docker, Kubernetes, cloud, IaC, and distributed systems.
+Build **StockForge** — a production-style stock trading platform and engineering laboratory. Long-term learning and engineering program for someone who is a Performance Engineer but relatively new to software development, backend/frontend, Git/GitHub, CI/CD, Jenkins, Docker, Kubernetes, cloud, IaC, and distributed systems.
 
 The project deliberately teaches **WHY** each technology exists, not just its commands.
 
-**Status:** `IMPLEMENTED` (context documented) / project itself `PLANNED`
+**Status:** `IMPLEMENTED` (context documented) / project itself `PROPOSED`
 
 ---
 
@@ -22,13 +23,47 @@ The project deliberately teaches **WHY** each technology exists, not just its co
 
 A complete production-grade stock trading platform, understood end-to-end (request/event/service/infrastructure lifecycle), automated delivery and performance validation through **both GitHub Actions and Jenkins**, deployed and operated on Kubernetes, with SLOs and observability, deliberate production-failure injection/resolution — then progressive evolution toward **high-throughput / low-latency HFT-style architecture**.
 
-**Status:** `PLANNED`
+**Status:** `PROPOSED`
 
 ---
 
 ## 3. Target Architecture
 
-### 3.1 Final evolution target
+### 3.1 System overview (Phase 2-25 end state)
+
+```
+                    ┌─────────────────────────────┐
+                    │   Browser  (stockforge-web) │
+                    └──────────────┬──────────────┘
+                                   │ REST + WebSocket
+                                   ▼
+                    ┌─────────────────────────────┐
+                    │  stockforge-api  (gateway)  │  auth integration, validation,
+                    └──────────────┬──────────────┘  rate limiting, correlation ID
+                                   │
+              ┌────────────────────┼───────────────────────┐
+              ▼                    ▼                       ▼
+   ┌────────────────┐   ┌────────────────┐      ┌────────────────────┐
+   │ stockforge-auth │   │ order-service  │      │ market-data (WS)   │
+   │  users/tokens   │   │  orders/state  │      │ price simulation    │
+   └────────────────┘   └───────┬────────┘      └──────────┬─────────┘
+              ┌─────────────────┼──────────────────────────┤
+              ▼                 ▼                          ▼
+   ┌────────────────┐   ┌────────────────┐      ┌────────────────────┐
+   │ risk-service   │◄──│ order-service  │      │ matching-engine     │
+   │ limits/checks  │   └───────┬────────┘      │ order book + match  │
+   └────────────────┘           │               └──────────┬─────────┘
+              ┌─────────────────┼──────────────────────────┤
+              ▼                 ▼                          ▼
+   ┌────────────────┐   ┌────────────────┐      ┌────────────────────┐
+   │  portfolio      │   │ notification   │      │  Kafka events       │
+   │ positions/P&L   │   │  WS pushes     │      │  (OrderExecuted,    │
+   └────────────────┘   └────────────────┘      │   PositionUpdated…)  │
+                                                └──────────┬─────────┘
+      PostgreSQL (per-service schemas) ◄─── Redis (cache/rate limit) ◄┘
+```
+
+### 3.2 Final evolution target
 
 ```
 STOCKFORGE
@@ -64,9 +99,7 @@ STOCKFORGE
          HFT Evolution Phase
 ```
 
-**Status:** `PLANNED`
-
-### 3.2 CI/CD architecture (two first-class systems)
+### 3.3 CI/CD architecture (two first-class systems)
 
 ```
 Developer → GitHub PR → GitHub Actions (lint/unit/integration/contract/security/build/container)
@@ -75,13 +108,35 @@ Developer → GitHub PR → GitHub Actions (lint/unit/integration/contract/secur
     → Kubernetes → Staging → Validation → Production
 ```
 
-**Status:** `PLANNED`
+**Status:** `PROPOSED`
 
 ---
 
-## 4. Repositories
+## 4. Repositories & Local Layout (ONE SERVICE = ONE FOLDER = ONE REPO)
 
 GitHub Organization: **StockForge**
+
+Local convention on both devices — every repo is an **independent folder with its own `.git`** and maps 1:1 to a GitHub repo in the org. Folders are created **on demand** when their phase starts.
+
+```
+C:\CODE\HFT Application\            (or any agreed root — must be identical on both devices)
+│
+├── stockforge-project-context\      ← EXISTS, separate git repo
+├── stockforge-web\                  ← separate git repo (Phase 2)
+├── stockforge-api\                  ← separate git repo (Phase 2)
+├── stockforge-auth\                 ← separate git repo (Phase 3)
+├── stockforge-order-service\        ← separate git repo (Phase 4)
+├── stockforge-risk-service\         ← separate git repo (Phase 5)
+├── stockforge-matching-engine\      ← separate git repo (Phase 6)
+├── stockforge-market-data\          ← separate git repo (Phase 7)
+├── stockforge-portfolio\            ← separate git repo (Phase 8)
+├── stockforge-notification\         ← separate git repo (Phase 8)
+├── stockforge-contracts\            ← separate git repo (Phase 1)
+├── stockforge-performance\          ← separate git repo (Phase 16)
+├── stockforge-infrastructure\       ← separate git repo (Phase 19/23)
+├── stockforge-deployment\           ← separate git repo (Phase 18/19)
+└── stockforge-shared-actions\       ← separate git repo (Phase 14)
+```
 
 | Repository | Responsibility | Status |
 |---|---|---|
@@ -101,159 +156,254 @@ GitHub Organization: **StockForge**
 | stockforge-deployment | K8s manifests, Helm charts, env config, version pinning per environment | `PLANNED` |
 | stockforge-shared-actions | Reusable CI/CD: test, build, security, container, performance, artifact, deployment | `PLANNED` |
 
-**Rule:** create repositories progressively, only when their phase requires them. Explain each before creating.
+**Rule:** create repos progressively, only when their phase requires them. Explain each before creating. Never nest a repo inside another repo's folder.
+
+**Status:** `PROPOSED`
 
 ---
 
-## 5. Services & Boundaries
+## 5. Proposed Technology Stack
 
-Identified service set per section 4 (`stockforge-web`, `stockforge-api`, `stockforge-auth`, `stockforge-order-service`, `stockforge-risk-service`, `stockforge-matching-engine`, `stockforge-market-data`, `stockforge-portfolio`, `stockforge-notification`).
+| Layer | Choice | Why | Alternative |
+|---|---|---|---|
+| Backend | **Java 21 LTS + Spring Boot 3.x + Maven** | Trading-industry standard; JVM gives us the HFT-relevant perf work later (GC, JFR, async-profiler, object pooling, lock contention). Huge ecosystem and docs. | Go (simpler goroutines, low alloc) — better only if we drop the JVM perf journey |
+| Frontend | **React 18 + TypeScript + Vite** | Huge ecosystem, realistic production stack; Vite is fast and simple to teach. | Vue, Svelte |
+| Realtime | **WebSocket** (browser-native) | Market data + notifications streaming. | SSE, polling |
+| Database | **PostgreSQL 16** | Relational core, teaches schema/indexes/transactions/isolation/locks/pools/migrations. | MySQL |
+| Cache | **Redis 7** | Caching, rate limiting, hot data, sessions; measurable perf win vs Postgres-only. | Memcached |
+| Messaging | **Apache Kafka 3.x** (KRaft, single node locally via Docker) | Events, ordering, partitions, consumer groups, lag, DLQ — core trading architecture. | Redpanda, RabbitMQ |
+| Container | **Docker + Docker Compose** | Local distributed execution (Phase 12-13). | Podman |
+| Kubernetes | **kind** locally → **EKS** later | Real K8s (Deployment/Service/Probes/HPA/Ingress) without cloud cost. | minikube, k3s |
+| CI/CD | **GitHub Actions** (PR/developer CI) + **Jenkins** (enterprise CI/CD: deploy, perf gates) | Both first-class; equivalent pipelines in both. | GitLab CI, CircleCI |
+| Perf testing | **k6** (primary) — **JMeter/Gatling** as alternatives | Scriptable, CI-friendly, good histograms; later compare with JVM-based tools. | Locust, vegeta |
+| Observability | **Prometheus + Grafana + OpenTelemetry**; **Loki** logs; **New Relic** later | Metrics/logs/traces + SLOs; industry standard, free to run locally. | Datadog (paid) |
+| IaC | **Terraform** + **Helm** | Cloud + K8s as code (Phase 19/23). | Pulumi, Ansible |
+| Perf analysis | **JFR/JMC**, async-profiler, GC logs, JVM flags | The Performance Engineer's native toolkit. | VisualVM, MAT |
 
-**Boundary decisions (initial rationale):**
-
-- Matching engine is deliberately separate and performance-critical (order book, price-time priority, matching, fills).
-- Risk service separated so order validation can be independently enforced and tested.
-- Contracts separate to prevent silent contract breakage between repos.
-- Performance repo separate because it tests the whole platform, not a service.
-- Deployment repo separate because it answers *"what version of every service is in every environment"*.
-
-Full service-boundary analysis is part of **Phase 0** and requires approval.
-
-**Status:** `PLANNED` (preliminary list, pending Phase 0 approval)
-
----
-
-## 6. APIs
-
-API catalogue, critical API traversals (e.g. `POST /orders` full path: Browser → LB → API → Auth → Validation → Order Service → Risk Service → Redis → PostgreSQL → Kafka → Matching Engine → Execution → Portfolio → Kafka → WebSocket → Browser), and user journeys (registration, login, market data, market/limit orders, cancel, partial/full execution, history, portfolio, positions, P&L, logout) are **Phase 0** deliverables.
-
-**Status:** `PLANNED`
+**Status:** `PROPOSED` (needs approval — especially backend language)
 
 ---
 
-## 7. Events (Kafka)
+## 6. Service Boundaries
 
-Target events: `OrderCreated`, `OrderAccepted`, `OrderRejected`, `OrderExecuted`, `OrderCancelled`, `PositionUpdated`, `MarketPriceUpdated`.
+Identified service set (see §4). **Start-small principle (§42 of master prompt):** do not build all at once. Order and split rationale:
 
-For each event document: producer, topic, partitioning considerations, consumer, downstream effects, failure handling.
+| Service | Why it exists | Why separate | Production equivalent |
+|---|---|---|---|
+| web | UI | Teams/roles differ; deploys independently | Trading frontend |
+| api | One client-facing entry; routing/validation/rate-limit/correlation | Stable external contract; hides internals | BFF / API gateway |
+| auth | Credentials + tokens | Security isolation; zero-trust zone | IAM / auth service |
+| order-service | Order lifecycle & state | Core domain; own DB tables | Order management system |
+| risk-service | Limits, margin, position checks | Independent enforcement & testing | Risk engine |
+| matching-engine | Order book + matching | Performance-critical; isolated tuning | Matching engine (exchange) |
+| market-data | Price simulation + fanout | High-volume streaming | Market data feed |
+| portfolio | Positions, P&L, history | Own domain; reporting | P&L/positions service |
+| notification | Order/execution/system pushes | Async; independent scaling | Notification service |
 
-**Status:** `PLANNED`
+**Not decided yet (defer to avoid overengineering):** whether notification starts as a thin service inside api and splits later; whether portfolio/risk share a DB initially. Final call is part of approval.
+
+**Status:** `PROPOSED`
 
 ---
 
-## 8. Data Layer
+## 7. API Catalogue & Critical Traversals
 
-- **PostgreSQL:** schema, indexes, transactions, isolation, locks, connection pools, migrations, query optimization. Intentional failure reproduction (slow query, missing index, pool exhaustion, lock contention, deadlock, long tx) — measure before fixing.
-- **Redis:** caching, rate limiting, hot data, sessions; measure PostgreSQL-only vs PostgreSQL+Redis.
+### 7.1 Catalogue (initial)
 
-**Status:** `PLANNED`
+| Method | Path | Service | Notes |
+|---|---|---|---|
+| POST | /api/auth/register | auth | create user |
+| POST | /api/auth/login | auth | returns token |
+| POST | /api/auth/logout | auth | invalidate token |
+| GET | /api/marketdata/{symbol} | market-data | last price, depth |
+| GET | /ws/marketdata | market-data | streaming prices |
+| POST | /api/orders | order-service | market / limit |
+| GET | /api/orders | order-service | list |
+| GET | /api/orders/{id} | order-service | detail + status |
+| DELETE | /api/orders/{id} | order-service | cancel |
+| GET | /api/portfolio | portfolio | balances |
+| GET | /api/portfolio/positions | portfolio | holdings |
+| GET | /api/portfolio/pl | portfolio | P&L |
+| GET | /api/orders/history | order-service | history |
+| GET | /ws/notifications | notification | live pushes |
+
+### 7.2 Critical traversal — POST /api/orders (full path, documented in every session)
+
+```
+Browser
+ ↓ REST (Bearer token, correlation ID)
+api  → auth check → validate payload → rate limit (Redis)
+ ↓  → order-service (create order, status ACCEPTED)
+        → risk-service (balance/limit checks → PASS/REJECT)
+        → order-service → publish OrderAccepted / OrderRejected (Kafka)
+        → matching-engine (match against order book)
+             → fills (partial/full) → publish OrderExecuted (Kafka)
+        → portfolio (positions/P&L update → PositionUpdated)
+        → notification (WS push to browser)
+        → api → HTTP response (OrderAccepted with id)
+```
+
+Document for every traversal: request, auth, validation, service calls, DB calls, cache calls, events, response, latency contributors, timeout/retry/failure, idempotency, logging, metrics, tracing.
+
+**Status:** `PROPOSED`
 
 ---
 
-## 9. Docker & Kubernetes
+## 8. Events (Kafka)
 
-- **Docker:** Dockerfiles (explained line-by-line), images, layers, networking, volumes, env vars, health checks, resource limits. Docker Compose for local distributed execution.
+| Event | Producer | Consumers | Purpose |
+|---|---|---|---|
+| OrderCreated | order-service | matching-engine, notification | order entered |
+| OrderAccepted | order-service | notification | validation passed |
+| OrderRejected | order-service (or risk-service) | notification, api | risk/validation failure |
+| OrderExecuted | matching-engine | portfolio, notification, order-service | fill(s) happened |
+| OrderCancelled | order-service | matching-engine, notification | order cancelled |
+| PositionUpdated | portfolio | notification, api | positions changed |
+| MarketPriceUpdated | market-data | matching-engine, api | price tick (high volume) |
+
+Per event document: producer, topic, partitioning key, consumer group, ordering needs, failure handling (retries, idempotency, DLQ).
+
+**Status:** `PROPOSED`
+
+---
+
+## 9. Data Layer
+
+### 9.1 PostgreSQL — initial schema areas (per service, own tables)
+
+- auth: `users`, `sessions`/tokens
+- order-service: `orders` (id, symbol, side, type, price, qty, status, filledQty, timestamps)
+- portfolio: `balances`, `positions`, `executions`
+- risk-service: `limits`, `risk_rules`
+- market-data: `instruments`, recent prices (avoid hot-write; WS streams most)
+
+Teach: schema, indexes, transactions, isolation, locks, connection pools, migrations (Flyway/Liquibase), query optimization. Intentionally reproduce: slow query, missing index, pool exhaustion, lock contention, deadlock, long transaction — **measure before fixing**.
+
+**Initial stance:** one PostgreSQL instance, one database per service (or schema separation) locally; split to separate instances when Kafka/K8s arrives. Decide in Phase 9.
+
+### 9.2 Redis — uses
+
+Caching (instruments, hot market data), rate limiting, session/token store, hot data. Compare **PostgreSQL-only vs PostgreSQL+Redis** with measurements.
+
+**Status:** `PROPOSED`
+
+---
+
+## 10. Docker & Kubernetes
+
+- **Docker:** Dockerfiles (explained line-by-line), images, layers, networking, volumes, env vars, health checks, resource limits. Compose for local distributed execution.
 - **Kubernetes:** Pod, Deployment, Service, ConfigMap, Secret, Ingress, readiness/liveness probes, resource requests/limits, HPA, rolling deployments. Intentional failures: CrashLoopBackOff, failed readiness, bad config, resource exhaustion, failed deployment.
 
-**Status:** `PLANNED`
+**Status:** `PROPOSED`
 
 ---
 
-## 10. CI/CD
+## 11. CI/CD
 
-- **GitHub Actions:** PR checks, repository-native CI, reusable workflows, artifacts, secrets, environments, branch protection, required checks.
-- **Jenkins (first-class):** controller/agents, Jenkinsfile, pipeline stages, credentials, shared libraries, scheduled/parameterized jobs, distributed execution, enterprise integration, performance test orchestration.
-- **Service CI:** per-repo lint → unit → integration → contract → build → security → Docker image.
-- **System CI:** deploy test env → integration → E2E → performance validation → PASS/FAIL.
-- **Performance CI/CD:** deploy → perf smoke → metrics → baseline compare → gate → PASS/FAIL.
-- **Test frequency:** every commit (fast), PR (functional + light perf), main (build + integration), nightly (load/stress/soak/capacity), pre-prod (full validation).
+### 11.1 Division of labor (decision, §12 of master prompt)
 
-**Status:** `PLANNED`
+- **GitHub Actions (Developer CI):** lint, unit, integration, contract, security scan, build, container image — on PRs and push. Repository-native, fast feedback.
+- **Jenkins (Enterprise CI/CD):** deploy to test environment, system integration/E2E, performance smoke, load tests, baseline comparison, performance gates, promotion. Why: matches how enterprises separate developer CI from release/quality engineering, and gives us agent architecture, pipelines, credentials, shared libraries, scheduled/parameterized jobs.
+
+### 11.2 Test frequency
+
+- Every commit: fast tests
+- PR: functional + lightweight perf checks
+- Merge to main: build + integration
+- Nightly/scheduled: load, stress, soak, capacity
+- Before production: full production-like validation
+
+### 11.3 Pipeline shapes
+
+- Service CI: commit → lint → unit → integration → contract → build → security → image
+- System CI: deploy test env → integration → E2E → perf validation → PASS/FAIL
+- Performance CI: deploy → perf smoke → metrics → baseline compare → gate → PASS/FAIL
+
+**Status:** `PROPOSED`
 
 ---
 
-## 11. Performance Strategy
+## 12. Performance Strategy
 
 - Baselines, thresholds, reports, regression logic in `stockforge-performance`.
-- Perf gates with tolerance to avoid false failures.
-- Metrics tracked: orders/sec, matches/sec, p50/p95/p99, order-to-execution latency, market-data delivery latency, CPU, memory.
-- Connect: application → instrumentation → metrics/logs/traces → performance test → CI/CD → SLO → production monitoring.
+- Perf gates with tolerance (no false failures). Example: baseline Order API p95 = 150 ms → new p95 = 580 ms = FAIL.
+- Metrics: orders/sec, matches/sec, p50/p95/p99, order-to-execution latency, market-data delivery latency, CPU, memory.
+- Connect: application → instrumentation → metrics/logs/traces → perf test → CI/CD → SLO → production monitoring.
+- HFT evolution: every optimization = baseline → hypothesis → change → measurement → result → conclusion.
 
-**Status:** `PLANNED`
+**Status:** `PROPOSED`
 
 ---
 
-## 12. Observability & SLOs
+## 13. Observability & SLOs
 
-- Observability: structured logs, metrics, traces, correlation/request/trace IDs; New Relic or equivalent later.
-- SLO/SLI: availability, latency, error rate, throughput, order-to-execution latency, market-data delivery latency. SLI/SLO/SLA/error-budget concepts.
+- Structured logs, metrics, traces; correlation/request/trace IDs; New Relic or equivalent later; Prometheus/Grafana/OTel locally.
+- SLO/SLI candidates: availability, latency (API p95), error rate, throughput, order-to-execution latency, market-data delivery latency. Concepts: SLI, SLO, SLA, error budget.
 - Rule: measure baseline first; never invent arbitrary targets.
 
-**Status:** `PLANNED`
+**Status:** `PROPOSED`
 
 ---
 
-## 13. Security
+## 14. Security
 
-Progressive: password hashing, auth/authz, secrets, HTTPS, input validation, rate limiting, dependency/container scanning, least privilege, audit logging, secure CI/CD.
+Progressive: password hashing (bcrypt/argon2), auth/authz (JWT + roles), secrets, HTTPS, input validation, rate limiting, dependency/container scanning, least privilege, audit logging, secure CI/CD.
 
-**Status:** `PLANNED`
+**Status:** `PROPOSED`
 
 ---
 
-## 14. Infrastructure & Environments
+## 15. Infrastructure & Environments
 
-- Progression: local app → Docker → Docker Compose → local K8s → AWS (VPC, EKS, RDS, Redis, Kafka, ALB, ECR, monitoring).
-- Environments: development / staging / production with pinned image versions.
+- Progression: local app → Docker → Compose → kind → AWS (VPC, EKS, RDS, Redis, Kafka, ALB, ECR, monitoring).
+- Environments: development / staging / production with pinned image versions (in `stockforge-deployment`).
 - Production patterns: rolling, canary, blue-green.
 
-**Status:** `PLANNED`
+**Status:** `PROPOSED`
 
 ---
 
-## 15. Incident Engineering
+## 16. Incident Engineering
 
 Intentional incidents: DB slowdown, connection exhaustion, Redis failure, Kafka lag, CPU saturation, memory leak, latency spike, service crash, bad deployment, config error, performance regression. Each documented: Symptoms → Detection → Investigation → Root cause → Mitigation → Recovery → Permanent fix → Prevention.
 
-**Status:** `PLANNED`
+**Status:** `PROPOSED`
 
 ---
 
-## 16. HFT Evolution (Phase 2)
+## 17. HFT Evolution (Phase 2)
 
 Evolve toward: high throughput, low latency, order-book optimization, concurrency, lock contention, memory allocation, GC, object pooling, CPU affinity, thread models, lock-free structures, serialization, binary protocols, high-performance messaging, market-data fanout, deterministic processing, latency histograms, ns/µs measurement, hardware-aware testing, NUMA.
 
-Every optimization: baseline → hypothesis → change → measurement → result → conclusion.
+**Explicit position:** initial microservice architecture is NOT a real exchange-grade HFT system; we progressively explain why HFT architecture looks different. Every change measured (baseline → hypothesis → change → measurement → result → conclusion).
 
-**Explicit position:** the initial microservice architecture is NOT a real exchange-grade HFT system; we progressively explain why HFT architecture looks different.
-
-**Status:** `PLANNED`
+**Status:** `PROPOSED`
 
 ---
 
-## 17. Development Phases
+## 18. Development Phases & Repository Creation Order
 
 ```
-Phase 0    Architecture and planning          <- CURRENT
-Phase 1    Git/GitHub organization and repository foundation
-Phase 2    Basic application and UI
-Phase 3    Authentication
-Phase 4    Order management
-Phase 5    Risk management
-Phase 6    Matching engine
-Phase 7    Market data
-Phase 8    Portfolio/P&L
+Phase 0    Architecture and planning            <- CURRENT (this doc, awaiting approval)
+Phase 1    Git/GitHub org + repo foundation     -> stockforge-project-context (DONE), contracts
+Phase 2    Basic application and UI             -> web, api
+Phase 3    Authentication                       -> auth
+Phase 4    Order management                     -> order-service
+Phase 5    Risk management                      -> risk-service
+Phase 6    Matching engine                      -> matching-engine
+Phase 7    Market data                          -> market-data
+Phase 8    Portfolio/P&L + notifications        -> portfolio, notification
 Phase 9    Database optimization
 Phase 10   Redis
 Phase 11   Kafka/event-driven architecture
 Phase 12   Docker
 Phase 13   Docker Compose
-Phase 14   CI with GitHub Actions
+Phase 14   CI with GitHub Actions               -> shared-actions
 Phase 15   Jenkins
-Phase 16   Performance testing
+Phase 16   Performance testing                  -> performance
 Phase 17   Performance regression gates
-Phase 18   Kubernetes
-Phase 19   Deployment automation
+Phase 18   Kubernetes                           -> deployment
+Phase 19   Deployment automation                -> infrastructure
 Phase 20   Observability
 Phase 21   SLO/SRE
 Phase 22   Security hardening
@@ -263,11 +413,29 @@ Phase 25   Production rollout simulation
 Phase 26   HFT evolution
 ```
 
+Repo creation order (progressive, each with explanation before creation):
+
+1. `stockforge-project-context` ✅ (exists)
+2. `stockforge-contracts` (Phase 1 — contracts/schemas first so services don't break each other)
+3. `stockforge-web` + `stockforge-api` (Phase 2)
+4. `stockforge-auth` (Phase 3)
+5. `stockforge-order-service` (Phase 4)
+6. `stockforge-risk-service` (Phase 5)
+7. `stockforge-matching-engine` (Phase 6)
+8. `stockforge-market-data` (Phase 7)
+9. `stockforge-portfolio` + `stockforge-notification` (Phase 8)
+10. `stockforge-shared-actions` (Phase 14)
+11. `stockforge-deployment` (Phase 18)
+12. `stockforge-infrastructure` (Phase 19/23)
+13. `stockforge-performance` (Phase 16 — can start earlier if desired)
+
+**Status:** `PROPOSED`
+
 ---
 
-## 18. Two-Device Git Workflow
+## 19. Two-Device Git Workflow
 
-- GitHub is the source of truth. Session continuity lives in this repo, not in AI memory.
+- GitHub is the source of truth. Session continuity lives in this repo, not AI memory.
 - Before work: `git pull`, inspect `git status` / `git branch` / `git log -5`.
 - End of day: stop clean → tests → update README/state/prompts → review diff → commit → push → verify.
 - Conflicts/unexpected changes: STOP, explain, never destructive.
@@ -277,17 +445,60 @@ Phase 26   HFT evolution
 
 ---
 
-## 19. Architecture Decision Records
+## 20. Risks & Trade-offs
 
-Stored in `project-context/adr/`. One file per decision: Context, Decision, Alternatives, Consequences.
+| Risk | Mitigation |
+|---|---|
+| Scope too broad for a beginner | 30-min units, progressive phases, one technology per phase |
+| JVM/Spring complexity early | Start minimal; teach incrementally; thin services first |
+| Ten microservices = overengineering | Start-small principle; split only with reason (§42) |
+| Two-device merge conflicts | Pull-first discipline; one active device at a time; small commits |
+| Performance-gate flakiness | Tolerances + baseline management; never false-fail |
+| Simulator ≠ HFT confusion | Explicit framing: V1 is production-style, HFT evolution is later, measured |
+| Skill gap in testing | Teach testing alongside each service; no skips |
+| GitHub org/repo naming collisions | Verify `StockForge` availability first; fallback name agreed |
 
-Planned ADRs (create as decisions are made): PostgreSQL, Redis, Kafka, service boundaries, separate repos, deployment repo, Jenkins, GitHub Actions, Kubernetes, performance repo, HFT changes, GitHub Actions + Jenkins division.
-
-**Status:** none yet (created on first decision)
+**Status:** `PROPOSED`
 
 ---
 
-## 20. Key Rules
+## 21. 30-Minute Learning Roadmap (first ~10 days)
+
+```
+Day 0  ✅ Project-context foundation (this repo)              [done]
+Day 1  ✅ Phase 0 architecture proposal (this file)           [done — awaiting approval]
+Day 2    GitHub org + repos + git workflow practice (push this repo, clone on device B)
+Day 3    stockforge-contracts — OpenAPI + contract thinking
+Day 4    stockforge-web scaffold (Vite + React + TS) + Day 4 README
+Day 5    stockforge-api scaffold (Spring Boot, health, logs)
+Day 6    auth — register/login (bcrypt + JWT) Part 1
+Day 7    auth — authz + roles Part 2
+Day 8    order-service — create/list/cancel orders (in-memory first)
+Day 9    order-service + risk checks (mock risk)
+Day 10   PostgreSQL — schema, migrations, index lesson
+```
+
+Longer roadmap continues through Phases 2-26 (see §18). Review and adjust after Phase 1 feedback.
+
+**Status:** `PROPOSED`
+
+---
+
+## 22. Architecture Decision Records
+
+Stored in `project-context/adr/`. One file per decision: Context, Decision, Alternatives, Consequences.
+
+| ADR | Topic | Status |
+|---|---|---|
+| 0001 | GitHub org + one-folder-one-repo-per-service layout + two-device workflow | `PROPOSED` |
+| 0002 | Technology stack (Java 21 / Spring Boot / React / PostgreSQL / Redis / Kafka / k6 / Prometheus…) | `PROPOSED` |
+| … | PostgreSQL, Redis, Kafka, service boundaries, deployment repo, Jenkins, GitHub Actions, Kubernetes, performance repo, HFT changes | `PLANNED` (create when decided) |
+
+**Status:** `PROPOSED`
+
+---
+
+## 23. Key Rules
 
 - Do NOT overengineer; smallest architecture that teaches the concept; split with a reason.
 - Teach before automating; explain every important line of generated artifacts.
@@ -295,12 +506,12 @@ Planned ADRs (create as decisions are made): PostgreSQL, Redis, Kafka, service b
 - Production realism: Local vs Production vs Difference for every feature.
 - Never document something as implemented when it is not.
 - GitHub Actions + Jenkins both first-class; create equivalent pipelines in both.
-- Phase 0 architecture must be approved before implementation begins.
+- **Phase 0 architecture must be approved before implementation begins.**
 
 ---
 
-## 21. README
+## 24. README
 
-Every repository must have a README (how to run, architecture, APIs, dependencies, tests, Docker, CI/CD, limitations). This repository's README lives at `stockforge-project-context/README.md`.
+Every repository must have a README (how to run, architecture, APIs, dependencies, tests, Docker, CI/CD, limitations). This repo's README: `stockforge-project-context/README.md`.
 
-**Status:** `PLANNED` (create with repo foundation)
+**Status:** `IMPLEMENTED`

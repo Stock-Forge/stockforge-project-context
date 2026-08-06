@@ -152,3 +152,26 @@ Exact next task:
 - Produce Phase 0 architecture deliverable (Master Prompt §46) into `PROJECT_CONTEXT.md`, then **WAIT FOR APPROVAL**.
 
 Git verification: committed (yes)  pushed (no — no remote yet)  verified (no)
+
+---
+
+## Day 1 — Phase 0 Architecture Proposal (2026-08-06)
+
+What was implemented:
+
+- Wrote the full **Phase 0 architecture proposal** into `PROJECT_CONTEXT.md` (all sections marked `PROPOSED`): target architecture, repo layout (**one service = one folder = one repo**), proposed tech stack, service boundaries, API catalogue + critical traversal, event catalogue, data layer, CI/CD division (GitHub Actions + Jenkins), performance strategy, observability/SLO, security, infrastructure, incident engineering, HFT evolution, phases + repo creation order, 30-day roadmap, risks, ADR index.
+- Created `adr/0001-github-org-and-repo-layout.md` and `adr/0002-technology-stack.md`.
+
+What was learned:
+
+- Architecture must be approved before implementation (Master Prompt §46).
+- Backend language is the key approval point (Java 21 vs Go).
+
+Exact next task:
+
+- **Get user approval** of the Phase 0 proposal (especially backend language).
+- Set up GitHub org + remote + push (`git remote add origin … ; git push -u origin main`).
+- Clone on device B; practice the two-device workflow.
+- Then begin Phase 1 repo foundation.
+
+Git verification: committed (yes)  pushed (no — no remote yet)  verified (no)
