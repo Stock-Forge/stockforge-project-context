@@ -10,64 +10,68 @@
 | Field | Value |
 |---|---|
 | Date | 2026-08-06 |
-| Phase | Phase 0 — Architecture and planning |
-| Day | Day 1 (complete) — approved |
+| Phase | Phase 1 — Git/GitHub organization and repository foundation |
+| Day | Day 2 (complete) |
 | Current repository | stockforge-project-context |
 | Current branch | main |
-| Current commit | See `git log -1` / `git rev-parse HEAD` |
+| Current commit | `89d4b4f` (pushed to `origin/main`) |
 
 ---
 
-## What Day 1 completed
+## What Day 2 completed
 
-- **Phase 0 architecture** written into `project-context/PROJECT_CONTEXT.md` and **APPROVED by the user on 2026-08-06** (including backend language Java 21 + Spring Boot).
-- ADRs `0001` (org + repo layout + two-device workflow) and `0002` (technology stack) — **ACCEPTED**.
-- Created `project-context/DAY_BY_DAY_GUIDE.md` — manual companion: GitHub setup steps, folder structure (one service = one folder = one repo), and the day-by-day plan with production thinking.
-- Updated `PROJECT_CONTEXT.md` statuses, `CURRENT_STATE.md`, `SESSION_PROMPTS.md`.
+- **GitHub org created:** `Stock-Forge` (https://github.com/Stock-Forge) — hyphenated; project/product name stays `StockForge`.
+- **Repo created + pushed:** `stockforge-project-context` (empty on GitHub, no README), remote `origin` added, `main` pushed and tracked (`git remote -v` shows origin; `git push -u origin main` done).
+- Docs updated to actual org name `Stock-Forge` (PROJECT_CONTEXT.md, DAY_BY_DAY_GUIDE.md, ADR 0001, CURRENT_STATE, SESSION_PROMPTS).
+- **30-minute roadmap expanded** to Day 39+ in PROJECT_CONTEXT.md §21 (added Days 11-39: risk, matching, market-data, portfolio, notification, integration, DB/Redis/Kafka labs, Docker, GitHub Actions, Jenkins, perf gates, Kubernetes, observability, security, cloud, incidents, rollout, HFT).
+- **Git workflow practiced (real):** `git switch -c feature/changelog` → add/commit → `git push -u origin <branch>` → switch to main → merge (fast-forward) → push → delete local + remote branch.
+- Created `CHANGELOG.md` (project milestone log).
 
 ## What is deliberately NOT done
 
-- No application code (Master Prompt §46 satisfied — approval obtained, implementation starts in Phase 1).
-- No GitHub org/repositories created yet (user does this manually per the guide).
+- **Device B clone + round-trip not yet exercised** — user needs to run on the other machine:
+  ```
+  cd C:\CODE
+  git clone https://github.com/Stock-Forge/stockforge-project-context.git
+  cd stockforge-project-context
+  git log --oneline
+  ```
+- No application code (starts Day 3/4 with contracts + web/api).
+- Branch protection + PR workflow not enabled (planned for Phase 14 / GitHub Actions).
 
 ## Incomplete work
 
 ```
 INCOMPLETE
-Reason: GitHub org/repo setup is manual and owned by the user (per DAY_BY_DAY_GUIDE Phase A).
-Current state: Architecture approved; guide ready.
+Reason: Two-device round-trip requires physical action on Device B (user-owned).
+Current state: main pushed; workflow practiced on Device A.
 What remains:
-  - Create GitHub org "StockForge" (fallback "StockForge-Trading")
-  - Create repo stockforge-project-context (empty, no README) and push local commits
-  - Clone on Device B
-Next action: See "Next 30-minute task (Day 2)" below.
+  - Clone on Device B and verify `git log` matches (b9e8cb3, ce26346, 793309a, 657fb05, 89d4b4f)
+  - Optional: repeat a branch round-trip from Device B to prove pull/merge
+Next action: See "Next 30-minute task (Day 3)" below.
 ```
 
 ## Git status
 
-Working tree should be clean after this commit. Verify on the other device:
-
 ```
-git pull
-git status
-git branch
-git log -5
+git status        # clean
+git branch -a     # only main (local + origin/main)
+git log --oneline # b9e8cb3 → ce26346 → 793309a → 657fb05 → 89d4b4f
 ```
 
-## Next 30-minute task (Day 2)
+## Next 30-minute task (Day 3)
 
-Follow `DAY_BY_DAY_GUIDE.md` → **Day 2** and **Phase A**.
+**stockforge-contracts — API & event contracts (Phase 1 foundation).**
 
-1. **You (manual):** create GitHub org + repo per the guide, then:
-   ```
-   git remote add origin https://github.com/Stock-Forge/stockforge-project-context.git
-   git push -u origin main
-   ```
-   On Device B: `git clone https://github.com/Stock-Forge/stockforge-project-context.git`.
-2. **AI session:** startup protocol → confirm repo synced on both devices → update 30-minute roadmap → practice clone/branch/commit/push/pull → update state files → commit → push.
+1. **You (manual):** on GitHub create empty repo `stockforge-contracts` (no README) in org `Stock-Forge`.
+2. AI session:
+   - startup protocol (git pull, read context/state/prompts)
+   - create local folder `stockforge-contracts` (own git repo, sibling to this one)
+   - `contracts/openapi.yaml` (auth + orders + portfolio endpoints) + `contracts/events/*` (7 Kafka events) + README explaining contract-first
+   - commit + push to `Stock-Forge/stockforge-contracts`
+   - update this repo's state/prompts + CHANGELOG, commit + push
 
 ## Next 30-minute plan
 
-1. GitHub org + repo + remote + push (you, per guide Phase A).
-2. Device B clone + two-device round-trip practice (AI assists).
-3. Begin Phase 1 foundation (stockforge-contracts) if time remains — otherwise Day 3.
+1. Device B clone verification (user).
+2. Day 3: stockforge-contracts (see above).

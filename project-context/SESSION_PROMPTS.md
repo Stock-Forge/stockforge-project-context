@@ -181,6 +181,32 @@ Git verification: committed (yes)  pushed (no — no remote yet)  verified (no)
 
 ---
 
+## Day 2 — GitHub org + repo foundation + git workflow (2026-08-06)
+
+What was implemented:
+
+- GitHub org **`Stock-Forge`** created (hyphenated; product name stays `StockForge`).
+- Repo `stockforge-project-context` created (empty), remote `origin` added, `main` pushed + tracking set (`git push -u origin main`).
+- Docs updated to `Stock-Forge` URLs.
+- 30-minute roadmap expanded to Day 39+ (PROJECT_CONTEXT.md §21).
+- Git workflow practiced: branch → commit → push -u → merge (fast-forward) → push → delete local+remote branch.
+- `CHANGELOG.md` created with Day 0-2 entries.
+- Commit `89d4b4f` on `origin/main`.
+
+What was learned:
+
+- Push output on PowerShell shows as "git :" red text — that is stderr formatting, not an error; verify with `git status -sb` and `git ls-remote --heads origin`.
+- Feature branches merge cleanly when main hasn't moved (fast-forward).
+
+Exact next task (Day 3):
+
+- **User:** create empty repo `stockforge-contracts` in `Stock-Forge`.
+- **AI:** create local `stockforge-contracts` (own repo), OpenAPI spec + 7 event schemas + README, push; update state + CHANGELOG here, push.
+
+Git verification: committed (yes)  pushed (yes)  verified (yes)
+
+---
+
 ## Day 1.5 — Architecture Approval + Day-by-Day Guide (2026-08-06)
 
 What was implemented:

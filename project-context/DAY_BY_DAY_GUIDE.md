@@ -183,7 +183,7 @@ Legend for "Production": what real companies do for this exact thing.
 
 ---
 
-### Day 2 — GitHub org + repo foundation + Git practice (YOUR NEXT SESSION)
+### Day 2 ✅ — GitHub org + repo foundation + Git practice (DONE 2026-08-06)
 
 **Goal:** GitHub org created, repo pushed, second device cloned, workflow proven.
 
@@ -192,17 +192,26 @@ recoverable from GitHub.
 
 **You do (manual):** all of Phase A if not already done (org, repo, push, clone on B).
 
-**AI session will:**
-1. Re-read context/state (startup protocol).
-2. Update the 30-minute roadmap based on approval.
-3. Help you practice: clone, branch, commit, push, pull on both devices.
-4. Update README + state + commit + push.
+- ✅ Org `Stock-Forge` created (hyphenated; product name stays `StockForge`).
+- ✅ Repo `stockforge-project-context` created, `main` pushed + tracked.
+- ✅ Git round-trip practiced on Device A (branch → commit → push → merge → delete branch).
+- ⏳ **Still to do — Device B clone:**
+  ```
+  cd C:\CODE
+  git clone https://github.com/Stock-Forge/stockforge-project-context.git
+  cd stockforge-project-context
+  git log --oneline   # expect: 89d4b4f ... b9e8cb3
+  ```
+
+**AI session did:** startup protocol; updated docs to `Stock-Forge`; expanded the
+30-minute roadmap to Day 39+; practiced the branch workflow; created `CHANGELOG.md`;
+updated state; committed (`89d4b4f`); pushed; verified.
 
 **Expected result:** `git log` on both devices shows the same commits; a new branch
 round-trip works.
 
-**Production lesson:** Git is the single source of truth; the workflow *you* practice
-here (pull → work → PR → merge) is the same workflow engineers use daily. The only
+**Production lesson:** Git is the single source of truth; the workflow you practiced
+here (pull → work → commit → push) is the same workflow engineers use daily. The only
 difference later is branch protection + PRs instead of direct pushes.
 
 ---
