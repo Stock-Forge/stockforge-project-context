@@ -2,6 +2,7 @@
 
 > Current progress state. Updated after every meaningful session.
 > Read this first (after PROJECT_CONTEXT.md) when starting a new AI session.
+> This file always shows: where we are (day by day) + the prompt to begin the next day.
 
 ---
 
@@ -11,81 +12,126 @@
 |---|---|
 | Date | 2026-08-06 |
 | Phase | Phase 1 — Git/GitHub organization and repository foundation |
-| Day | Day 2 (complete) |
-| Current repository | stockforge-project-context |
+| Day | **Day 3 — starting (contracts)** |
+| Status | Previous day complete and pushed; next day ready to start |
+| Current repository | stockforge-project-context (state repo) — Day 3 work repo: `stockforge-contracts` |
 | Current branch | main |
-| Current commit | `89d4b4f` (pushed to `origin/main`) |
+| Current commit | `cb9af31` (pushed to `origin/main`) |
 
 ---
 
-## What Day 2 completed
+## WHERE WE ARE (day by day)
 
-- **GitHub org created:** `Stock-Forge` (https://github.com/Stock-Forge) — hyphenated; project/product name stays `StockForge`.
-- **Repo created + pushed:** `stockforge-project-context` (empty on GitHub, no README), remote `origin` added, `main` pushed and tracked (`git remote -v` shows origin; `git push -u origin main` done).
-- Docs updated to actual org name `Stock-Forge` (PROJECT_CONTEXT.md, DAY_BY_DAY_GUIDE.md, ADR 0001, CURRENT_STATE, SESSION_PROMPTS).
-- **30-minute roadmap expanded** to Day 39+ in PROJECT_CONTEXT.md §21 (added Days 11-39: risk, matching, market-data, portfolio, notification, integration, DB/Redis/Kafka labs, Docker, GitHub Actions, Jenkins, perf gates, Kubernetes, observability, security, cloud, incidents, rollout, HFT).
-- **Git workflow practiced (real):** `git switch -c feature/changelog` → add/commit → `git push -u origin <branch>` → switch to main → merge (fast-forward) → push → delete local + remote branch.
-- Created `CHANGELOG.md` (project milestone log).
+| Day | Topic | Status |
+|---|---|---|
+| 0 | Project foundation (master prompt + context files) | ✅ done |
+| 1 | Phase 0 architecture proposal | ✅ done |
+| 1.5 | Architecture approved + day-by-day guide | ✅ done |
+| 2 | GitHub org `Stock-Forge` + repo created + pushed + git round-trip practiced | ✅ done |
+| 3 | `stockforge-contracts` — API & event contracts | ⏭️ **NEXT** |
+| 4 | `stockforge-web` — React trading UI scaffold | planned |
+| 5 | `stockforge-api` — Spring Boot gateway scaffold | planned |
+| 6-7 | `stockforge-auth` — register/login (bcrypt + JWT), roles | planned |
+| 8-9 | `stockforge-order-service` — order lifecycle (in-memory), risk mock | planned |
+| 10+ | PostgreSQL → risk → matching → market-data → portfolio → notification → integration → … → HFT (roadmap §21) | planned |
+
+---
+
+## What the previous session (Day 2) completed
+
+- GitHub org **`Stock-Forge`** created (hyphenated; product name stays `StockForge`).
+- Repo `stockforge-project-context` created on GitHub, remote `origin` added, `main` pushed + tracking set.
+- Docs updated to actual org name; 30-minute roadmap expanded to Day 39+ (`PROJECT_CONTEXT.md` §21).
+- Git round-trip practiced: branch → commit → push -u → merge → push → delete branch.
+- `CHANGELOG.md` created. Commit `cb9af31` on `origin/main` (working tree clean).
 
 ## What is deliberately NOT done
 
-- **Device B clone + round-trip not yet exercised** — user needs to run on the other machine:
+- **Device B clone + round-trip not yet exercised** — user action on the other machine:
   ```
   cd C:\CODE
   git clone https://github.com/Stock-Forge/stockforge-project-context.git
   cd stockforge-project-context
-  git log --oneline
+  git log --oneline      # expect 9 commits ending in cb9af31
   ```
-- No application code (starts Day 3/4 with contracts + web/api).
-- Branch protection + PR workflow not enabled (planned for Phase 14 / GitHub Actions).
+- No application code (starts Day 3 with contracts).
+- Branch protection + PR workflow not enabled (planned Phase 14 / GitHub Actions).
 
-## Incomplete work
+## Incomplete work (open items carried into Day 3)
 
 ```
-INCOMPLETE
-Reason: Two-device round-trip requires physical action on Device B (user-owned).
-Current state: main pushed; workflow practiced on Device A.
-What remains:
-  - Clone on Device B and verify `git log` matches (b9e8cb3, ce26346, 793309a, 657fb05, 89d4b4f)
-  - Optional: repeat a branch round-trip from Device B to prove pull/merge
-Next action: See "Next 30-minute task (Day 3)" below.
+- Device B clone verification (user-owned, do anytime).
+- stockforge-contracts repo does not exist yet (user creates on GitHub at Day 3 start).
 ```
 
-## Git status
+---
+
+## NEXT DAY PROMPT — DAY 3: `stockforge-contracts`
+
+**How to start:** copy-paste the FULL content of
+`stockforge-project-context\project-context\START_OF_DAY.md` into the new AI session.
+Below is the day-specific plan the AI must follow.
+
+### Day 3 — API & event contracts (Phase 1 foundation)
+
+**Goal:** create the contracts repo — the *agreement* between services: what endpoints
+exist, what requests/responses look like, what Kafka events carry. No application code.
+
+**Why / production thinking:** 10 services can silently break each other unless the
+interface is pinned and versioned. Enterprises are **contract-first**: the API spec is
+written before the service, so frontend and backend are built in parallel against the
+same contract (OpenAPI, AsyncAPI/event registry, contract tests in CI later).
+
+**Step 1 — You (manual, on GitHub):**
+- In org `Stock-Forge`, create an empty repo `stockforge-contracts` (no README,
+  no .gitignore, no license) — same flow as A.3 in the guide.
+
+**Step 2 — AI session does:**
+1. Startup protocol (pull here, read context/state/prompts, reconcile).
+2. Create local folder `C:\CODE\HFT Application\stockforge-contracts` — its OWN git
+   repo (sibling to this one, never nested).
+3. Build:
+   - `contracts/openapi.yaml` — auth + orders + portfolio endpoints (from
+     PROJECT_CONTEXT.md §7 catalogue) with basic request/response schemas
+   - `contracts/events/` — the 7 Kafka events (OrderCreated, OrderAccepted,
+     OrderRejected, OrderExecuted, OrderCancelled, PositionUpdated,
+     MarketPriceUpdated) with producer/consumer/payload notes
+   - `README.md` explaining contract-first, layout, and versioning rules
+   - Explain every important section while writing.
+4. Commit + push to `Stock-Forge/stockforge-contracts` (message describes the change).
+5. **CENTRAL-STATE RULE:** update state HERE — `CURRENT_STATE.md` (mark Day 3 done,
+   move pointer to Day 4), `SESSION_PROMPTS.md` (add Session 3 entry),
+   `DAY_BY_DAY_GUIDE.md` (mark Day 3 done), `CHANGELOG.md` (add Day 3 line),
+   `PROJECT_CONTEXT.md` if architecture changed.
+6. Commit + push this repo. Verify BOTH pushes (`git status -sb` up to date).
+
+**Expected result:** `stockforge-contracts` on GitHub with `openapi.yaml`, `events/`
+(7 event files), and a README; this repo's state points at Day 4.
+
+**Expected commit for this repo after closeout:** a new commit on `main` (current `cb9af31`).
+
+---
+
+## GIT STATUS (verify on the other device)
 
 ```
 git status        # clean
 git branch -a     # only main (local + origin/main)
-git log --oneline # b9e8cb3 → ce26346 → 793309a → 657fb05 → 89d4b4f
+git log --oneline # 9 commits, HEAD = cb9af31
 ```
-
-## Next 30-minute task (Day 3)
-
-**stockforge-contracts — API & event contracts (Phase 1 foundation).**
-
-1. **You (manual):** on GitHub create empty repo `stockforge-contracts` (no README) in org `Stock-Forge`.
-2. AI session:
-   - startup protocol (git pull, read context/state/prompts)
-   - create local folder `stockforge-contracts` (own git repo, sibling to this one)
-   - `contracts/openapi.yaml` (auth + orders + portfolio endpoints) + `contracts/events/*` (7 Kafka events) + README explaining contract-first
-   - commit + push to `Stock-Forge/stockforge-contracts`
-   - update this repo's state/prompts + CHANGELOG, commit + push
-
-## Next 30-minute plan
-
-1. Device B clone verification (user).
-2. Day 3: stockforge-contracts (see above).
 
 ---
 
-## HOW TO BEGIN THE NEXT DAY (paste this into a new AI session)
+## HOW TO BEGIN ANY FUTURE DAY (same procedure every day)
 
-**Rule for the user:** copy-paste the FULL content of
+**Rule:** copy-paste the FULL content of
 `stockforge-project-context\project-context\START_OF_DAY.md` into the new AI session.
-That file IS the begin-day prompt. It does not need editing each day.
+That file IS the begin-day prompt — it does not need editing each day. It makes the AI:
+reconstruct (pull + read context/state/latest prompt + reconcile) → work ONE ~30-minute
+day per `DAY_BY_DAY_GUIDE.md` → run the mandatory end-of-day sequence → push BOTH repos.
 
-**CENTRAL-STATE RULE (also baked into START_OF_DAY.md):** project state is updated
-ONLY in this repository (`stockforge-project-context`) — `CURRENT_STATE.md`,
+**CENTRAL-STATE RULE (baked into START_OF_DAY.md):** project state is updated ONLY in
+this repository (`stockforge-project-context`) — `CURRENT_STATE.md`,
 `SESSION_PROMPTS.md`, `PROJECT_CONTEXT.md`, `DAY_BY_DAY_GUIDE.md`, `CHANGELOG.md`.
 We often work in a DIFFERENT repo that day (e.g. `stockforge-contracts`); that repo
 gets only its own code, tests, and README. State updates happen HERE, always, and are

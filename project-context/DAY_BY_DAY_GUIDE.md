@@ -219,7 +219,7 @@ difference later is branch protection + PRs instead of direct pushes.
 
 ---
 
-### Day 3 — `stockforge-contracts`: API & event contracts
+### Day 3 — `stockforge-contracts`: API & event contracts (NEXT SESSION)
 
 **Goal:** create the contracts repo with OpenAPI spec + Kafka event schema stubs.
 

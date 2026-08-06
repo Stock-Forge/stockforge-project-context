@@ -185,6 +185,33 @@ Git verification: committed (yes)  pushed (no — no remote yet)  verified (no)
 
 ---
 
+## Day 1.5 — Architecture Approval + Day-by-Day Guide (2026-08-06)
+
+What was implemented:
+
+- Phase 0 architecture **APPROVED** by the user (stack as proposed: Java 21 + Spring Boot, React+TS, PostgreSQL, Redis, Kafka, Docker, kind→EKS, GitHub Actions + Jenkins, k6, Prometheus/Grafana).
+- ADR 0001 + 0002 status → ACCEPTED.
+- Created `DAY_BY_DAY_GUIDE.md` (manual: GitHub org/repo setup, folder structure, day plan with production thinking).
+- Updated `PROJECT_CONTEXT.md` statuses to APPROVED and `CURRENT_STATE.md` to reflect approval.
+
+What was learned:
+
+- The user does GitHub/repo creation manually; the AI builds locally and teaches.
+
+Exact next task (Day 2):
+
+- User creates GitHub org `StockForge` + repo `stockforge-project-context` (empty), runs:
+  ```
+  git remote add origin https://github.com/Stock-Forge/stockforge-project-context.git
+  git push -u origin main
+  ```
+- Clone on Device B; practice two-device git round-trip.
+- Then Phase 1 (stockforge-contracts, Day 3).
+
+Git verification: committed (yes)  pushed (no — no remote yet)  verified (no)
+
+---
+
 ## Day 2 — GitHub org + repo foundation + git workflow (2026-08-06)
 
 What was implemented:
@@ -211,27 +238,16 @@ Git verification: committed (yes)  pushed (yes)  verified (yes)
 
 ---
 
-## Day 1.5 — Architecture Approval + Day-by-Day Guide (2026-08-06)
+## Day 3 — Upcoming: `stockforge-contracts` (next session pointer)
 
-What was implemented:
+Current state at the end of Day 2 / before Day 3 (see `CURRENT_STATE.md`):
 
-- Phase 0 architecture **APPROVED** by the user (stack as proposed: Java 21 + Spring Boot, React+TS, PostgreSQL, Redis, Kafka, Docker, kind→EKS, GitHub Actions + Jenkins, k6, Prometheus/Grafana).
-- ADR 0001 + 0002 status → ACCEPTED.
-- Created `DAY_BY_DAY_GUIDE.md` (manual: GitHub org/repo setup, folder structure, day plan with production thinking).
-- Updated `PROJECT_CONTEXT.md` statuses to APPROVED and `CURRENT_STATE.md` to reflect approval.
+- Repo `stockforge-project-context` on `origin/main` at `cb9af31`, clean tree, 9 commits.
+- Central-state rule enforced: all state updates happen in this repo, never in the
+  working repo; both repos are committed + pushed each day.
+- Next: Day 3 — create repo `stockforge-contracts` (user creates empty repo on GitHub),
+  AI builds `contracts/openapi.yaml` + `contracts/events/` (7 events) + README in a new
+  local repo, pushes it, then updates THIS repo's state to point at Day 4.
+- Begin with the full `START_OF_DAY.md` paste.
 
-What was learned:
-
-- The user does GitHub/repo creation manually; the AI builds locally and teaches.
-
-Exact next task (Day 2):
-
-- User creates GitHub org `StockForge` + repo `stockforge-project-context` (empty), runs:
-  ```
-  git remote add origin https://github.com/Stock-Forge/stockforge-project-context.git
-  git push -u origin main
-  ```
-- Clone on Device B; practice two-device git round-trip.
-- Then Phase 1 (stockforge-contracts, Day 3).
-
-Git verification: committed (yes)  pushed (no — no remote yet)  verified (no)
+Git verification: not applicable (pointer entry — no code changed).
