@@ -114,7 +114,7 @@ Developer → GitHub PR → GitHub Actions (lint/unit/integration/contract/secur
 
 ## 4. Repositories & Local Layout (ONE SERVICE = ONE FOLDER = ONE REPO)
 
-GitHub Organization: **StockForge**
+GitHub Organization: **Stock-Forge** (org URL: https://github.com/Stock-Forge)
 
 Local convention on both devices — every repo is an **independent folder with its own `.git`** and maps 1:1 to a GitHub repo in the org. Folders are created **on demand** when their phase starts.
 
@@ -462,23 +462,53 @@ Repo creation order (progressive, each with explanation before creation):
 
 ---
 
-## 21. 30-Minute Learning Roadmap (first ~10 days)
+## 21. 30-Minute Learning Roadmap
 
 ```
-Day 0  ✅ Project-context foundation (this repo)              [done]
-Day 1  ✅ Phase 0 architecture proposal (this file)           [done — awaiting approval]
-Day 2    GitHub org + repos + git workflow practice (push this repo, clone on device B)
+Day 0  ✅ Project-context foundation (this repo)                            [done]
+Day 1  ✅ Phase 0 architecture proposal + approval                          [done]
+Day 1.5✅ Approval recorded, day-by-day guide written, org created/pushed   [done]
+Day 2    ✅ GitHub org + repo + git workflow practice (push done; clone on device B)
 Day 3    stockforge-contracts — OpenAPI + contract thinking
-Day 4    stockforge-web scaffold (Vite + React + TS) + Day 4 README
+Day 4    stockforge-web scaffold (Vite + React + TS)
 Day 5    stockforge-api scaffold (Spring Boot, health, logs)
 Day 6    auth — register/login (bcrypt + JWT) Part 1
 Day 7    auth — authz + roles Part 2
 Day 8    order-service — create/list/cancel orders (in-memory first)
 Day 9    order-service + risk checks (mock risk)
 Day 10   PostgreSQL — schema, migrations, index lesson
+Day 11   risk-service — limits, margin, position checks
+Day 12   matching-engine — order book + price-time priority (in-memory)
+Day 13   matching-engine — partial/full fills + execution events
+Day 14   market-data — simulated prices + WebSocket fanout
+Day 15   portfolio — positions, P&L, history
+Day 16   notification — WebSocket order/execution pushes
+Day 17   Integration — all services talk end-to-end (POST /orders traversal)
+Day 18   DB optimization — connection pools, locks, deadlocks (measured)
+Day 19   Redis — caching + rate limiting vs Postgres-only (measured)
+Day 20   Kafka — events, consumer groups, idempotency, lag
+Day 21   Kafka failure lab — duplication, DLQ, lag investigation
+Day 22   Docker — Dockerfiles explained, every service containerized
+Day 23   Docker Compose — full platform locally
+Day 24   GitHub Actions — PR checks + reusable workflows (shared-actions)
+Day 25   Branch protection + required checks
+Day 26   Jenkins — controller/agents + first Jenkinsfile
+Day 27   Jenkins — shared library, credentials, scheduled jobs
+Day 28   Jenkins — performance pipeline (deploy → smoke → load → gate)
+Day 29   Performance testing — k6 scenarios + baselines
+Day 30   Performance regression gates in CI/CD
+Day 31   Kubernetes (kind) — Pod/Deployment/Service/Probes
+Day 32   Kubernetes — ConfigMap/Secret/Ingress/HPA/rolling deploys
+Day 33   Deployment repo — pinned versions per environment
+Day 34   Observability — Prometheus/Grafana/OTel + SLOs
+Day 35   Security hardening + scanning
+Day 36   Cloud — AWS/EKS/IaC (production-style)
+Day 37   Failure injection + incident response
+Day 38   Production rollout simulation (canary/blue-green/rollback)
+Day 39+  HFT evolution — measured optimizations (see §17)
 ```
 
-Longer roadmap continues through Phases 2-26 (see §18). Review and adjust after Phase 1 feedback.
+Roadmap is reviewed at each phase boundary and adjusted after feedback. Detailed manual steps for every day live in `DAY_BY_DAY_GUIDE.md` (detail is added when the day is reached).
 
 **Status:** `APPROVED`
 

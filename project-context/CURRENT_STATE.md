@@ -60,10 +60,10 @@ Follow `DAY_BY_DAY_GUIDE.md` → **Day 2** and **Phase A**.
 
 1. **You (manual):** create GitHub org + repo per the guide, then:
    ```
-   git remote add origin https://github.com/StockForge/stockforge-project-context.git
+   git remote add origin https://github.com/Stock-Forge/stockforge-project-context.git
    git push -u origin main
    ```
-   On Device B: `git clone https://github.com/StockForge/stockforge-project-context.git`.
+   On Device B: `git clone https://github.com/Stock-Forge/stockforge-project-context.git`.
 2. **AI session:** startup protocol → confirm repo synced on both devices → update 30-minute roadmap → practice clone/branch/commit/push/pull → update state files → commit → push.
 
 ## Next 30-minute plan

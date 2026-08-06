@@ -44,7 +44,8 @@ This makes GitHub the shared source of truth for both devices.
    - "This organization belongs to": *My personal account*.
 4. CAPTCHA → **Create organization**.
 5. Skip inviting members for now.
-6. Remember the org URL: `https://github.com/StockForge`.
+6. Remember the org URL: `https://github.com/Stock-Forge`.
+   > **Actual org created 2026-08-06:** `Stock-Forge` (hyphenated). The project/product name stays **StockForge**; only the GitHub org is hyphenated. All URLs below use `Stock-Forge`.
 
 > **Production thinking:** in a real company this org would be owned by the engineering org,
 > with access controlled by teams (IAM/SAML/SCIM). We keep it under your personal account
@@ -53,8 +54,8 @@ This makes GitHub the shared source of truth for both devices.
 
 ### A.3 Create the repo `stockforge-project-context`
 
-1. Go to `https://github.com/StockForge` → **New** (or top-right **+** → **New repository**).
-2. Verify the **owner** dropdown says **StockForge** (not your personal username).
+1. Go to `https://github.com/Stock-Forge` → **New** (or top-right **+** → **New repository**).
+2. Verify the **owner** dropdown says **Stock-Forge** (not your personal username).
 3. Fill in:
    - **Repository name:** `stockforge-project-context`
    - **Description:** `StockForge project continuity — state, context, and AI session prompts.`
@@ -72,7 +73,7 @@ In PowerShell, inside the repo folder
 (`C:\CODE\HFT Application\stockforge-project-context`):
 
 ```powershell
-git remote add origin https://github.com/StockForge/stockforge-project-context.git
+git remote add origin https://github.com/Stock-Forge/stockforge-project-context.git
 git push -u origin main
 ```
 
@@ -105,7 +106,7 @@ Then refresh the GitHub repo page — you should see `README.md` and `project-co
 
 ```powershell
 cd C:\CODE
-git clone https://github.com/StockForge/stockforge-project-context.git
+git clone https://github.com/Stock-Forge/stockforge-project-context.git
 ```
 
 3. Verify:

@@ -198,7 +198,7 @@ Exact next task (Day 2):
 
 - User creates GitHub org `StockForge` + repo `stockforge-project-context` (empty), runs:
   ```
-  git remote add origin https://github.com/StockForge/stockforge-project-context.git
+  git remote add origin https://github.com/Stock-Forge/stockforge-project-context.git
   git push -u origin main
   ```
 - Clone on Device B; practice two-device git round-trip.

@@ -8,7 +8,7 @@ StockForge will span multiple services, libraries, and infrastructure assets. Wo
 
 ## Decision
 
-1. Create a GitHub Organization named `StockForge` (fallback if taken: `StockForge-Trading`, confirmed before use).
+1. Create a GitHub Organization named `StockForge` — **actual name used: `Stock-Forge`** (URL `https://github.com/Stock-Forge`, created 2026-08-06; project/product name remains `StockForge`).
 2. Each component is a **separate repository** in the org, and a **separate local folder with its own `.git`** on both devices (never a nested repo).
    - Repos are created progressively, only when their phase requires them.
 3. `stockforge-project-context` is the **source of truth for continuity** (context, state, prompts, ADRs).
