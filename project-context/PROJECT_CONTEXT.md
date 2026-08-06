@@ -4,8 +4,8 @@
 > A completely new AI must understand the whole project from this file.
 > Keep this file up to date. Never let it become stale.
 >
-> Status legend: `PLANNED` | `PROPOSED` | `IMPLEMENTED` | `IN PROGRESS` | `DEPRECATED`
-> `PROPOSED` = written in Phase 0, awaiting user approval.
+> Status legend: `PLANNED` | `PROPOSED` | `APPROVED` | `IMPLEMENTED` | `IN PROGRESS` | `DEPRECATED`
+> `PROPOSED` = written in Phase 0. `APPROVED` = accepted by user on 2026-08-06 (Day 1).
 
 ---
 
@@ -15,7 +15,7 @@ Build **StockForge** — a production-style stock trading platform and engineeri
 
 The project deliberately teaches **WHY** each technology exists, not just its commands.
 
-**Status:** `IMPLEMENTED` (context documented) / project itself `PROPOSED`
+**Status:** `IMPLEMENTED` (context documented) / project `APPROVED`
 
 ---
 
@@ -23,7 +23,7 @@ The project deliberately teaches **WHY** each technology exists, not just its co
 
 A complete production-grade stock trading platform, understood end-to-end (request/event/service/infrastructure lifecycle), automated delivery and performance validation through **both GitHub Actions and Jenkins**, deployed and operated on Kubernetes, with SLOs and observability, deliberate production-failure injection/resolution — then progressive evolution toward **high-throughput / low-latency HFT-style architecture**.
 
-**Status:** `PROPOSED`
+**Status:** `APPROVED` (2026-08-06)
 
 ---
 
@@ -108,7 +108,7 @@ Developer → GitHub PR → GitHub Actions (lint/unit/integration/contract/secur
     → Kubernetes → Staging → Validation → Production
 ```
 
-**Status:** `PROPOSED`
+**Status:** `APPROVED`
 
 ---
 
@@ -158,7 +158,7 @@ C:\CODE\HFT Application\            (or any agreed root — must be identical on
 
 **Rule:** create repos progressively, only when their phase requires them. Explain each before creating. Never nest a repo inside another repo's folder.
 
-**Status:** `PROPOSED`
+**Status:** `APPROVED`
 
 ---
 
@@ -180,7 +180,7 @@ C:\CODE\HFT Application\            (or any agreed root — must be identical on
 | IaC | **Terraform** + **Helm** | Cloud + K8s as code (Phase 19/23). | Pulumi, Ansible |
 | Perf analysis | **JFR/JMC**, async-profiler, GC logs, JVM flags | The Performance Engineer's native toolkit. | VisualVM, MAT |
 
-**Status:** `PROPOSED` (needs approval — especially backend language)
+**Status:** `APPROVED`
 
 ---
 
@@ -202,7 +202,7 @@ Identified service set (see §4). **Start-small principle (§42 of master prompt
 
 **Not decided yet (defer to avoid overengineering):** whether notification starts as a thin service inside api and splits later; whether portfolio/risk share a DB initially. Final call is part of approval.
 
-**Status:** `PROPOSED`
+**Status:** `APPROVED`
 
 ---
 
@@ -245,7 +245,7 @@ api  → auth check → validate payload → rate limit (Redis)
 
 Document for every traversal: request, auth, validation, service calls, DB calls, cache calls, events, response, latency contributors, timeout/retry/failure, idempotency, logging, metrics, tracing.
 
-**Status:** `PROPOSED`
+**Status:** `APPROVED`
 
 ---
 
@@ -263,7 +263,7 @@ Document for every traversal: request, auth, validation, service calls, DB calls
 
 Per event document: producer, topic, partitioning key, consumer group, ordering needs, failure handling (retries, idempotency, DLQ).
 
-**Status:** `PROPOSED`
+**Status:** `APPROVED`
 
 ---
 
@@ -285,7 +285,7 @@ Teach: schema, indexes, transactions, isolation, locks, connection pools, migrat
 
 Caching (instruments, hot market data), rate limiting, session/token store, hot data. Compare **PostgreSQL-only vs PostgreSQL+Redis** with measurements.
 
-**Status:** `PROPOSED`
+**Status:** `APPROVED`
 
 ---
 
@@ -294,7 +294,7 @@ Caching (instruments, hot market data), rate limiting, session/token store, hot 
 - **Docker:** Dockerfiles (explained line-by-line), images, layers, networking, volumes, env vars, health checks, resource limits. Compose for local distributed execution.
 - **Kubernetes:** Pod, Deployment, Service, ConfigMap, Secret, Ingress, readiness/liveness probes, resource requests/limits, HPA, rolling deployments. Intentional failures: CrashLoopBackOff, failed readiness, bad config, resource exhaustion, failed deployment.
 
-**Status:** `PROPOSED`
+**Status:** `APPROVED`
 
 ---
 
@@ -319,7 +319,7 @@ Caching (instruments, hot market data), rate limiting, session/token store, hot 
 - System CI: deploy test env → integration → E2E → perf validation → PASS/FAIL
 - Performance CI: deploy → perf smoke → metrics → baseline compare → gate → PASS/FAIL
 
-**Status:** `PROPOSED`
+**Status:** `APPROVED`
 
 ---
 
@@ -331,7 +331,7 @@ Caching (instruments, hot market data), rate limiting, session/token store, hot 
 - Connect: application → instrumentation → metrics/logs/traces → perf test → CI/CD → SLO → production monitoring.
 - HFT evolution: every optimization = baseline → hypothesis → change → measurement → result → conclusion.
 
-**Status:** `PROPOSED`
+**Status:** `APPROVED`
 
 ---
 
@@ -341,7 +341,7 @@ Caching (instruments, hot market data), rate limiting, session/token store, hot 
 - SLO/SLI candidates: availability, latency (API p95), error rate, throughput, order-to-execution latency, market-data delivery latency. Concepts: SLI, SLO, SLA, error budget.
 - Rule: measure baseline first; never invent arbitrary targets.
 
-**Status:** `PROPOSED`
+**Status:** `APPROVED`
 
 ---
 
@@ -349,7 +349,7 @@ Caching (instruments, hot market data), rate limiting, session/token store, hot 
 
 Progressive: password hashing (bcrypt/argon2), auth/authz (JWT + roles), secrets, HTTPS, input validation, rate limiting, dependency/container scanning, least privilege, audit logging, secure CI/CD.
 
-**Status:** `PROPOSED`
+**Status:** `APPROVED`
 
 ---
 
@@ -359,7 +359,7 @@ Progressive: password hashing (bcrypt/argon2), auth/authz (JWT + roles), secrets
 - Environments: development / staging / production with pinned image versions (in `stockforge-deployment`).
 - Production patterns: rolling, canary, blue-green.
 
-**Status:** `PROPOSED`
+**Status:** `APPROVED`
 
 ---
 
@@ -367,7 +367,7 @@ Progressive: password hashing (bcrypt/argon2), auth/authz (JWT + roles), secrets
 
 Intentional incidents: DB slowdown, connection exhaustion, Redis failure, Kafka lag, CPU saturation, memory leak, latency spike, service crash, bad deployment, config error, performance regression. Each documented: Symptoms → Detection → Investigation → Root cause → Mitigation → Recovery → Permanent fix → Prevention.
 
-**Status:** `PROPOSED`
+**Status:** `APPROVED`
 
 ---
 
@@ -377,7 +377,7 @@ Evolve toward: high throughput, low latency, order-book optimization, concurrenc
 
 **Explicit position:** initial microservice architecture is NOT a real exchange-grade HFT system; we progressively explain why HFT architecture looks different. Every change measured (baseline → hypothesis → change → measurement → result → conclusion).
 
-**Status:** `PROPOSED`
+**Status:** `APPROVED`
 
 ---
 
@@ -429,7 +429,7 @@ Repo creation order (progressive, each with explanation before creation):
 12. `stockforge-infrastructure` (Phase 19/23)
 13. `stockforge-performance` (Phase 16 — can start earlier if desired)
 
-**Status:** `PROPOSED`
+**Status:** `APPROVED`
 
 ---
 
@@ -458,7 +458,7 @@ Repo creation order (progressive, each with explanation before creation):
 | Skill gap in testing | Teach testing alongside each service; no skips |
 | GitHub org/repo naming collisions | Verify `StockForge` availability first; fallback name agreed |
 
-**Status:** `PROPOSED`
+**Status:** `APPROVED`
 
 ---
 
@@ -480,7 +480,7 @@ Day 10   PostgreSQL — schema, migrations, index lesson
 
 Longer roadmap continues through Phases 2-26 (see §18). Review and adjust after Phase 1 feedback.
 
-**Status:** `PROPOSED`
+**Status:** `APPROVED`
 
 ---
 
@@ -490,11 +490,11 @@ Stored in `project-context/adr/`. One file per decision: Context, Decision, Alte
 
 | ADR | Topic | Status |
 |---|---|---|
-| 0001 | GitHub org + one-folder-one-repo-per-service layout + two-device workflow | `PROPOSED` |
-| 0002 | Technology stack (Java 21 / Spring Boot / React / PostgreSQL / Redis / Kafka / k6 / Prometheus…) | `PROPOSED` |
+| 0001 | GitHub org + one-folder-one-repo-per-service layout + two-device workflow | `ACCEPTED` (2026-08-06) |
+| 0002 | Technology stack (Java 21 / Spring Boot / React / PostgreSQL / Redis / Kafka / k6 / Prometheus…) | `ACCEPTED` (2026-08-06) |
 | … | PostgreSQL, Redis, Kafka, service boundaries, deployment repo, Jenkins, GitHub Actions, Kubernetes, performance repo, HFT changes | `PLANNED` (create when decided) |
 
-**Status:** `PROPOSED`
+**Status:** `APPROVED`
 
 ---
 

@@ -1,6 +1,6 @@
 # ADR 0001 — GitHub Organization, One-Folder-One-Repo Layout, Two-Device Workflow
 
-**Status:** PROPOSED (Phase 0, awaiting approval)
+**Status:** ACCEPTED (2026-08-06, Phase 0 approval)
 
 ## Context
 

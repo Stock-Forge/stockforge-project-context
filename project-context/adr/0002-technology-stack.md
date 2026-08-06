@@ -1,6 +1,6 @@
 # ADR 0002 — Technology Stack
 
-**Status:** PROPOSED (Phase 0, awaiting approval — especially the backend language)
+**Status:** ACCEPTED (2026-08-06, Phase 0 approval)
 
 ## Context
 

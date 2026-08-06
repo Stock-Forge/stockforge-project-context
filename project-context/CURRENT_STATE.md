@@ -11,7 +11,7 @@
 |---|---|
 | Date | 2026-08-06 |
 | Phase | Phase 0 — Architecture and planning |
-| Day | Day 1 |
+| Day | Day 1 (complete) — approved |
 | Current repository | stockforge-project-context |
 | Current branch | main |
 | Current commit | See `git log -1` / `git rev-parse HEAD` |
@@ -20,40 +20,32 @@
 
 ## What Day 1 completed
 
-- **Phase 0 architecture proposal** written into `project-context/PROJECT_CONTEXT.md` (all proposal sections marked `PROPOSED`):
-  - Target system + CI/CD architecture (both GitHub Actions and Jenkins first-class)
-  - Repositories + local layout rule: **ONE SERVICE = ONE FOLDER = ONE REPO** (separate git repo per component, created on demand)
-  - Proposed technology stack (Java 21 + Spring Boot, React + TS + Vite, PostgreSQL, Redis, Kafka, Docker/Compose, kind→EKS, k6, Prometheus/Grafana/OTel, Terraform/Helm)
-  - Service boundaries with split rationale
-  - API catalogue + `POST /api/orders` critical traversal
-  - Event catalogue (producers/consumers)
-  - Data layer, Docker/K8s, CI/CD division, performance strategy, observability/SLO, security, infrastructure, incidents, HFT evolution, phases, repo creation order, 30-day roadmap, risks, ADR index
-- Created ADRs:
-  - `adr/0001-github-org-and-repo-layout.md` — org + repo-per-service + two-device workflow (PROPOSED)
-  - `adr/0002-technology-stack.md` — full stack (PROPOSED)
+- **Phase 0 architecture** written into `project-context/PROJECT_CONTEXT.md` and **APPROVED by the user on 2026-08-06** (including backend language Java 21 + Spring Boot).
+- ADRs `0001` (org + repo layout + two-device workflow) and `0002` (technology stack) — **ACCEPTED**.
+- Created `project-context/DAY_BY_DAY_GUIDE.md` — manual companion: GitHub setup steps, folder structure (one service = one folder = one repo), and the day-by-day plan with production thinking.
+- Updated `PROJECT_CONTEXT.md` statuses, `CURRENT_STATE.md`, `SESSION_PROMPTS.md`.
 
 ## What is deliberately NOT done
 
-- No application code (per Master Prompt §46 — wait for approval).
-- No GitHub org/repositories created yet (user is creating them manually).
-- No architecture approved yet.
+- No application code (Master Prompt §46 satisfied — approval obtained, implementation starts in Phase 1).
+- No GitHub org/repositories created yet (user does this manually per the guide).
 
 ## Incomplete work
 
 ```
 INCOMPLETE
-Reason: Master Prompt §46 — architecture must be approved before implementation.
-Current state: Phase 0 proposal written and committed.
+Reason: GitHub org/repo setup is manual and owned by the user (per DAY_BY_DAY_GUIDE Phase A).
+Current state: Architecture approved; guide ready.
 What remains:
-  - User approval of PROJECT_CONTEXT.md (especially backend language: Java vs Go)
-  - Create GitHub org "StockForge" + repo stockforge-project-context, add remote, push
-  - Decide GitHub org name fallback if "StockForge" is taken
-Next action: See "Next 30-minute task" below.
+  - Create GitHub org "StockForge" (fallback "StockForge-Trading")
+  - Create repo stockforge-project-context (empty, no README) and push local commits
+  - Clone on Device B
+Next action: See "Next 30-minute task (Day 2)" below.
 ```
 
 ## Git status
 
-Working tree should be clean after Day 1 commit. Verify on the other device:
+Working tree should be clean after this commit. Verify on the other device:
 
 ```
 git pull
@@ -64,20 +56,18 @@ git log -5
 
 ## Next 30-minute task (Day 2)
 
-**Pending approval first.** After the user approves the Phase 0 architecture:
+Follow `DAY_BY_DAY_GUIDE.md` → **Day 2** and **Phase A**.
 
-1. (If not done) Create GitHub org `StockForge` + repo `stockforge-project-context` (empty, no README).
-2. Add remote + push:
+1. **You (manual):** create GitHub org + repo per the guide, then:
    ```
    git remote add origin https://github.com/StockForge/stockforge-project-context.git
    git push -u origin main
    ```
-3. On device B: `git clone https://github.com/StockForge/stockforge-project-context.git`.
-4. Practice the two-device workflow (pull → work → commit → push → verify).
-5. Update the 30-minute roadmap (PROJECT_CONTEXT.md §21) based on approval feedback.
+   On Device B: `git clone https://github.com/StockForge/stockforge-project-context.git`.
+2. **AI session:** startup protocol → confirm repo synced on both devices → update 30-minute roadmap → practice clone/branch/commit/push/pull → update state files → commit → push.
 
 ## Next 30-minute plan
 
-1. Get approval on architecture (user reviews PROJECT_CONTEXT.md + ADRs).
-2. Set up GitHub org + remote + push (steps above).
-3. Begin Phase 1 repo foundation if time remains.
+1. GitHub org + repo + remote + push (you, per guide Phase A).
+2. Device B clone + two-device round-trip practice (AI assists).
+3. Begin Phase 1 foundation (stockforge-contracts) if time remains — otherwise Day 3.

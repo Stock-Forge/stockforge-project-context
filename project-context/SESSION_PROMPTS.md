@@ -161,6 +161,7 @@ What was implemented:
 
 - Wrote the full **Phase 0 architecture proposal** into `PROJECT_CONTEXT.md` (all sections marked `PROPOSED`): target architecture, repo layout (**one service = one folder = one repo**), proposed tech stack, service boundaries, API catalogue + critical traversal, event catalogue, data layer, CI/CD division (GitHub Actions + Jenkins), performance strategy, observability/SLO, security, infrastructure, incident engineering, HFT evolution, phases + repo creation order, 30-day roadmap, risks, ADR index.
 - Created `adr/0001-github-org-and-repo-layout.md` and `adr/0002-technology-stack.md`.
+- Created `project-context/DAY_BY_DAY_GUIDE.md` — manual GitHub setup guide + folder structure + day-by-day plan with production thinking.
 
 What was learned:
 
@@ -173,5 +174,34 @@ Exact next task:
 - Set up GitHub org + remote + push (`git remote add origin … ; git push -u origin main`).
 - Clone on device B; practice the two-device workflow.
 - Then begin Phase 1 repo foundation.
+
+Result: **architecture APPROVED 2026-08-06** (Java 21 + Spring Boot confirmed). Next session = **Day 2** (GitHub org + repo foundation) per `DAY_BY_DAY_GUIDE.md`.
+
+Git verification: committed (yes)  pushed (no — no remote yet)  verified (no)
+
+---
+
+## Day 1.5 — Architecture Approval + Day-by-Day Guide (2026-08-06)
+
+What was implemented:
+
+- Phase 0 architecture **APPROVED** by the user (stack as proposed: Java 21 + Spring Boot, React+TS, PostgreSQL, Redis, Kafka, Docker, kind→EKS, GitHub Actions + Jenkins, k6, Prometheus/Grafana).
+- ADR 0001 + 0002 status → ACCEPTED.
+- Created `DAY_BY_DAY_GUIDE.md` (manual: GitHub org/repo setup, folder structure, day plan with production thinking).
+- Updated `PROJECT_CONTEXT.md` statuses to APPROVED and `CURRENT_STATE.md` to reflect approval.
+
+What was learned:
+
+- The user does GitHub/repo creation manually; the AI builds locally and teaches.
+
+Exact next task (Day 2):
+
+- User creates GitHub org `StockForge` + repo `stockforge-project-context` (empty), runs:
+  ```
+  git remote add origin https://github.com/StockForge/stockforge-project-context.git
+  git push -u origin main
+  ```
+- Clone on Device B; practice two-device git round-trip.
+- Then Phase 1 (stockforge-contracts, Day 3).
 
 Git verification: committed (yes)  pushed (no — no remote yet)  verified (no)
