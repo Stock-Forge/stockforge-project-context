@@ -73,6 +73,40 @@
 
 ---
 
+## Day 5 — `stockforge-api` (2026-08-07)
+
+### Day 5 — Toolchain gate: no JDK 21, no Maven, no admin on this device
+
+- **Symptom:** tooling check for Day 5 found **Java 17.0.12** (stack wants JDK 21) and
+  **no Maven**; and this device has no complete admin rights, so a normal JDK installer
+  is not viable.
+- **Cause:** environment on this device was never provisioned for the approved stack;
+  the state file's tooling assumptions had not been verified.
+- **Fix:** Maven is handled by the **Maven Wrapper** (`mvnw`), which pins its own version —
+  no global install needed. Decision: do JDK 21 setup + the Day 5 build on the **personal
+  PC (full admin)**. If needed later on a no-admin box, the Temurin 21 **portable ZIP**
+  + user-level `JAVA_HOME`/`PATH` works without admin.
+- **Production relevance:** this is exactly why real platforms pin toolchains (`.nvmrc`,
+  container images, IaC) and run CI on clean runners. Until we containerize (Phase 12-13),
+  JVM work happens on the provisioned machine. "Works on my machine" is a production
+  incident class, not a joke.
+
+### Day 5 — Antivirus/AMSI blocked a JDK download command (false positive)
+
+- **Symptom:** a PowerShell command that created a tools dir and ran
+  `curl.exe -L -o ... https://api.adoptium.net/...` was blocked: "This script contains
+  malicious content and has been blocked by your antivirus software."
+- **Cause:** AMSI/antivirus heuristics flagged the command (download URL + `-o` write)
+  as suspicious — a false positive, not real malware.
+- **Fix:** abandoned the download on this device; moved the JDK setup to the personal PC.
+  For future: run security-sensitive downloads on the admin machine, or break into
+  smaller, clearly-benchign steps (e.g. a `.ps1` script file).
+- **Production relevance:** security tooling that false-positives on legitimate build
+  steps is a known friction point in real CI; teams pin images / artifact feeds and
+  maintain allowlists. It also reinforces why downloads belong on a provisioned machine.
+
+---
+
 ## Day 5 — `stockforge-api` (pending — fill in at end of day)
 
 - (No issues logged yet.)

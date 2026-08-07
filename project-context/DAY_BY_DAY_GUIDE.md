@@ -291,15 +291,24 @@ filter, and a placeholder that talks to nothing yet.
 through it: auth, validation, rate limiting, tracing. We learn Spring Boot's request
 lifecycle here — the concepts (filters, beans, config, tests) repeat in every later service.
 
-**You do:** install JDK 21 (`https://adoptium.net`, Temurin 21) and Maven
-(`https://maven.apache.org`); create repo `stockforge-api` on GitHub.
-AI creates the project, explains `pom.xml`, `@RestController`, filters, `application.yml`,
-a unit test; commits, pushes.
+**Production:** Zerodha/Groww and every trading platform sit behind an API gateway layer
+that owns auth, rate limiting, and correlation/tracing before requests reach services.
+Our `/api/health` + logging + correlation-ID filter is the first slice of that.
+
+**You do (on the personal PC — full admin):** clone project-context + web; install
+**JDK 21** (Temurin 21 — `https://adoptium.net`; verify `java -version`); create repo
+`stockforge-api` on GitHub. Maven is not needed — the Maven Wrapper (`mvnw`) pins its
+version. AI creates the project, explains `pom.xml`, `@RestController`, filters,
+`application.yml`, a unit test; commits, pushes.
 
 **Expected result:** `./mvnw spring-boot:run` serves `http://localhost:8080/api/health`.
 
 **Production lesson:** every production API has health endpoints, structured logs and
 correlation IDs from day one — you can't add observability after the fact.
+
+**Environment note (2026-08-07):** the no-admin device has Java 17 + no Maven — it can
+only do frontend/state work. Day 5 runs on the personal PC until containers
+(Phase 12-13) make toolchains device-independent.
 
 ---
 

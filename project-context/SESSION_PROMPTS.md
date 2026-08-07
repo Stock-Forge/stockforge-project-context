@@ -330,6 +330,78 @@ Git verification: committed (yes)  pushed (yes)  verified (yes)
 
 ---
 
+## Day 5 partial — tooling gate + prompt/features upgrade (2026-08-07)
+
+Project:        StockForge
+Current phase:  Phase 1 — Git/GitHub organization and repository foundation
+Current day:    Day 5 (started, BLOCKED at tooling gate — deferred to personal PC)
+Current repo:   stockforge-project-context (state); Day 5 build moves to the personal PC
+Current branch: main
+Previous commit:19166d2 (prompt/features) → new closeout commit
+
+What was implemented:
+
+- Prompt upgrades (pushed 19166d2): every session must begin with a FULL-detail briefing —
+  what we're doing today + how it helps, every step with exact commands, the tech stack
+  used at each step, and a comparison to production-grade trading platforms (Zerodha/Groww).
+- New `project-context/ISSUES_LOG.md`: per-day log of every issue (symptom → cause → fix →
+  production relevance), auto-updated at the end of every session. Seeded with Day 3 & Day 4.
+- Auto-update rule made explicit across START_OF_DAY.md, SESSION_PROMPTS.md, the guide,
+  CURRENT_STATE.md, and README: state files update automatically at end of session.
+- Day 5 startup protocol run: this device has Java 17.0.12 + no Maven + no full admin →
+  JDK 21 install is not viable here. Decision: do Day 5 on the personal PC.
+
+What was learned:
+
+- "Works on my machine" is a real problem: toolchain (JDK 21), admin rights, and Maven
+  differ per device. Fixes: Maven Wrapper pins Maven; JDK 21 setup happens on the
+  admin machine; containers (Phase 12-13) make toolchains fully device-independent.
+- A PowerShell command that included `curl.exe ... https://api.adoptium.net/...` was
+  blocked by AMSI/antivirus as "malicious content" (false positive). Lesson: run security
+  tooling-sensitive steps (downloads) on the admin machine, or split into smaller steps.
+
+Current problem / open questions:
+
+- None blocking. Day 5 waits for JDK 21 on the personal PC.
+
+Incomplete work (record exactly; next session continues from here):
+
+- Day 5 `stockforge-api` scaffold NOT built — needs JDK 21 on the personal PC.
+- stockforge-web still static (no API wiring); its repo is pushed (`8e7d075`).
+- Device B (personal PC) clone of the repos not yet verified.
+
+Exact next task:
+
+- On the personal PC (full admin): clone project-context + web; install Temurin JDK 21;
+  create empty repo `stockforge-api`; run Day 5 per the Day 5 prompt in CURRENT_STATE.md
+  (`/api/health`, structured logging, correlation-ID filter, one MockMvc test), push,
+  then update state here and push.
+
+Commands to run:
+
+- `git clone https://github.com/Stock-Forge/stockforge-project-context.git`
+- `git clone https://github.com/Stock-Forge/stockforge-web.git`
+- `java -version` (expect 21)
+- `.\mvnw spring-boot:run` then `Invoke-WebRequest http://localhost:8080/api/health`
+
+Files to inspect:
+
+- `project-context/CURRENT_STATE.md` (Day 5 prompt), `project-context/ISSUES_LOG.md`
+- `stockforge-contracts/contracts/openapi.yaml` (the contract the API must satisfy)
+
+Expected result:
+
+- `stockforge-api` on GitHub; `GET /api/health` returns 200 JSON; correlation ID logged.
+
+Long-term direction:
+
+- Keep contract-first; GitHub Actions + Jenkins both first-class later (Phase 14-15);
+  containers (Phase 12-13) end cross-device toolchain drift.
+
+Git verification: committed (yes)  pushed (yes)  verified (yes)
+
+---
+
 ## Day 3 — Upcoming: `stockforge-contracts` (next session pointer)
 
 Current state at the end of Day 2 / before Day 3 (see `CURRENT_STATE.md`):

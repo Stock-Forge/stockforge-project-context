@@ -2,6 +2,15 @@
 
 All notable changes per project day. Format: date — Day N — summary.
 
+## 2026-08-07 — Day 5 (partial, blocked at tooling gate)
+
+- Started Day 5 (`stockforge-api`) startup protocol; this device has Java 17 + no Maven +
+  no admin → JDK 21 setup and the build move to the personal PC (full admin).
+- Prompt upgrade: sessions now begin with a full-detail briefing (steps + tech stack +
+  Zerodha/Groww production comparison).
+- New `project-context/ISSUES_LOG.md` (per-day issues: symptom/cause/fix/production),
+  auto-updated at end of every session alongside the other state files.
+
 ## 2026-08-07 — Day 4
 
 - `stockforge-web` repo created and pushed (`8e7d075`): Vite + React 19 + TypeScript

@@ -12,9 +12,9 @@
 |---|---|
 | Date | 2026-08-07 |
 | Phase | Phase 1 — Git/GitHub organization and repository foundation |
-| Day | **Day 4 (complete) — next: Day 5** |
-| Status | Day 4 done and pushed; Day 5 ready to start |
-| Current repository | stockforge-web (work repo, pushed) + stockforge-project-context (state repo) |
+| Day | **Day 5 (started, BLOCKED at tooling gate — deferred to personal PC)** |
+| Status | Day 4 done & pushed. Day 5 NOT built: this device has Java 17 + no admin; JDK 21 setup moves to the personal PC (full admin). State + issues-log + prompt features updated & pushed here. |
+| Current repository | stockforge-project-context (state repo) — Day 5 build happens on the personal PC |
 | Current branch | main |
 | Current commit | stockforge-project-context: new closeout commit; stockforge-web: `8e7d075` |
 
@@ -30,12 +30,37 @@
 | 2 | GitHub org `Stock-Forge` + repo created + pushed + git round-trip practiced | ✅ done |
 | 3 | `stockforge-contracts` — API & event contracts (OpenAPI v1.0.0 + 7 events) | ✅ done |
 | 4 | `stockforge-web` — React trading UI scaffold | ✅ done |
-| 5 | `stockforge-api` — Spring Boot gateway scaffold | ⏭️ **NEXT** |
+| 5 | `stockforge-api` — Spring Boot gateway scaffold | ⏭️ **NEXT (on personal PC)** |
 | 6-7 | `stockforge-auth` — register/login (bcrypt + JWT), roles | planned |
 | 8-9 | `stockforge-order-service` — order lifecycle (in-memory), risk mock | planned |
 | 10+ | PostgreSQL → risk → matching → market-data → portfolio → notification → integration → … → HFT (roadmap §21) | planned |
 
 ---
+
+## Day 5 status — started, stopped at tooling gate
+
+**What happened today (2026-08-07):**
+- Started the Day 5 startup protocol (pull, reconstruct, tooling check).
+- This device reported **Java 17.0.12** (stack wants **JDK 21**) and **no Maven**.
+  Maven is not an issue — the Spring Boot scaffold ships the **Maven Wrapper** (`mvnw`)
+  which pins its own version per repo.
+- This device has **no complete admin rights**, so the JDK 21 installer is not viable here.
+- Decision (user): **do the portable-Temurin-JDK-21 setup and the Day 5 build on the
+  personal PC** (full admin). Portable ZIP extraction + user-level `JAVA_HOME`/`PATH`
+  also works without admin if needed later.
+- Prompt improvements shipped this session (already pushed `19166d2`): full-detail day
+  briefing (steps + tech stack + Zerodha/Groww comparison) and a new `ISSUES_LOG.md`
+  with auto-update at end of every session.
+
+**Open items carried forward:**
+```
+- Install JDK 21 on the personal PC (Temurin 21; installer there, or portable ZIP).
+- Clone stockforge-project-context + stockforge-web on the personal PC, then run Day 5
+  (stockforge-api scaffold) there per the Day 5 prompt below.
+- This device (no admin): can still build frontend (Node OK) and edit state files;
+  backend JVM work happens on the personal PC until containers (Phase 12-13) make
+  toolchains device-independent.
+```
 
 ## What Day 4 completed
 
@@ -82,10 +107,18 @@ production goes through it — auth, validation, rate limiting, tracing. We lear
 Boot's request lifecycle here; the concepts (filters, beans, config, tests) repeat in
 every later service.
 
-**Step 1 — You (manual, on GitHub):**
+**Step 1 — You (manual, on the personal PC — full admin):**
+- Clone `stockforge-project-context`, `stockforge-web` (and later `stockforge-api`) here:
+  ```
+  git clone https://github.com/Stock-Forge/stockforge-project-context.git
+  git clone https://github.com/Stock-Forge/stockforge-web.git
+  ```
 - In org `Stock-Forge`, create empty repo `stockforge-api` (no README/.gitignore/license).
-- Make sure JDK 21 + Maven are installed (`java -version`, `mvn -version`). If not:
-  install Temurin 21 from https://adoptium.net and Maven from https://maven.apache.org.
+- Install **JDK 21** (Temurin 21: https://adoptium.net — installer is fine on this
+  machine; verify with `java -version`). Maven is NOT needed — the scaffold uses the
+  Maven Wrapper (`mvnw`), which pins its own version.
+  > Note: the no-admin device uses Java 17 + no Maven — it can only do frontend/state
+  > work; all JVM work happens here until containers (Phase 12-13).
 
 **Step 2 — AI session does:**
 1. Startup protocol (pull here, read context/state/prompts, reconcile).
@@ -106,7 +139,8 @@ every later service.
 **Expected result:** `stockforge-api` on GitHub; `GET /api/health` returns 200 with a
 JSON body; a correlation ID appears in logs.
 
-**Environment note:** confirm JDK 21 + Maven before starting (see Step 1).
+**Environment note:** Day 5 must run on a machine with JDK 21 (the personal PC, full
+admin). No-admin device: Java 17 + no Maven → defer JVM work there.
 
 ---
 
