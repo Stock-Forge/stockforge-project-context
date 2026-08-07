@@ -2,7 +2,12 @@
 
 All notable changes per project day. Format: date — Day N — summary.
 
-## 2026-08-08 — Day 6 (bug fix after closeout)
+## 2026-08-08 — Day 6 (tooling: Postman collections)
+
+- Added `testing/*.postman_collection.json` to `stockforge-auth` (`43dba23`) and
+  `stockforge-api` (`acb07a0`) so the app can be tested from Postman instead of curl.
+  Auth collection: health + register 201 + duplicate 409 + short password 400 + login 200
+  (auto-saves JWT to `accessToken` variable) + wrong password 401, with assertions.
 
 - `stockforge-auth` `2306f08`: fixed **403 error-masking** — permitted `/error` dispatch so
   real errors (400/404) keep their status instead of becoming 403 for anonymous callers;

@@ -16,7 +16,7 @@
 | Status | Day 6 done & pushed: `stockforge-auth` built (Spring Boot 4.1.0) — bcrypt register + JWT login, 8 tests pass, curl verified 201/409/200/401/400. State updated & pushed here. |
 | Current repository | stockforge-project-context (state repo) — Day 7 continues in `stockforge-auth` |
 | Current branch | main |
-| Current commit | stockforge-project-context: new closeout commit; stockforge-auth: `2306f08`; stockforge-api: `b0788bb`; stockforge-web: `8e7d075` |
+| Current commit | stockforge-project-context: new closeout commit; stockforge-auth: `43dba23`; stockforge-api: `acb07a0`; stockforge-web: `8e7d075` |
 
 ---
 
@@ -160,7 +160,7 @@ the wrapper. Keep the stateless security setup; do NOT add sessions or form logi
 
 ```
 git status        # clean in all repos
-git log --oneline # project-context → closeout commit; auth → 2306f08; api → b0788bb; web → 8e7d075
+git log --oneline # project-context → closeout commit; auth → 43dba23; api → acb07a0; web → 8e7d075
 ```
 
 ---
