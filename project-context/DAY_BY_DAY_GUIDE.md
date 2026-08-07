@@ -18,7 +18,9 @@
    sequence automatically.
 3. Read the **current day** section below (it tells you what the AI session will do and what *you* must do manually).
 4. Do your manual steps (e.g. create a GitHub repo, run a command).
-5. Let the AI build on your machine, teaching as it goes.
+5. Let the AI build on your machine, teaching as it goes. It starts by telling you
+   **what we're doing today and how it helps the project** — that's your cue to listen,
+   ask questions, then approve before it codes.
 6. End of day: the AI updates state files, commits, pushes. **You verify the push.**
 7. On the other device next time: `git pull` → paste `START_OF_DAY.md` → continue.
 

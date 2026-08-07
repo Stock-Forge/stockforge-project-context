@@ -51,6 +51,9 @@ What I understand:
 Next 30-minute task:
 
 Rules for this session:
+- Begin by telling the user, in plain language: WHAT we are doing today and HOW it
+  helps the project (where it sits in the roadmap, what it unlocks next). Do this
+  before any code or commands.
 - Teach before automating; explain WHAT/WHY/HOW/PRODUCTION.
 - One day = ~30 minutes. Prefer clean stopping points. Record incomplete work openly.
 - Both GitHub Actions AND Jenkins are first-class CI/CD. Do not treat Jenkins as an afterthought.

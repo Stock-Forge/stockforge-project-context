@@ -51,6 +51,10 @@ Next 30-minute task:
 
 ## PHASE 2 — WORK ONE DAY (~30 MINUTES)
 
+- **Begin by briefing the user (short, plain language):** state clearly WHAT we are
+  doing today and HOW it helps the project — where today's work sits in the roadmap,
+  why it exists, and what it unlocks next. Do this BEFORE writing any code or running
+  any build commands.
 - Follow the day's plan from `DAY_BY_DAY_GUIDE.md` (the section for the current day).
 - Goal: ONE clear 30-minute objective. Do not exceed it. Prefer a clean stopping point.
 - Teach while building (Master Prompt §3): WHAT we build → WHY → HOW → how production
