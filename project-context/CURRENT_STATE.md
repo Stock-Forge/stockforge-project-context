@@ -16,7 +16,7 @@
 | Status | Day 6 done & pushed: `stockforge-auth` built (Spring Boot 4.1.0) — bcrypt register + JWT login, 8 tests pass, curl verified 201/409/200/401/400. State updated & pushed here. |
 | Current repository | stockforge-project-context (state repo) — Day 7 continues in `stockforge-auth` |
 | Current branch | main |
-| Current commit | stockforge-project-context: new closeout commit; stockforge-auth: `1e3116d`; stockforge-api: `b0788bb`; stockforge-web: `8e7d075` |
+| Current commit | stockforge-project-context: new closeout commit; stockforge-auth: `2306f08`; stockforge-api: `b0788bb`; stockforge-web: `8e7d075` |
 
 ---
 
@@ -60,8 +60,14 @@
 - Ran the app (`.\mvnw spring-boot:run`), verified with curl the full matrix
   **201 → 409 → 200 → 401 → 400**; stopped the server. The user manually re-verified with
   curl (same matrix) while we continued.
+- **403 error-masking bug found + fixed (`2306f08`):** manual curl testing showed 403 on
+  register. Root cause: (1) PowerShell→curl mangled inline JSON bodies (`{email:...}` → parse
+  error), and (2) the secured `/error` dispatch turned every real error (400/404) into 403.
+  Fix: `.requestMatchers("/error").permitAll()`; added `test-auth.ps1` (file-based bodies,
+  immune to the quoting bug). Full matrix re-verified 201/409/200/401/400; 8 tests pass.
 - Day 6 issues logged in `ISSUES_LOG.md` (missing `spring-boot-starter-validation`;
-  test-isolation bug — shared in-memory store across tests; leftover Day 5 process on :8080).
+  test-isolation bug — shared in-memory store across tests; leftover Day 5 process on :8080;
+  403 error-masking; PathPatternRequestMatcher false lead).
 - **NEW WORKFLOW RULE (baked into `START_OF_DAY.md`):** the AI must deliver the full
   day briefing BEFORE any code and WAIT for acknowledgment — the user tests manually
   alongside, so the plan comes first every day.
@@ -154,7 +160,7 @@ the wrapper. Keep the stateless security setup; do NOT add sessions or form logi
 
 ```
 git status        # clean in all repos
-git log --oneline # project-context → closeout commit; auth → 1e3116d; api → b0788bb; web → 8e7d075
+git log --oneline # project-context → closeout commit; auth → 2306f08; api → b0788bb; web → 8e7d075
 ```
 
 ---

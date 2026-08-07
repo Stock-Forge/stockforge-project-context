@@ -2,7 +2,14 @@
 
 All notable changes per project day. Format: date — Day N — summary.
 
-## 2026-08-08 — Day 6
+## 2026-08-08 — Day 6 (bug fix after closeout)
+
+- `stockforge-auth` `2306f08`: fixed **403 error-masking** — permitted `/error` dispatch so
+  real errors (400/404) keep their status instead of becoming 403 for anonymous callers;
+  added `test-auth.ps1` (file-based curl bodies, immune to PowerShell quoting). Root cause of
+  the manual-test 403s was mangled inline JSON from PowerShell→curl, not the security rules.
+- Case studies logged in `ISSUES_LOG.md` (mangled curl body + secured /error; the
+  PathPatternRequestMatcher false lead).
 
 - `stockforge-auth` repo created and pushed (`1e3116d`): Spring Boot 4.1.0 auth service —
   `POST /api/auth/register` (bcrypt hash, 201/409/400) + `POST /api/auth/login`

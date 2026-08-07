@@ -154,7 +154,8 @@ Current phase:  Phase 1 — Git/GitHub organization and repository foundation
 Current day:    Day 6 (DONE)
 Current repo:   stockforge-auth (new) — state repo updated in parallel
 Current branch: main
-Previous commit: n/a (new repo) — first commit `1e3116d`
+Previous commit: n/a (new repo) — first commit `1e3116d`, bug-fix commit `2306f08` (permit `/error`,
++ `test-auth.ps1`)
 
 What was implemented:
 

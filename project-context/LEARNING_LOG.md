@@ -124,6 +124,10 @@
     which emails exist (account enumeration).
   - Boot 4 needs `spring-boot-starter-validation` for `@NotBlank`/`@Email`/`@Size`.
   - Tests must not share mutable state or depend on order (each test = its own email).
+  - **403 debugging lesson:** PowerShell→curl mangles inline JSON (`-d '{"email":...}'` sends
+    `{email:...}`), so use `--data-binary "@file"`. And always `.requestMatchers("/error").permitAll()`
+    — otherwise every real error (400/404) is re-secured as 403 and you chase a "security bug"
+    that doesn't exist.
 - **Production/HFT relevance:** real firms build on an identity provider (Keycloak/Auth0)
   for the same reasons — hashing, expiry, scopes. The JWT filter we add on Day 7 is exactly
   the edge-verification a gateway does: verify once at the edge, enforce roles per route.

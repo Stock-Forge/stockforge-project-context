@@ -27,6 +27,59 @@
 
 ## Day 6 — `stockforge-auth` (2026-08-08)
 
+### Day 6 — Every auth request returned 403: two compounding causes (mangled curl body + secured /error)
+
+- **Symptom:** manual testing reported `POST /api/auth/register` → **403** (expected 201). The
+  auth service seemed to reject everything; `GET /api/auth/register` was also 403 and
+  `/actuator/health` was 200.
+- **Detection:** reproduced against a fresh instance on port 8081; the server log showed
+  `HttpMessageNotReadableException: JSON parse error: Unexpected character ('e' ...)` —
+  meaning the request REACHED the controller but the body was `{email:...}` (first `"` missing).
+- **Cause (two layers):**
+  1. **Tooling:** from PowerShell, `curl.exe -d '{"email":"..."}'` (and even `-d "{\"email\":...}"`)
+     mangles the embedded quotes, so the server receives `{email:"..."}` — an unreadable JSON
+     body, NOT a clean request. This is a PowerShell 5.1 native-argument quoting quirk, not a
+     server bug.
+  2. **Server:** when the controller throws (e.g. unreadable body → 400, or a 404), Boot
+     forwards to `/error`. That path matched our `anyRequest().authenticated()`, and the
+     anonymous error dispatch was re-rejected as **403** — so every genuine error was masked
+     as "forbidden".
+- **Fix:** permitted the error dispatch (`.requestMatchers("/error").permitAll()`) so real
+  errors keep their real status (400/404/500). Then verified with **file-based** JSON bodies
+  (`curl.exe --data-binary "@file.json"`), which PowerShell cannot mangle: full matrix
+  register=201, duplicate=409, login=200, wrong-password=401, short-password=400. All 8 tests
+  still pass.
+- **Prevention:** never trust inline JSON in PowerShell→curl; use `--data-binary "@file"` (or
+  the committed `test-auth.ps1`). Document that `/error` must be `permitAll` in every service's
+  security config so errors are never masked. When a whole API seems to 403, check the server
+  log for parse errors before suspecting the security rules.
+- **Production relevance:** error-masking is a real production bug — if `/error` is secured,
+  your 400s/404s/500s silently become 403s, breaking clients, alerts, and SLO error budgets.
+  It also hid the real problem for a while: a bad client body looked like a server security
+  failure. Real platforms pin error handling (permissive `/error`, a global exception handler)
+  and their API tests send bodies from fixtures, not shell strings.
+
+### Day 6 — False lead: suspected Spring Security 7 PathPatternRequestMatcher breakage
+
+- **Symptom:** while chasing the 403, we suspected Spring Security 7.1 (Boot 4) had broken
+  string `requestMatchers(...)` because the auth paths seemed to fall through to
+  `anyRequest().authenticated()`.
+- **Detection:** a web search surfaced issue spring-projects/spring-security#17808 — string
+  matchers need a `PathPatternRequestMatcher.Builder` sharing Spring MVC's parser, which Boot
+  was expected to auto-provide.
+- **Cause:** investigation error — the observation "only /actuator/health is 200, everything
+  else 403" was consistent with the mangled-body + secured-/error masking, NOT with broken
+  matchers. The security rules were fine all along (proven later: clean-body requests got 201
+  on the ORIGINAL code).
+- **Fix:** added a `PathPatternRequestMatcherBuilderFactoryBean`, tested, saw no change, then
+  found the real cause and **reverted** the bean.
+- **Prevention:** reproduce with a clean request (file-based body) before blaming framework
+  internals; change one variable at a time. The PathPatternRequestMatcher builder bean IS still
+  the documented SS7/Boot wiring for custom parser setups — we just don't need it.
+- **Production relevance:** misdiagnosis costs time. In real incidents this is why you capture
+  the actual request/response bytes early (curl -v, access logs) — it separates "client sent
+  garbage" from "server is broken" instantly.
+
 ### Day 6 — Spring Boot 4 validation annotations not on the classpath
 
 - **Symptom:** `mvnw test` failed to compile: `cannot find symbol — class NotBlank/Email/Size/Valid`
