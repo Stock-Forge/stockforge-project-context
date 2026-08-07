@@ -2,6 +2,23 @@
 
 All notable changes per project day. Format: date — Day N — summary.
 
+## 2026-08-08 — Full end-to-end verification + run/test playbook
+
+- Ran a complete verification of everything built so far (contracts, web, api, auth): all
+  checks pass (openapi 10 paths/14 schemas; web lint+build+dev; api 4/4 tests + live health;
+  auth 8/8 tests + live 201/409/200/401/400 matrix + valid HS384 JWT; all 5 repos clean).
+- Findings recorded for later reference:
+  - `stockforge-api` and `stockforge-auth` BOTH bind port 8080 and are separate processes —
+    run one at a time; nothing auto-starts the API when auth starts.
+  - Test files: auth has `RUN_AND_TEST.txt`, `test-auth.ps1`, `req/wrong/short.json`, Postman
+    collection; api has only a Postman collection + `src/test/java` (no `test-api.ps1` yet).
+  - PowerShell blocks `npm` ("running scripts is disabled") — use `npm.cmd` / cmd.exe /
+    `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
+  - `/actuator/health` is active by default on BOTH Spring services (actuator starter; health
+    is the default web-exposed endpoint); auth's SecurityConfig explicitly permits it.
+- Added a **Run & Test Playbook** section to the Day 0–6 review HTML capturing all of the above.
+- Added ISSUES_LOG entries for the npm execution-policy gotcha and the shared-8080 port note.
+
 ## 2026-08-08 — Day 6 (tooling: Postman collections)
 
 - Added `testing/*.postman_collection.json` to `stockforge-auth` (`43dba23`) and

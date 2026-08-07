@@ -277,3 +277,43 @@
   data; real repos have `.gitignore` + CI checks (e.g. "no unexpected files in root").
 
 ---
+
+## Verification session — 2026-08-08 (full run of everything built so far)
+
+### Verify — PowerShell blocks `npm` ("running scripts is disabled on this system")
+
+- **Symptom:** running `npm install` in PowerShell failed with a `PSSecurityException` /
+  `UnauthorizedAccess`: `File C:\Program Files\nodejs\npm.ps1 cannot be loaded because running
+  scripts is disabled on this system`.
+- **Detection:** immediate command failure; the error points at the `.ps1` wrapper that npm
+  installs for PowerShell.
+- **Cause:** the ExecutionPolicy on this Windows box is `Restricted`/`RemoteSigned`-not-applied,
+  so PowerShell refuses to run any `.ps1` script (including npm's launcher). This is NOT an npm
+  problem — `npm.cmd` (the batch launcher) is unaffected.
+- **Fix:** use `npm.cmd install` / `npm.cmd run dev` in PowerShell, run from `cmd.exe`, or set
+  `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once in an admin PowerShell to allow
+  signed/local scripts permanently.
+- **Prevention:** remember the rule "PowerShell executes .ps1; cmd.exe executes .cmd"; use the
+  `.cmd` variant for node/npm tooling unless the policy is changed.
+- **Production relevance:** same class of issue as the curl-inline-JSON 403: the *tool layer*
+  (shell/quoting/policy) can block a perfectly good app. Check the launcher before blaming the
+  software. In CI the equivalent is "works on my machine" — pin tooling versions and run in a
+  consistent environment.
+
+### Verify — `stockforge-api` and `stockforge-auth` both bind port 8080 (documented, not a bug)
+
+- **Symptom:** starting `stockforge-auth` after `stockforge-api` (or vice versa) fails with
+  "port already in use", or the wrong service answers a health request.
+- **Detection:** `Get-NetTCPConnection -LocalPort 8080 -State Listen` shows the survivor; the
+  second Spring Boot instance fails to start.
+- **Cause:** both services default to `server.port: 8080` in their `application.yml`, and they
+  are separate processes — nothing starts the API automatically when auth starts.
+- **Fix:** run only one Spring service at a time on :8080 (the intended local workflow today);
+  later, Docker Compose gives each service its own port/container.
+- **Prevention:** document ports per service (done in the Run & Test Playbook); when a service
+  needs simultaneous local testing, pass `-Dserver.port=8081` (as the Day 6 debug instance did).
+- **Production relevance:** in production each service gets its own port/container and service
+  name — this local collision is purely a dev-machine artifact, but the lesson (know which
+  process owns which port) is how port-conflict incidents are debugged everywhere.
+
+---

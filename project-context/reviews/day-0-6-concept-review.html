@@ -86,6 +86,7 @@
   <a href="#code">Code Walkthrough</a>
   <a href="#issues">Issues &amp; Lessons</a>
   <a href="#production">Production Map</a>
+  <a href="#run-test">Run &amp; Test Playbook</a>
   <a href="#next">What's Next</a>
 </nav>
 
@@ -544,6 +545,78 @@ public LoginResponse login(LoginRequest request) {
   </table>
   <p class="muted">The point is not to replicate a bank's security team in 30 minutes. It's to build the
      <em>concepts</em> with your own hands so the managed versions make sense.</p>
+</section>
+
+<!-- ================= RUN & TEST ================= -->
+<section id="run-test">
+  <h2>Run &amp; Test Playbook — how to run and verify everything (verified 2026-08-08)</h2>
+  <p>These are the operational facts from a full end-to-end verification run on 2026-08-08.
+     Everything below was executed live and confirmed working.</p>
+
+  <h3>How the pieces start</h3>
+  <div class="flow">service             command                              port
+stockforge-api    .\mvnw.cmd spring-boot:run              8080
+stockforge-auth   .\mvnw.cmd spring-boot:run              8080
+stockforge-web    npm.cmd run dev                         5173</div>
+  <div class="callout red">
+    <strong>Important:</strong> <code>stockforge-api</code> and <code>stockforge-auth</code> BOTH bind
+    port <strong>8080</strong>, and they are separate processes — starting auth does NOT start the API
+    (nothing auto-starts anything). Run only one of them at a time, or give one a different port.
+    Docker Compose (Day 13) will eventually start all services together.
+  </div>
+
+  <h3>Where the test files live</h3>
+  <table>
+    <tr><th>Repo</th><th>File</th><th>What it does</th></tr>
+    <tr><td>stockforge-auth</td><td><code>RUN_AND_TEST.txt</code></td><td>The full command reference for the whole project (start, test, curl, Postman, other services).</td></tr>
+    <tr><td>stockforge-auth</td><td><code>test-auth.ps1</code></td><td>One-line matrix script: register 201 / duplicate 409 / login 200 / wrong 401 / short 400.</td></tr>
+    <tr><td>stockforge-auth</td><td><code>req.json</code>, <code>wrong.json</code>, <code>short.json</code></td><td>JSON bodies for manual <code>curl.exe --data-binary "@file"</code>.</td></tr>
+    <tr><td>stockforge-auth</td><td><code>testing/stockforge-auth.postman_collection.json</code></td><td>Postman collection (health → register → duplicate → short → login → wrong).</td></tr>
+    <tr><td>stockforge-api</td><td><code>testing/stockforge-api.postman_collection.json</code></td><td>Postman collection (health only).</td></tr>
+    <tr><td>all Spring repos</td><td><code>src/test/java/…</code></td><td>Automated tests — run with <code>.\mvnw.cmd test</code>.</td></tr>
+  </table>
+
+  <h3>How to run the checks</h3>
+  <div class="flow"># contracts (parse check, Python must be installed)
+python -c "import yaml; yaml.safe_load(open('contracts/openapi.yaml', encoding='utf-8'))"
+
+# web
+npm.cmd run lint ; npm.cmd run build ; npm.cmd run dev   # → http://localhost:5173
+
+# api  (one Spring service at a time — they share :8080)
+.\mvnw.cmd test ; .\mvnw.cmd spring-boot:run
+curl.exe http://localhost:8080/api/health               # {"status":"UP"}
+
+# auth
+.\mvnw.cmd test ; .\mvnw.cmd spring-boot:run
+powershell -ExecutionPolicy Bypass -File .\test-auth.ps1</div>
+
+  <h3>Two operational gotchas recorded here</h3>
+  <div class="callout">
+    <strong>1. PowerShell blocks <code>npm</code>:</strong> running <code>npm install</code> in
+    PowerShell fails with "running scripts is disabled" (it tries to load <code>npm.ps1</code>).
+    Fix: use <code>npm.cmd</code> (bypasses the script), run from <code>cmd.exe</code>, or set
+    <code>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code> once (admin) to allow it
+    permanently.
+  </div>
+  <div class="callout">
+    <strong>2. <code>/actuator/health</code> is active on BOTH services by default:</strong>
+    <code>stockforge-api</code> and <code>stockforge-auth</code> include
+    <code>spring-boot-starter-actuator</code>, and <code>health</code> is the one endpoint Actuator
+    exposes over HTTP out of the box (no config needed). Auth's <code>SecurityConfig</code>
+    explicitly permits it, which is why it returns 200 instead of 403. It is the built-in,
+    machine-readable health check; <code>/api/health</code> is the custom one we wrote in the API.
+  </div>
+
+  <h3>Full verification results (2026-08-08)</h3>
+  <table>
+    <tr><th>Area</th><th>Checks</th><th>Result</th></tr>
+    <tr><td>Contracts</td><td>openapi.yaml parse (10 paths, 14 schemas)</td><td class="ok">PASS</td></tr>
+    <tr><td>Web</td><td>lint · build · dev server :5173</td><td class="ok">PASS</td></tr>
+    <tr><td>API</td><td>4/4 tests · live /api/health → {"status":"UP"}</td><td class="ok">PASS</td></tr>
+    <tr><td>Auth</td><td>8/8 tests · live matrix 201/409/200/401/400 · JWT has valid HS384 signature</td><td class="ok">PASS</td></tr>
+    <tr><td>Git</td><td>all 5 repos clean, pushed, up to date</td><td class="ok">PASS</td></tr>
+  </table>
 </section>
 
 <!-- ================= NEXT ================= -->
