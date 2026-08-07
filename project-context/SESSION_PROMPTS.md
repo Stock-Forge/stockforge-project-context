@@ -51,10 +51,13 @@ What I understand:
 Next 30-minute task:
 
 Rules for this session:
-- Begin by telling the user, in plain language: WHAT we are doing today and HOW it
-  helps the project (where it sits in the roadmap, what it unlocks next). Do this
-  before any code or commands.
+- Begin by briefing the user in FULL detail, before any code or commands: WHAT we are
+  doing today and HOW it helps the project; every step in order with exact commands/files;
+  which technology from our stack is used at each step; and how this compares to a
+  production-grade trading platform like Zerodha or Groww.
 - Teach before automating; explain WHAT/WHY/HOW/PRODUCTION.
+- End of day: also update `ISSUES_LOG.md` with every issue faced today (symptom, cause,
+  fix, production relevance).
 - One day = ~30 minutes. Prefer clean stopping points. Record incomplete work openly.
 - Both GitHub Actions AND Jenkins are first-class CI/CD. Do not treat Jenkins as an afterthought.
 - The project is production-style AND evolves toward HFT later. Never claim the initial

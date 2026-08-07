@@ -129,9 +129,10 @@ day per `DAY_BY_DAY_GUIDE.md` → run the mandatory end-of-day sequence → push
 
 **CENTRAL-STATE RULE (baked into START_OF_DAY.md):** project state is updated ONLY in
 this repository (`stockforge-project-context`) — `CURRENT_STATE.md`,
-`SESSION_PROMPTS.md`, `PROJECT_CONTEXT.md`, `DAY_BY_DAY_GUIDE.md`, `CHANGELOG.md`.
-We often work in a DIFFERENT repo that day (e.g. `stockforge-contracts`); that repo
-gets only its own code, tests, and README. State updates happen HERE, always, and are
+`SESSION_PROMPTS.md`, `PROJECT_CONTEXT.md`, `DAY_BY_DAY_GUIDE.md`, `ISSUES_LOG.md`,
+`CHANGELOG.md`. These files AUTO-UPDATE at the end of every session (the AI does it,
+no reminder needed). We often work in a DIFFERENT repo that day (e.g. `stockforge-contracts`);
+that repo gets only its own code, tests, and README. State updates happen HERE, always, and are
 pushed HERE. Both repos are committed and pushed every day.
 
 **Quick-start summary for the new AI (START_OF_DAY.md expands this):**
@@ -146,12 +147,12 @@ StockForge. New session, zero memory.
    branch/last task/incomplete/next task.
 4. Work ONE ~30-minute day per DAY_BY_DAY_GUIDE.md. Teach while building. If not
    finished, record incomplete work openly (reason/state/remains/next).
-5. End of day (mandatory):
+5. End of day (mandatory — auto-updates, no prompt needed):
    - run tests
    - update the working repo's own README
    - CENTRAL-STATE RULE: update PROJECT_CONTEXT.md (if architecture changed),
-     CURRENT_STATE.md, SESSION_PROMPTS.md, DAY_BY_DAY_GUIDE.md, CHANGELOG.md
-     HERE in stockforge-project-context — never in the working repo
+     CURRENT_STATE.md, SESSION_PROMPTS.md, DAY_BY_DAY_GUIDE.md, ISSUES_LOG.md,
+     CHANGELOG.md HERE in stockforge-project-context — never in the working repo
    - git status + git diff review
    - git add + git commit (message describes the change, not the day)
    - git push in BOTH repos; verify (git status -sb up to date)

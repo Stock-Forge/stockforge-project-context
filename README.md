@@ -20,6 +20,7 @@ stockforge-project-context/
     ├── CURRENT_STATE.md       # Current progress state (update after every session)
     ├── SESSION_PROMPTS.md     # Resume prompt + continuation-prompt history
     ├── DAY_BY_DAY_GUIDE.md    # Manual companion: GitHub setup + day-by-day plan
+    ├── ISSUES_LOG.md          # Every issue faced, day by day (symptom/cause/fix/production)
     ├── JOURNEY_SO_FAR.md      # Plain-language summary of everything done so far
     └── adr/                   # Architecture Decision Records
 ```
@@ -29,8 +30,8 @@ stockforge-project-context/
 1. `git pull`
 2. **Copy-paste `project-context/START_OF_DAY.md` into the new AI session.**
    It reconstructs the project from these files, works one ~30-minute day, and runs
-   the mandatory end-of-day sequence (update state → tests → README → commit → push →
-   verify).
+   the mandatory end-of-day sequence (update state → issues log → tests → README →
+   commit → push → verify) — all state files update automatically, no prompts needed.
 3. Do any manual steps listed in the current-day section of `DAY_BY_DAY_GUIDE.md`.
 
 ## Two-device workflow

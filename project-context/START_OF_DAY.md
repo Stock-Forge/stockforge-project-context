@@ -28,10 +28,12 @@ Run or inspect, in this order:
 4. Read the latest continuation prompt in
    `stockforge-project-context/project-context/SESSION_PROMPTS.md` (the most recent
    "Session N" entry; ignore superseded ones).
-5. If working on another repo (e.g. `stockforge-contracts`), read its README and inspect
+5. Read `stockforge-project-context/project-context/ISSUES_LOG.md` — know the pitfalls
+   and fixes from previous days so they are not repeated.
+6. If working on another repo (e.g. `stockforge-contracts`), read its README and inspect
    its structure too.
-6. Check `git status`, `git branch`, `git log -5` in every repo you will touch.
-7. Reconcile: compare the saved state + prompts against the actual repository state.
+7. Check `git status`, `git branch`, `git log -5` in every repo you will touch.
+8. Reconcile: compare the saved state + prompts against the actual repository state.
    If they disagree, investigate and report BEFORE writing any code.
 
 Then report this exact block:
@@ -51,10 +53,17 @@ Next 30-minute task:
 
 ## PHASE 2 — WORK ONE DAY (~30 MINUTES)
 
-- **Begin by briefing the user (short, plain language):** state clearly WHAT we are
-  doing today and HOW it helps the project — where today's work sits in the roadmap,
-  why it exists, and what it unlocks next. Do this BEFORE writing any code or running
-  any build commands.
+- **Begin by briefing the user in FULL detail (plain language, BEFORE any code or
+  commands):**
+  - **WHAT** we are doing today and **HOW it helps the project** — where today's work
+    sits in the roadmap, why it exists, and what it unlocks next.
+  - **Every step** we will take today, in order, with the exact commands and files.
+  - For each step: **which technology from our stack we are using** (Vite + React + TS,
+    Spring Boot, PostgreSQL, Redis, Kafka, Docker, GitHub Actions/Jenkins, k6, …) and
+    why that tool exists.
+  - **How this compares to a production-grade trading system like Zerodha or Groww** —
+    what those platforms do for this same thing, and how our local build is similar to
+    or different from theirs.
 - Follow the day's plan from `DAY_BY_DAY_GUIDE.md` (the section for the current day).
 - Goal: ONE clear 30-minute objective. Do not exceed it. Prefer a clean stopping point.
 - Teach while building (Master Prompt §3): WHAT we build → WHY → HOW → how production
@@ -83,14 +92,17 @@ receives project state files. Both repos are committed and pushed each day.
    completed, incomplete, files changed, tests, next exact task).
 6. **Here:** add a "Session N" entry to `SESSION_PROMPTS.md` and update the Day N entry
    in `DAY_BY_DAY_GUIDE.md` (mark it done, note what remains).
-7. **Here:** update `CHANGELOG.md` with one line for the day.
-8. `git status` — review what changed (in this repo AND the working repo).
-9. `git diff` — review the changes themselves.
-10. `git add`
-11. `git commit` — **commit message describes the change, NOT the day number**
+7. **Here:** update `ISSUES_LOG.md` — record every issue we faced today: symptom,
+   cause, how it was fixed, and the production relevance (what a real Zerodha/Groww-style
+   platform would do). One entry per issue; "none" only if truly none.
+8. **Here:** update `CHANGELOG.md` with one line for the day.
+9. `git status` — review what changed (in this repo AND the working repo).
+10. `git diff` — review the changes themselves.
+11. `git add`
+12. `git commit` — **commit message describes the change, NOT the day number**
     (e.g. "Add OpenAPI spec for orders API", not "Day 3").
-12. `git push` — push THIS repo; push the working repo too.
-13. Verify both pushes: `git status -sb` shows up to date; confirm on GitHub if possible.
+13. `git push` — push THIS repo; push the working repo too.
+14. Verify both pushes: `git status -sb` shows up to date; confirm on GitHub if possible.
 
 Before you declare the session complete, verify the working tree is clean and the
 latest commit is on the remote. If something is intentionally uncommitted, say so
