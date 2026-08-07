@@ -106,6 +106,29 @@
   across every service in microseconds — the ancestor of the tracing you'll use to
   prove HFT latency wins later. Logs are queried by machines, not read by eye.
 
+## Day 5 — Bonus deep-dive: how health checks work in production & HFT
+
+- **What we explored:** a Q&A follow-up on Day 5 — how `/actuator/health` checks
+  dependencies (DB/Kafka/Redis), and how that pattern changes in true HFT.
+- **Concept in one sentence:** health = *"know your status instantly and act
+  automatically"*; web apps poll+restart, HFT uses passive heartbeats + safety-first halt.
+- **What I should remember:**
+  - **Dependency probes:** DB → `SELECT 1`; Redis → `PING`; Kafka → broker metadata
+    (cluster). One DOWN component makes the whole status DOWN → instance pulled from rotation.
+  - **The zombie problem:** a process can be "UP" while useless (e.g. stale market data).
+    Health checks exist to catch exactly this — dependency-aware, not just process-alive.
+  - **Cloud/web pattern:** poll + probe on demand → restart / pull from load balancer.
+    Tolerance in seconds, retries OK. This is what StockForge builds Days 0-25.
+  - **True HFT pattern (Phase 26):** passive heartbeats on a separate management plane
+    (no HTTP polls on the hot path); **latency is itself the health signal**; market-data
+    **sequence-gap detection** catches stale feeds in microseconds; action = **kill switch /
+    go flat** (cancel orders, stop quoting) rather than restart; **active/standby warm
+    twins** for failover instead of slow resync. Never trade on stale state.
+- **Production/HFT relevance:** the web model is "detect → repair"; HFT is
+  "detect → halt + failover", because a restart takes seconds you don't have. Both are
+  the same idea, implemented for different latency budgets. We need the k6 baselines and
+  observability built in Days 0-25 before the HFT differences can even be measured.
+
 ---
 
 ## How the next day continues
