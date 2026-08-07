@@ -65,6 +65,15 @@ Next 30-minute task:
     what those platforms do for this same thing, and how our local build is similar to
     or different from theirs.
 - Follow the day's plan from `DAY_BY_DAY_GUIDE.md` (the section for the current day).
+- **State a hypothesis before EVERY change:** "I believe X happens because of Y" → do the
+  change → measure/observe → confirm or revise. No guessing. (Applies to bugs, config,
+  perf, and feature work alike — PROJECT_CONTEXT §25 habit 2.)
+- **Go deep, not wide:** for today's topic ask "what problem does this solve and what
+  breaks if it's gone?" (Kafka → partitioning/ordering/exactly-once; JVM → memory
+  model/GC/JIT; order book → price-time priority — §25 habit 3).
+- **Weekly habits (pick one if this is that day):** real-platform reading — study how
+  Zerodha/Groww/Coinbase or an exchange does today's domain and compare to ours (§25
+  habit 6); primitive side quest — build one toy version of a tool we use (§26).
 - Goal: ONE clear 30-minute objective. Do not exceed it. Prefer a clean stopping point.
 - Teach while building (Master Prompt §3): WHAT we build → WHY → HOW → how production
   teams do it → what can go wrong → how we detect/fix it. Explain every important line
@@ -92,17 +101,21 @@ receives project state files. Both repos are committed and pushed each day.
    completed, incomplete, files changed, tests, next exact task).
 6. **Here:** add a "Session N" entry to `SESSION_PROMPTS.md` and update the Day N entry
    in `DAY_BY_DAY_GUIDE.md` (mark it done, note what remains).
-7. **Here:** update `ISSUES_LOG.md` — record every issue we faced today: symptom,
-   cause, how it was fixed, and the production relevance (what a real Zerodha/Groww-style
-   platform would do). One entry per issue; "none" only if truly none.
-8. **Here:** update `CHANGELOG.md` with one line for the day.
-9. `git status` — review what changed (in this repo AND the working repo).
-10. `git diff` — review the changes themselves.
-11. `git add`
-12. `git commit` — **commit message describes the change, NOT the day number**
+7. **Here:** update `ISSUES_LOG.md` — record every issue we faced today as a mini
+   case study: symptom, detection, cause, fix, prevention, production relevance (what a
+   real Zerodha/Groww-style platform would do). One entry per issue; "none" only if
+   truly none.
+8. **Here:** teach-back — write today's concept in your own words (2-5 sentences) into
+   `JOURNEY_SO_FAR.md`, as if explaining to a smart friend. If you can't write it
+   simply, the day is not complete (§25 habit 1).
+9. **Here:** update `CHANGELOG.md` with one line for the day.
+10. `git status` — review what changed (in this repo AND the working repo).
+11. `git diff` — review the changes themselves.
+12. `git add`
+13. `git commit` — **commit message describes the change, NOT the day number**
     (e.g. "Add OpenAPI spec for orders API", not "Day 3").
-13. `git push` — push THIS repo; push the working repo too.
-14. Verify both pushes: `git status -sb` shows up to date; confirm on GitHub if possible.
+14. `git push` — push THIS repo; push the working repo too.
+15. Verify both pushes: `git status -sb` shows up to date; confirm on GitHub if possible.
 
 Before you declare the session complete, verify the working tree is clean and the
 latest commit is on the remote. If something is intentionally uncommitted, say so

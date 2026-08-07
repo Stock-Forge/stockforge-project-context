@@ -2,6 +2,17 @@
 
 All notable changes per project day. Format: date — Day N — summary.
 
+## 2026-08-07 — Day 5 (partial, blocked at tooling gate) — 0.1% habits added
+
+- Added the **10 "0.1%" engineering practices** to the project (`PROJECT_CONTEXT.md`
+  §25 + §26 primitive side quests): teach-back, hypothesis-before-change, deep-not-wide,
+  build-it-wrong, build-the-primitive, read-real-platforms, bugs-as-case-studies,
+  observability-from-day-one, teach-someone, monthly code review.
+- Dedicated **Days 40-43** in the roadmap + guide: platform study (Zerodha/Groww),
+  SRE-style incident post-mortem, teach someone else, monthly code review.
+- Baked habits into `START_OF_DAY.md` + `SESSION_PROMPTS.md`; upgraded `ISSUES_LOG.md`
+  template to case-study format (symptom → detection → cause → fix → prevention → production).
+
 ## 2026-08-07 — Day 5 (partial, blocked at tooling gate)
 
 - Started Day 5 (`stockforge-api`) startup protocol; this device has Java 17 + no Maven +

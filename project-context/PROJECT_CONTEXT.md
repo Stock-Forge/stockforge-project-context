@@ -506,7 +506,21 @@ Day 36   Cloud — AWS/EKS/IaC (production-style)
 Day 37   Failure injection + incident response
 Day 38   Production rollout simulation (canary/blue-green/rollback)
 Day 39+  HFT evolution — measured optimizations (see §17)
+Day 40   Platform study — deep-dive how a REAL platform (Zerodha Kite, Groww, Coinbase)
+         implements today's domain (order book / matching / market data / risk); deliverable:
+         written comparison of their design vs ours (see §25 habit 6)
+Day 41   Incident case study — take one real issue from ISSUES_LOG and write a full
+         SRE-style post-mortem: timeline, detection, investigation, root cause, mitigation,
+         prevention (see §25 habit 7)
+Day 42   Teach someone else — record a 10-minute explainer / write a blog post / teach a
+         friend one concept we built, in plain language (see §25 habit 9)
+Day 43   Monthly code review — refactor one component from weeks ago; write down what's
+         better now and why (see §25 habit 10)
 ```
+
+Recurring habits run EVERY day/week (see §25): teach-back each evening, hypothesis before
+every change, build-the-primitive side quests weekly, real-platform reading weekly, and
+the three dedicated days above (40-42) revisit these practices deeply.
 
 Roadmap is reviewed at each phase boundary and adjusted after feedback. Detailed manual steps for every day live in `DAY_BY_DAY_GUIDE.md` (detail is added when the day is reached).
 
@@ -537,6 +551,8 @@ Stored in `project-context/adr/`. One file per decision: Context, Decision, Alte
 - Never document something as implemented when it is not.
 - GitHub Actions + Jenkins both first-class; create equivalent pipelines in both.
 - **Phase 0 architecture must be approved before implementation begins.**
+- The 10 "0.1%" practices in §25 are part of the project, not optional extras — they are
+  enforced daily in `START_OF_DAY.md` and on dedicated roadmap days (40-43).
 
 ---
 
@@ -545,3 +561,47 @@ Stored in `project-context/adr/`. One file per decision: Context, Decision, Alte
 Every repository must have a README (how to run, architecture, APIs, dependencies, tests, Docker, CI/CD, limitations). This repo's README: `stockforge-project-context/README.md`.
 
 **Status:** `IMPLEMENTED`
+
+---
+
+## 25. The 10 "0.1%" Engineering Practices
+
+> Approved 2026-08-07. These ten habits are the difference between "collecting tools"
+> and *distilling understanding*. They are baked into the daily prompts (`START_OF_DAY.md`,
+> `SESSION_PROMPTS.md`), the issues log, the guide, and dedicated roadmap days 40-43.
+> "The project is complete only when the habit is done, not when the code compiles."
+
+| # | Practice | Where it lives in the project |
+|---|---|---|
+| 1 | **Teach-back (Feynman).** After each day, write the concept in your own words as if to a smart friend. If you can't explain it simply, you don't understand it. | `START_OF_DAY.md` Phase 3 (teach-back step); written into `JOURNEY_SO_FAR.md` |
+| 2 | **Hypothesis before change.** State "I believe X happens because of Y" before ANY change; then measure, change, re-measure. No guessing. | `START_OF_DAY.md` Phase 2; extends §12 beyond performance to every change |
+| 3 | **Deep, not wide.** Every tool is a window into a fundamental: Kafka → partitioning/ordering/exactly-once; JVM → memory model/GC/JIT; order book → price-time priority. Ask "what problem does this solve, what breaks if it's gone?" | `START_OF_DAY.md` Phase 2; `DAY_BY_DAY_GUIDE.md` production sections |
+| 4 | **Deliberately build it wrong.** Remove an index, exhaust a pool, kill a service mid-order, watch Kafka redeliver — then fix. Engineers who've seen systems break know more. | Phase 24 + expanded failure list in `DAY_BY_DAY_GUIDE.md`; issues logged in `ISSUES_LOG.md` |
+| 5 | **Build the primitive.** Weekly side quests: write your own JWT, token-bucket rate limiter, mini order book, latency histogram — then understand the production library 10x better. | New §26 "Primitive side quests" + weekly rhythm in `START_OF_DAY.md` |
+| 6 | **Read how the real platforms do it.** Weekly reading of Zerodha (zerodha.tech), Groww, Coinbase, exchange white papers, open-source trading systems. Compare: "they do X with 100 engineers + 10 DCs, we do it in 100 lines — where's the difference?" | Dedicated **Day 40**; weekly reading habit in `START_OF_DAY.md` |
+| 7 | **Every bug is a case study.** Issues logged SRE-style: timeline, detection, investigation, root cause, mitigation, prevention. A written body of "why things fail" is senior-engineer material. | `ISSUES_LOG.md` (upgraded template); dedicated **Day 41** |
+| 8 | **Observability from day one.** Wire metrics/logs/traces + correlation IDs into every service; a perf engineer who can prove a 40% regression with a flame graph is top-0.1% material. | §13 + enforced from Day 5 (`/api/health`, logging, correlation ID) |
+| 9 | **Teach someone else.** Explain days to a friend, write a blog post, make the README great. Teaching forces precision and compounds the career. | Dedicated **Day 42**; READMEs required (§24) |
+| 10 | **Review your own old code monthly.** Refactor a component from weeks ago; document what's better now and why. This is where taste develops. | Dedicated **Day 43**; monthly rhythm in `START_OF_DAY.md` |
+
+**Status:** `APPROVED`
+
+---
+
+## 26. Primitive Side Quests (weekly, habit 5)
+
+Build a toy version of something you're using, from scratch, in any language. One per
+week is enough. Suggested list (add more as the project grows):
+
+- JWT — sign + verify by hand (understand the HMAC/RS256 algorithm, claims, expiry)
+- Token-bucket rate limiter (the idea behind Redis rate limiting, Phase 10)
+- Mini order book + price-time matching engine (the heart of the matching-engine phase)
+- Latency histogram (p50/p95/p99 — the tool every perf engineer must own)
+- Connection pool (the idea behind pool exhaustion failures, Phase 9/24)
+- Kafka-like log: append-only file with offset + consumer reading from a position
+- Mini WebSocket fanout (the idea behind market-data streaming)
+- LRU cache (the idea behind Redis caching)
+
+**Status:** `APPROVED`
+
+**Status of §24-26:** `APPROVED` (2026-08-07)

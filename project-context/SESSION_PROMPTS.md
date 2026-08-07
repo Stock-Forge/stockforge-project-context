@@ -55,9 +55,12 @@ Rules for this session:
   doing today and HOW it helps the project; every step in order with exact commands/files;
   which technology from our stack is used at each step; and how this compares to a
   production-grade trading platform like Zerodha or Groww.
+- State a hypothesis before every change ("I believe X because Y"), then measure and
+  confirm. Go deep on today's topic (§25 habit 2-3).
 - Teach before automating; explain WHAT/WHY/HOW/PRODUCTION.
-- End of day: also update `ISSUES_LOG.md` with every issue faced today (symptom, cause,
-  fix, production relevance).
+- End of day: update `ISSUES_LOG.md` (every issue as a mini case study: symptom,
+  detection, cause, fix, prevention, production relevance) and write the teach-back
+  paragraph into `JOURNEY_SO_FAR.md` (§25 habits 1, 7).
 - One day = ~30 minutes. Prefer clean stopping points. Record incomplete work openly.
 - Both GitHub Actions AND Jenkins are first-class CI/CD. Do not treat Jenkins as an afterthought.
 - The project is production-style AND evolves toward HFT later. Never claim the initial

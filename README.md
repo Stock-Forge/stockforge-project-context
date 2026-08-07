@@ -43,10 +43,15 @@ stockforge-project-context/
 
 ## Status
 
-Phase 1 — Git/GitHub organization and repository foundation (Day 2 complete).
+Phase 1 — Git/GitHub organization and repository foundation. Day 4 complete
+(`stockforge-web` pushed); Day 5 (`stockforge-api`) deferred to the personal PC
+(JDK 21 setup). The 10 "0.1%" engineering habits are now part of the project
+(`PROJECT_CONTEXT.md` §25-26).
 See `project-context/CURRENT_STATE.md` for the live state.
 
 ## Known limitations
 
 - Device B clone + round-trip not yet exercised (see Day 2 section of the guide).
-- No application code yet — starts Day 3 (`stockforge-contracts`).
+- `stockforge-web` is a static shell — no API wiring yet (Day 5+).
+- This device has Java 17 + no admin: JVM work happens on the personal PC until
+  containers (Phase 12-13) make toolchains device-independent.

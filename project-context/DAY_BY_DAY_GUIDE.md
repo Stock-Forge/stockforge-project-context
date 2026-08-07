@@ -397,9 +397,60 @@ profiling queries, not guessing.
 | 47-49 (Ph 22) | Security hardening | Secrets, HTTPS, scanning, least privilege, audit logs |
 | 50-53 (Ph 23-25) | Cloud, failure injection, rollout | AWS/EKS/IaC; deliberate incidents (DB slowdown, Redis failure, Kafka lag, CPU, memory leak, bad deploy); rollback, canary/blue-green |
 | 54+ (Ph 26) | HFT evolution | Order-book optimization, lock contention, GC, object pooling, CPU affinity, lock-free structures, binary protocols, ns/µs measurement — every change baseline→hypothesis→change→measure→conclude |
+| 40, 41, 42, 43 (recurring) | The 0.1% habits (dedicated days) | Platform study (how Zerodha/Groww do today's domain), SRE-style incident post-mortem of a real issue, teach someone else, monthly code review — full detail in the sections above |
 
 > Day numbers are approximate — we add a new day when the previous one is done. The
 > roadmap table in `PROJECT_CONTEXT.md` §18 and §21 is the master list.
+
+---
+
+## THE 0.1% HABITS (run alongside every day)
+
+The full list lives in `PROJECT_CONTEXT.md` §25 (10 practices) and §26 (primitive side
+quests). Every day in `START_OF_DAY.md` enforces: teach-back at night, hypothesis before
+change, deep-not-wide questions, real-platform reading (weekly), and one primitive side
+quest per week. The days below are the *dedicated* deep dives.
+
+### Day 40 ✅ — Platform study: how a REAL platform does today's domain
+
+**Goal:** take the domain we just built (e.g. order book / matching / market data /
+risk) and study how a real platform implements it. Sources: Zerodha (zerodha.tech, Kite
+engineering posts), Groww, Coinbase, Robinhood, exchange white papers, open-source
+trading systems.
+
+**You do:** read. **AI does:** helps curate sources, explains what we read, and records
+a written comparison: *their design vs ours* — same, different, and why.
+
+**Deliverable (required):** a short written comparison appended to `JOURNEY_SO_FAR.md`
+or a `project-context/adr/`-style note. Without the written comparison, the day is not done.
+
+### Day 41 ✅ — Incident case study: full post-mortem of a real issue
+
+**Goal:** pick one real issue from `ISSUES_LOG.md` and write it as a complete SRE-style
+incident report: timeline, detection, investigation, root cause, mitigation, recovery,
+prevention. This is exactly what real platform teams write after production incidents.
+
+**Deliverable (required):** the post-mortem written into `ISSUES_LOG.md` (or a
+`project-context/incidents/` file). Reference it in `CURRENT_STATE.md`.
+
+### Day 42 ✅ — Teach someone else
+
+**Goal:** explain one concept we built to a real human — a friend, a colleague, or a
+recorded 10-minute video — or write a blog post / tutorial. Teaching forces precision.
+
+**You do:** deliver the explanation. **AI does:** helps structure it, quizzes you on the
+gaps, and reviews your draft.
+
+**Deliverable (required):** the recording/writing OR a written Q&A capturing what you
+explained and what you got wrong. Wrong answers are gold — log them in `ISSUES_LOG.md`.
+
+### Day 43 ✅ — Monthly code review
+
+**Goal:** once a month, refactor one component from weeks ago and write down what's
+better now and why (naming, structure, tests, performance). This is where taste develops.
+
+**AI does:** picks the component, explains the diff, and writes a short "what improved"
+note into `JOURNEY_SO_FAR.md`.
 
 ---
 

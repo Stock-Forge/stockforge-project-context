@@ -51,6 +51,10 @@
 - Prompt improvements shipped this session (already pushed `19166d2`): full-detail day
   briefing (steps + tech stack + Zerodha/Groww comparison) and a new `ISSUES_LOG.md`
   with auto-update at end of every session.
+- **0.1% habits added** (pushed with this closeout): the 10 practices are now project
+  requirements (`PROJECT_CONTEXT.md` §25-26), with dedicated Days 40-43 (platform study,
+  incident post-mortem, teach someone, monthly code review) and enforcement baked into
+  `START_OF_DAY.md` + `SESSION_PROMPTS.md` + upgraded `ISSUES_LOG.md` case-study format.
 
 **Open items carried forward:**
 ```

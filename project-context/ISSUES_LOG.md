@@ -3,7 +3,9 @@
 > Running log of every issue faced while building StockForge, one entry per issue,
 > updated at the END OF EVERY DAY (mandatory, per `START_OF_DAY.md` Phase 3).
 > Purpose: we never repeat the same mistake, and future AI sessions learn the pitfalls
-> before touching code. Each entry: Symptom → Cause → Fix → Production relevance.
+> before touching code.
+> **Format: every bug is a mini case study** (SRE-style, PROJECT_CONTEXT §25 habit 7):
+> Symptom → Detection → Cause → Fix → Prevention → Production relevance.
 
 ---
 
@@ -12,11 +14,13 @@
 ```
 ### Day N — <short issue title>
 
-- **Symptom:** what happened / what we saw
-- **Cause:** why it happened (root cause)
+- **Symptom:** what happened / what we saw (error, message, behavior)
+- **Detection:** how we noticed it (test, log, curl, dashboard, gut)
+- **Cause:** why it happened (root cause — "because", not "we did")
 - **Fix:** what we changed to resolve it
-- **Production relevance:** what a real trading platform (Zerodha/Groww-grade) does
-  for this same problem, or why this pitfall matters in production
+- **Prevention:** how we stop it recurring (test, guard, config, process)
+- **Production relevance:** what a real trading platform (Zerodha/Groww-grade) does for
+  this same problem, or why this pitfall matters in production
 ```
 
 ---
