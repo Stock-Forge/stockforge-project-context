@@ -1117,6 +1117,21 @@ For each critical API explain the complete request traversal. For each important
 
 ---
 
+## 47b. DEEP REVIEW RITUAL
+
+Every 5–6 completed days (or whenever the user requests), stop building and run a
+**deep 1-on-1 concept review session** as defined in `project-context/REVIEW_RITUAL.md`:
+
+- Produce a self-contained HTML review in `project-context/reviews/` covering the whole
+  range of days: WHAT we built, WHY, HOW (code walked through line by line), concepts in
+  depth, diagrams, incident case studies, production mapping, and teach-back homework.
+- Walk through it with the user one section at a time, as a conversation. Ask them to
+  explain back; re-teach from first principles where they hesitate.
+- The review is only *passed* when the user can explain the covered days in their own
+  words. Then close it out exactly like a day (state files, commit, push).
+
+---
+
 ## 47. NON-NEGOTIABLE END-OF-DAY SEQUENCE
 
 At the end of every day/phase, do NOT just say "done". Perform this exact sequence:

@@ -97,6 +97,12 @@ steps 4-10 below are performed HERE, in `stockforge-project-context`, and pushed
 The working repo only receives its own code, tests, and its own README — it never
 receives project state files. Both repos are committed and pushed each day.
 
+**REVIEW RITUAL TRIGGER:** if this day completes a block of 5–6 days, or the user asks
+for a review, run the **Deep Review Ritual** (see `REVIEW_RITUAL.md`): produce a
+self-contained HTML review in `project-context/reviews/`, walk through it one-on-one
+with the user, set teach-back homework, then close out the review like a day
+(state files + commit + push).
+
 1. Stop at a clean point.
 2. Run the appropriate tests (in whichever repo the work was done).
 3. Update the working repo's README if functionality changed (own README only).
