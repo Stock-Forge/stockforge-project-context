@@ -25,6 +25,68 @@
 
 ---
 
+## Day 6 — `stockforge-auth` (2026-08-08)
+
+### Day 6 — Spring Boot 4 validation annotations not on the classpath
+
+- **Symptom:** `mvnw test` failed to compile: `cannot find symbol — class NotBlank/Email/Size/Valid`
+  in `RegisterRequest`, `LoginRequest`, `AuthController`.
+- **Detection:** the compiler errors in the test run.
+- **Cause:** in Spring Boot 4 the web starter does NOT bundle the Jakarta validation API;
+  `spring-boot-starter-validation` is a separate starter we hadn't added.
+- **Fix:** added `spring-boot-starter-validation` to `pom.xml`; tests then compiled and passed.
+- **Prevention:** after any scaffold, compile once before writing tests; if a standard
+  annotation is missing, check for a dedicated starter (Boot splits concerns into starters).
+- **Production relevance:** every real project hits "which starter/artifact owns this class"
+  — that's what the dependency tree (`mvnw dependency:tree`) is for. CI compiles on every
+  push so this is caught in seconds, not at deploy time.
+
+### Day 6 — Tests shared one in-memory store → "expected 201 but was 409"
+
+- **Symptom:** `duplicateEmailReturnsConflict`, `loginReturnsJwt`, `wrongPasswordReturnsUnauthorized`
+  all failed at their first step: `Status expected:<201> but was:<409>` when registering.
+- **Detection:** Surefire failures; the same email (`alice@example.com`) was used in 4 tests.
+- **Cause:** `@SpringBootTest` reuses ONE Spring context (and therefore one `UserStore`) for
+  the whole test class, so whichever test registered `alice` first left it there; later
+  tests saw an existing user → 409. Tests were secretly order-dependent.
+- **Fix:** gave each test its own unique email (data isolation per test).
+- **Prevention:** never share mutable state or rely on test order. Use unique fixtures per
+  test, or `@DirtiesContext`/`@Transactional` rollback when shared state is unavoidable.
+- **Production relevance:** a test suite that passes only in a certain order is a time bomb
+  — real suites run in parallel (Maven surefire `parallel`, CI sharding), and a "works in
+  my run order" suite explodes there. Isolation is a correctness requirement, not a nicety.
+
+### Day 6 — Leftover Day 5 JVM was squatting port 8080
+
+- **Symptom:** `mvnw spring-boot:run` failed: "Port 8080 was already in use" / another
+  process is listening on port 8080.
+- **Detection:** the startup error, then `Get-NetTCPConnection -LocalPort 8080 -State Listen`
+  → owning process PID 2080 = `com.stockforge.api.StockforgeApiApplication` (Day 5 server
+  never fully stopped).
+- **Cause:** the previous day's `spring-boot:run` JVM was left running.
+- **Fix:** `Stop-Process -Id 2080 -Force`, confirmed the port was free, then started the
+  auth server.
+- **Prevention:** always stop `spring-boot:run` servers when done; when a port is busy,
+  identify the owner before killing anything (never blindly `taskkill`).
+- **Production relevance:** port conflicts are the local version of "two services fighting
+  over a resource" — real platforms manage this with orchestration (K8s ports, service
+  discovery) and never start a second replica without knowing what holds the port.
+
+### Day 6 — start.spring.io Boot 4 web dependency id is `web`, not `webmvc`
+
+- **Symptom:** the initial scaffold request failed: `Unknown dependency 'webmvc'` — Day 5
+  used the `webmvc` id successfully, so the same id was reused.
+- **Detection:** start.spring.io rejected the dependency id at URL-build time.
+- **Cause:** Boot 4 generator renamed/consolidated the web starter ids; on Boot 4 the id is
+  `web` (the `webmvc` alias seen on Day 5 was not accepted this time).
+- **Fix:** requested `web` instead; scaffold succeeded.
+- **Prevention:** when start.spring.io rejects a dependency id, query the generator's
+  dependency metadata (or try the plain `web` id) before retrying blindly.
+- **Production relevance:** dependency metadata drift between generator versions is exactly
+  why real teams pin scaffold/config versions and lock dependencies — "it worked last week".
+
+---
+
 ## Day 4 — `stockforge-web` scaffold (2026-08-07)
 
 ### Day 4 — Environment drift: Node version mismatched the state file

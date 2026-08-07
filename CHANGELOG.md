@@ -2,6 +2,18 @@
 
 All notable changes per project day. Format: date — Day N — summary.
 
+## 2026-08-08 — Day 6
+
+- `stockforge-auth` repo created and pushed (`1e3116d`): Spring Boot 4.1.0 auth service —
+  `POST /api/auth/register` (bcrypt hash, 201/409/400) + `POST /api/auth/login`
+  (200 + signed JWT via jjwt 0.13.0, wrong password → 401), in-memory `UserStore`,
+  stateless `SecurityConfig`. 8 tests pass; curl-verified 201→409→200→401→400.
+- New workflow rule baked into `START_OF_DAY.md`: **explain-first** — the AI delivers the
+  full day briefing and waits for acknowledgment before any code/commands (user tests
+  manually alongside).
+- Day 6 issues logged in `ISSUES_LOG.md` (missing `spring-boot-starter-validation`,
+  shared-store test-isolation bug, leftover Day 5 process on :8080, Boot 4 `web` id).
+
 ## 2026-08-07 — Day 5 closeout (additions)
 
 - New `project-context/LEARNING_LOG.md`: day-wise study notes (what we built / concept

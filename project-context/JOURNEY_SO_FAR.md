@@ -204,3 +204,23 @@ health checks for machines, correlation IDs for humans, and parseable logs for t
 We also learned the framework's major-version move (Boot 4) reorganized test
 annotations, which is why our first test compile failed and why verifying dependency
 versions against Maven Central matters. (Written 2026-08-07, Day 5.)
+
+---
+
+## 9. Teach-back — Day 6: what registering and logging in actually does
+
+When you register on StockForge we do **not** save your password. We run it through
+**bcrypt**, a one-way hash — a mathematical function that scrambles the password into
+garbage that can never be unscrambled, but can be *checked*: next time you type your
+password, the service scrambles what you typed and compares it to the stored garbage.
+That's why even if the database leaks, nobody can read the passwords. When you log in
+successfully, the server writes a **JWT** — a small, signed packet of JSON that says
+"this is alice@example.com, and here's when it expires". The signature is the important
+part: it's made with a secret key only the server knows, so nobody can forge a token or
+tamper with one. Every other service can check the signature and instantly know "yes,
+this request is really from alice" — no database lookup needed on every request. The
+reason an unknown email and a wrong password both get the same "invalid credentials"
+answer is deliberate: it stops anyone from probing the system to learn which emails exist.
+That's the same reason real trading platforms treat identity as the highest-risk area —
+once you control identity, you can control orders, positions, and money. (Written
+2026-08-08, Day 6.)

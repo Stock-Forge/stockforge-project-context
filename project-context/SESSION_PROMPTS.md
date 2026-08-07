@@ -147,6 +147,93 @@ End-of-session report:
 
 ---
 
+## Session 6 — `stockforge-auth`: register/login with bcrypt + JWT (2026-08-08)
+
+Project:        StockForge
+Current phase:  Phase 1 — Git/GitHub organization and repository foundation
+Current day:    Day 6 (DONE)
+Current repo:   stockforge-auth (new) — state repo updated in parallel
+Current branch: main
+Previous commit: n/a (new repo) — first commit `1e3116d`
+
+What was implemented:
+
+- Repo `stockforge-auth` created (user made empty repo on GitHub) and pushed (`1e3116d`).
+- Spring Boot 4.1.0 scaffold via `start.spring.io` (web + actuator + security + validation,
+  Java 21 language level, Maven Wrapper). Boot 4 dependency id for the web starter is `web`
+  (not `webmvc`) on start.spring.io.
+- bcrypt password hashing (`BCryptPasswordEncoder`); users in an in-memory `UserStore`.
+- `POST /api/auth/register` → 201 + user (no password field); duplicate email → 409;
+  short password (< 8) → 400 (jakarta validation). `POST /api/auth/login` → 200 + signed
+  JWT (jjwt 0.13.0, HS256, sub = email, 1h expiry) + user; bad credentials → same 401.
+- `JwtService` (sign + parse; tampered tokens rejected), `SecurityConfig` (stateless, no
+  CSRF/form login; `/api/auth/*` + health permitted, everything else locked for now).
+- Tests: MockMvc (register 201, duplicate 409, login 200 + JWT, wrong password 401, short
+  password 400) + JwtService unit tests — all 8 pass. curl-verified live: 201→409→200→401→400.
+- README written; `run.log`/`run.err.log` added to `.gitignore` pre-emptively.
+- **NEW WORKFLOW RULE baked into `START_OF_DAY.md`:** explain-first — the AI delivers the
+  full day briefing and WAITS for acknowledgment before any code/commands (user tests
+  manually alongside).
+
+What was learned:
+
+- **Spring Boot 4 validation needs its own starter:** `jakarta.validation` annotations
+  (`@NotBlank`, `@Email`, `@Size`, `@Valid`) are NOT bundled with the web starter in Boot 4 —
+  add `spring-boot-starter-validation`.
+- **Test isolation is a real bug class:** MockMvc tests share one Spring context + one
+  `UserStore`, so tests that reused the same email saw leftovers → `expected 201 but was 409`.
+  Fix: each test uses its own data. Production suites must never depend on test order.
+- **Leftover processes squat ports:** a Day 5 `stockforge-api` JVM was still listening on
+  :8080 and the Day 6 server failed to start. Fix: identify via
+  `Get-NetTCPConnection -LocalPort 8080` + stop the owning process, and always stop
+  `spring-boot:run` servers when done.
+- Same-oracle security: returning the same 401 for unknown email and wrong password avoids
+  user-probing (account enumeration).
+
+Current problem / open questions:
+
+- None blocking. JWT protects nothing yet — Day 7 adds the filter + protected endpoint.
+
+Incomplete work (record exactly; next session continues from here):
+
+- Day 7: roles + `JwtAuthenticationFilter` (SecurityContext from Bearer token) + protected
+  `GET /api/auth/me` + a role gate. Then Day 8 starts `stockforge-order-service`.
+- stockforge-auth has no persistence (in-memory users), no logout/refresh/revocation.
+- stockforge-web static; stockforge-api has no JWT wiring; Device B clones unverified.
+
+Exact next task:
+
+- Day 7 per the Day 7 prompt in CURRENT_STATE.md: `JwtAuthenticationFilter` → protected
+  `/api/auth/me` → role gate (`USER`/`ADMIN`) → tests → curl (login → me with/without token)
+  → push → update state here → push.
+
+Commands to run:
+
+- `git pull` in stockforge-project-context (+ any repo being touched)
+- `.\mvnw test` then `.\mvnw spring-boot:run` (JDK 21+; this device has 26)
+- curl: login → copy JWT → `curl.exe -H "Authorization: Bearer <token>" http://localhost:8080/api/auth/me`
+
+Files to inspect:
+
+- `stockforge-auth/src/main/java/com/stockforge/auth/` — user/, auth/, dto/, security/
+- `stockforge-contracts/contracts/openapi.yaml` — auth schemas the service must satisfy
+- `project-context/CURRENT_STATE.md` (Day 7 prompt), `project-context/ISSUES_LOG.md`
+
+Expected result:
+
+- `stockforge-auth` has a protected `/api/auth/me`; valid JWT → 200 + user; missing/invalid
+  → 401; role gate demonstrable; all tests green.
+
+Long-term direction:
+
+- Keep contract-first; the JWT verification built on Day 7 is what `stockforge-api` reuses
+  so every protected endpoint trusts the token. GitHub Actions + Jenkins both first-class
+  later (Phase 14-15); containers (Phase 12-13) end cross-device toolchain drift.
+
+Git verification: committed (yes, both repos)  pushed (yes)  verified (yes)
+
+---
+
 ## Day 0 — Foundation Session (2026-08-06)
 
 What was implemented:

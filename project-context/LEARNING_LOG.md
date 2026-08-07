@@ -106,6 +106,28 @@
   across every service in microseconds — the ancestor of the tracing you'll use to
   prove HFT latency wins later. Logs are queried by machines, not read by eye.
 
+## Day 6 — `stockforge-auth` (2026-08-08)
+
+- **What we built:** the auth service — `POST /api/auth/register` (bcrypt hashing, duplicate
+  → 409, short password → 400) and `POST /api/auth/login` (200 + signed JWT, wrong password
+  → 401), with users held in memory for now. 8 tests pass; verified live with curl.
+- **Concept in one sentence:** identity is the security foundation — passwords are never
+  stored in plain text (bcrypt one-way hash), and a signed JWT lets any service trust who
+  you are without a database lookup on every request.
+- **What I should remember:**
+  - **bcrypt** = a deliberately slow, salted one-way hash — `passwordEncoder.encode()` to
+    store, `.matches(raw, hash)` to check; never store or return the raw/hash.
+  - **JWT** = three base64url parts (header.payload.signature), signed so it can't be
+    forged; we sign HS256 with a shared secret (subject = email, expiry 1h). `JwtService`
+    signs and parses; tampered tokens throw.
+  - **Same 401 for both cases** (unknown email AND wrong password) so callers can't probe
+    which emails exist (account enumeration).
+  - Boot 4 needs `spring-boot-starter-validation` for `@NotBlank`/`@Email`/`@Size`.
+  - Tests must not share mutable state or depend on order (each test = its own email).
+- **Production/HFT relevance:** real firms build on an identity provider (Keycloak/Auth0)
+  for the same reasons — hashing, expiry, scopes. The JWT filter we add on Day 7 is exactly
+  the edge-verification a gateway does: verify once at the edge, enforce roles per route.
+
 ## Day 5 — Bonus deep-dive: how health checks work in production & HFT
 
 - **What we explored:** a Q&A follow-up on Day 5 — how `/actuator/health` checks

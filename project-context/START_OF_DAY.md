@@ -53,6 +53,11 @@ Next 30-minute task:
 
 ## PHASE 2 — WORK ONE DAY (~30 MINUTES)
 
+**EXPLAIN-FIRST RULE (hard requirement, every single day, no exceptions):** before any
+code, command, or file write, deliver the full briefing below, then **STOP and WAIT
+for the user to acknowledge** before executing. The user works alongside — they do
+their own manual testing while we build, so the plan must be on the table first.
+
 - **Begin by briefing the user in FULL detail (plain language, BEFORE any code or
   commands):**
   - **WHAT** we are doing today and **HOW it helps the project** — where today's work

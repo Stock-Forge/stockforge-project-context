@@ -10,13 +10,13 @@
 
 | Field | Value |
 |---|---|
-| Date | 2026-08-07 |
+| Date | 2026-08-08 |
 | Phase | Phase 1 — Git/GitHub organization and repository foundation |
-| Day | **Day 5 (DONE) — next is Day 6: `stockforge-auth`** |
-| Status | Day 5 done & pushed: `stockforge-api` scaffolded (Spring Boot 4.1.0), `/api/health` verified 200, tests pass. Tooling gate RESOLVED — this device now has JDK 26 (stack wants 21+, OK). State updated & pushed here. |
-| Current repository | stockforge-project-context (state repo) — Day 6 builds in `stockforge-auth` |
+| Day | **Day 6 (DONE) — next is Day 7: `stockforge-auth` part 2 (roles + JWT verification)** |
+| Status | Day 6 done & pushed: `stockforge-auth` built (Spring Boot 4.1.0) — bcrypt register + JWT login, 8 tests pass, curl verified 201/409/200/401/400. State updated & pushed here. |
+| Current repository | stockforge-project-context (state repo) — Day 7 continues in `stockforge-auth` |
 | Current branch | main |
-| Current commit | stockforge-project-context: new closeout commit; stockforge-api: `b0788bb`; stockforge-web: `8e7d075` |
+| Current commit | stockforge-project-context: new closeout commit; stockforge-auth: `1e3116d`; stockforge-api: `b0788bb`; stockforge-web: `8e7d075` |
 
 ---
 
@@ -31,99 +31,130 @@
 | 3 | `stockforge-contracts` — API & event contracts (OpenAPI v1.0.0 + 7 events) | ✅ done |
 | 4 | `stockforge-web` — React trading UI scaffold | ✅ done |
 | 5 | `stockforge-api` — Spring Boot gateway scaffold | ✅ done |
-| 6 | `stockforge-auth` — registration/login (bcrypt + JWT), roles | ⏭️ **NEXT** |
-| 7 | `stockforge-auth` part 2 — roles + `@Authenticated` check used by the API | planned |
+| 6 | `stockforge-auth` — registration/login (bcrypt + JWT), roles | ✅ done (register/login) |
+| 7 | `stockforge-auth` part 2 — roles + JWT verification (`@Authenticated`) reused by the API | ⏭️ **NEXT** |
 | 8-9 | `stockforge-order-service` — order lifecycle (in-memory), risk mock | planned |
 | 10+ | PostgreSQL → risk → matching → market-data → portfolio → notification → integration → … → HFT (roadmap §21) | planned |
 
 ---
 
-## What Day 5 completed
+## What Day 6 completed
 
-- GitHub repo **`stockforge-api`** created (empty) by the user; local repo created as its own git repo (sibling, never nested).
-- **Environment change resolved the tooling gate:** this device now has **JDK 26** (`java -version` = 26; stack wants 21+, satisfied) and no Maven — fine, the Maven Wrapper (`mvnw`, pinned to Maven 3.9.16) handled the build.
-- Scaffolded **Spring Boot 4.1.0** (Maven) via `start.spring.io` (`webmvc` + `actuator` deps, Java 21 language level). Explained `pom.xml` (parent, deps, wrapper), `@RestController`, `application.yml`.
-- **`GET /api/health`** → `{"status":"UP"}` (200).
-- **Structured logging** — key=value pattern in `application.yml`; every line carries `[correlationId=...]`.
-- **Correlation-ID filter** (`CorrelationIdFilter`, `@Order(1)`): reads `X-Correlation-Id` or generates a UUID, stores in MDC, echoes on the response.
-- Tests: MockMvc on `/api/health` (200 + JSON) + 2 filter unit tests (preserve incoming / generate when absent). **All 4 tests pass.**
-- Ran the app (`./mvnw spring-boot:run`), verified `curl http://localhost:8080/api/health` → 200, and `X-Correlation-Id` header round-trip; stopped the server.
-- Committed `3374c38` (+ `b0788bb` removing a stray `run.log`) and pushed to `Stock-Forge/stockforge-api` (tracking set).
-
-**Stack update (recorded in ADR 0002 + PROJECT_CONTEXT §5):** Spring Boot **3.x → 4.1.0** — `start.spring.io` no longer generates 3.x scaffolds. Verified running on Java 26.
+- GitHub repo **`stockforge-auth`** created (empty) by the user; local repo created as its
+  own git repo (sibling, never nested). First commit `1e3116d` pushed (tracking set).
+- Scoped this build to the auth contract in `stockforge-contracts` (register → 201/400/409,
+  login → 200/401) before writing code — contract-first.
+- Spring Boot 4.1.0 scaffold (web + actuator + security + **validation**) via `start.spring.io`,
+  Java 21 language level, Maven Wrapper. Reused the Day 5 pattern (health, structured logging).
+- **bcrypt password hashing** — never stored in plain text (`BCryptPasswordEncoder`).
+- **In-memory user store** for now (`UserStore`, thread-safe map); DB comes later.
+- **`POST /api/auth/register`** → 201 + user (no password field); duplicate email → 409;
+  short password (< 8) → 400 (jakarta validation).
+- **`POST /api/auth/login`** → 200 + signed **JWT** (jjwt 0.13.0, HS256, subject = email, 1h
+  expiry) + user; wrong password or unknown email → same 401 (no user-probing).
+- **JwtService** (sign + parse, tampered tokens rejected) and **SecurityConfig** (stateless,
+  no CSRF/form login; only `/api/auth/*` + health permitted; the rest stays locked — the
+  JWT filter that unlocks it comes Day 7).
+- Tests: MockMvc (register 201, duplicate 409, login 200 + JWT, wrong password 401, short
+  password 400) + JwtService unit tests. **All 8 pass.**
+- Ran the app (`.\mvnw spring-boot:run`), verified with curl the full matrix
+  **201 → 409 → 200 → 401 → 400**; stopped the server. The user manually re-verified with
+  curl (same matrix) while we continued.
+- Day 6 issues logged in `ISSUES_LOG.md` (missing `spring-boot-starter-validation`;
+  test-isolation bug — shared in-memory store across tests; leftover Day 5 process on :8080).
+- **NEW WORKFLOW RULE (baked into `START_OF_DAY.md`):** the AI must deliver the full
+  day briefing BEFORE any code and WAIT for acknowledgment — the user tests manually
+  alongside, so the plan comes first every day.
 
 ## What is deliberately NOT done
 
+- **Day 7 (next):** roles + a `JwtAuthenticationFilter` (populates Spring SecurityContext
+  from the bearer token) + a protected `/api/auth/me` endpoint, so `stockforge-api` can
+  later reuse the same verification. Not yet started.
 - **Device B clone still unverified** (user-owned) — clone this repo on the other device:
   ```
-  git clone https://github.com/Stock-Forge/stockforge-api.git
+  git clone https://github.com/Stock-Forge/stockforge-auth.git
   ```
-- The API still talks to nothing: no auth, no persistence, no downstream services, no routing to stockforge-web yet.
-- No CI yet (Phase 14); actuator exposes only the health endpoint (no other metrics yet).
-- `stockforge-web` still makes zero HTTP calls — wiring it to `stockforge-api` comes after the API grows.
+- Auth service has no persistence (in-memory users) and no logout/refresh/revocation yet
+  (expiry exists via JWT exp). Tokens are single-service for now — cross-service reuse is
+  Day 7.
+- The API still talks to nothing: no routing to auth, no JWT-protected business endpoints.
+- No CI yet (Phase 14); no rate limiting (a Day 15+ concern).
 
 ## Incomplete work (open items carried forward)
 
 ```
 - Device B clone verification (user-owned, do anytime).
 - Contract tooling + contract tests (deferred to service phases / Phase 14).
-- stockforge-web is a static shell with no API wiring; stockforge-api has no real endpoints yet.
+- stockforge-web is a static shell with no API wiring; stockforge-api has no real endpoints.
+- stockforge-auth: no persistence (in-memory users), no logout/refresh/revocation.
 - Cross-device JVM note: this machine has JDK 26; if the personal PC has JDK 21, both are fine
   (java.version=21 targets 21+). Maven comes from the wrapper everywhere.
 ```
 
 ---
 
-## NEXT DAY PROMPT — DAY 6: `stockforge-auth`
+## NEXT DAY PROMPT — DAY 7: `stockforge-auth` part 2 (roles + JWT verification)
 
 **How to start:** copy-paste the FULL content of
 `stockforge-project-context\project-context\START_OF_DAY.md` into the new AI session.
 Below is the day-specific plan the AI must follow.
 
-### Day 6 — `stockforge-auth`: registration & login
+### Day 7 — `stockforge-auth`: roles + `@Authenticated` (JWT-protected endpoints)
 
-**Goal:** a Spring Boot auth service with `POST /api/auth/register` and
-`POST /api/auth/login` using **bcrypt** password hashing and a **JWT**; wrong
-password → 401.
+**Goal:** make the JWT actually *protect* something. Add a **`JwtAuthenticationFilter`**
+that reads the `Authorization: Bearer <token>` header, verifies it, and populates the
+Spring **SecurityContext**; add a protected **`GET /api/auth/me`** endpoint returning the
+current user from the token; and exercise it with roles (`USER`, `ADMIN`). This is the
+mechanism `stockforge-api` will reuse on Day 8+ so every business endpoint can trust the
+token without re-verifying it per service by hand.
 
-**Why / production thinking:** security foundation. Passwords are never stored in plain
-text; we issue signed tokens the API verifies without a DB lookup per request. This is
-the highest-risk area of any trading platform — identity is where real firms get fined.
+**Why / production thinking:** a token you can verify but never use to protect anything is
+useless. Real platforms put an auth filter/gateway in front of every protected endpoint;
+the filter verifies the JWT ONCE per request and lets the endpoint read the identity from
+context. Least privilege + role checks are how trading platforms stop a user seeing
+another user's orders/positions.
 
-**Step 1 — You (manual):**
-- In org `Stock-Forge`, create empty repo `stockforge-auth` (no README/.gitignore/license).
+**Step 1 — You (manual):** nothing to create — `stockforge-auth` exists. (Optional: create
+empty repo `stockforge-order-service` if we finish early and time allows.)
 
 **Step 2 — AI session does:**
-1. Startup protocol (pull here, read context/state/prompts, reconcile).
-2. Create local folder `C:\CODE\HFT Application\stockforge-auth` — its OWN git repo.
-3. Scaffold Spring Boot (same as Day 5: `start.spring.io`, webmvc + actuator + a new
-   `security` dependency for bcrypt), reuse the Day 5 pattern (health, correlation ID).
-4. Implement `POST /api/auth/register` + `POST /api/auth/login`:
-   - users held **in memory** for now (DB comes later) — bcrypt hash the password
-   - issue a signed JWT on successful login; 401 on wrong credentials
-5. Tests: register then login returns a token; wrong password = 401; duplicate
-   register handled.
-6. Run tests; verify with `curl` (register → login → JWT in response).
-7. Commit + push to `Stock-Forge/stockforge-auth` (message describes the change).
-8. **CENTRAL-STATE RULE:** update state HERE — `CURRENT_STATE.md` (Day 6 done → Day 7),
-   `SESSION_PROMPTS.md` (Session 6 entry), `DAY_BY_DAY_GUIDE.md` (mark Day 6 done),
-   `ISSUES_LOG.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md` if changed.
-9. Commit + push this repo. Verify BOTH pushes.
+1. Startup protocol (pull both repos, read context/state/prompts, reconcile).
+2. **Briefing first, then WAIT for acknowledgment (EXPLAIN-FIRST RULE).**
+3. Add `JwtAuthenticationFilter` (a `OncePerRequestFilter`, `@Order(2)` — after the
+   correlation-ID filter): parse the Bearer token via `JwtService`, build a Spring
+   `Authentication` from the subject + roles, set the SecurityContext; on failure leave
+   the context unauthenticated (don't throw — endpoints decide).
+4. Move role membership where the filter can read it: `JwtService` gains role claims
+   (e.g. `roles=USER,ADMIN`) OR the filter loads the user from `UserStore` by email.
+5. Add `@Authenticated` annotation + a check that only lets authenticated requests through
+   on chosen endpoints; protect `GET /api/auth/me` (returns `UserResponse` for the token's
+   subject). Demonstrate a role gate (e.g. an `ADMIN`-only path or `@PreAuthorize("hasRole('ADMIN')")`).
+6. Tests: `/api/auth/me` with valid token → 200 + the right user; missing/invalid/expired
+   token → 401; role-protected path allows ADMIN, denies USER. Keep all existing tests green.
+7. Run tests; verify with curl (login → take JWT → call `/api/auth/me` with and without
+   the header).
+8. Commit + push to `Stock-Forge/stockforge-auth` (message describes the change).
+9. **CENTRAL-STATE RULE:** update state HERE — `CURRENT_STATE.md` (Day 7 done → Day 8),
+   `SESSION_PROMPTS.md` (Session 7 entry), `DAY_BY_DAY_GUIDE.md` (mark Day 7 done),
+   `ISSUES_LOG.md`, `LEARNING_LOG.md`, `JOURNEY_SO_FAR.md` (teach-back), `CHANGELOG.md`,
+   `PROJECT_CONTEXT.md` (auth status if changed).
+10. Commit + push this repo. Verify BOTH pushes.
 
-**Expected result:** `stockforge-auth` on GitHub; register → login returns a JWT;
-wrong password = 401; tests pass.
+**Expected result:** `stockforge-auth` on GitHub has a protected `/api/auth/me`; a valid
+JWT returns the current user, an invalid/missing one gets 401; role gate demonstrable;
+tests pass; Day 8 starts `stockforge-order-service`.
 
-**Environment note:** JDK 21+ required (this device has JDK 26 — fine). Maven comes
-from the wrapper. If `spring-boot-starter-security` pulls in a login screen you didn't
-ask for, we restrict it to the auth endpoints only (that's a Day 6 teaching point).
+**Environment note:** JDK 21+ required (this device has JDK 26 — fine). Maven comes from
+the wrapper. Keep the stateless security setup; do NOT add sessions or form login.
 
 ---
 
 ## GIT STATUS (verify on the other device)
 
 ```
-git status        # clean in both repos
-git log --oneline # project-context → closeout commit; api → b0788bb; web → 8e7d075
+git status        # clean in all repos
+git log --oneline # project-context → closeout commit; auth → 1e3116d; api → b0788bb; web → 8e7d075
 ```
 
 ---

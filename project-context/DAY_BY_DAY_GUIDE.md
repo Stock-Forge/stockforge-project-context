@@ -315,7 +315,7 @@ per-application-type modules (`spring-boot-starter-webmvc-test`).
 
 ---
 
-### Day 6 — `stockforge-auth`: registration & login (NEXT)
+### Day 6 — `stockforge-auth`: registration & login (DONE)
 
 **Goal (Day 6):** `POST /api/auth/register` + `POST /api/auth/login` with **bcrypt**
 password hashing and a **JWT**; wrong password → 401. Users held in memory for now
@@ -332,11 +332,43 @@ We build the *concepts* by hand so you understand what the managed services do.
 
 **You do:** create repo `stockforge-auth`; JDK 21+ (this device has 26 — fine).
 
+**Result (done):** repo `stockforge-auth` created + pushed (`1e3116d`). Spring Boot
+4.1.0 scaffold (web + actuator + security + validation); bcrypt hashing; in-memory
+`UserStore`; `POST /api/auth/register` (201/409/400) + `POST /api/auth/login`
+(200 + JWT / 401); `JwtService` (HS256, sub=email, 1h expiry); stateless
+`SecurityConfig`; 8 tests pass; curl-verified 201→409→200→401→400.
+
 **Expected result:** `POST /api/auth/register` + `/login` return a JWT; wrong password = 401;
 tests pass.
 
 **Production lesson:** identity is the highest-risk area — hashing, token expiry and
 least-privilege scopes are non-negotiable.
+
+---
+
+### Day 7 — `stockforge-auth` part 2: roles + JWT verification (NEXT)
+
+**Goal:** make the JWT *protect* something — a `JwtAuthenticationFilter` that verifies the
+`Authorization: Bearer` token and populates the Spring SecurityContext, a protected
+`GET /api/auth/me` returning the current user, and a role gate (`USER` vs `ADMIN`). This
+is the verification `stockforge-api` reuses from Day 8 so every business endpoint trusts
+the token.
+
+**What & why:** a token you can verify but never use to protect anything is useless. Real
+platforms verify the token ONCE per request in a filter/gateway and let endpoints read
+identity from context; roles enforce least privilege (one user must not see another's
+orders/positions).
+
+**Production:** identical concept in Zerodha/Groww — an auth layer in front of every
+protected API; OAuth2/Keycloak for big deployments; role checks at the API + UI layers.
+
+**You do:** nothing to create — `stockforge-auth` exists.
+
+**Expected result:** valid JWT → `/api/auth/me` returns 200 + user; missing/invalid/expired
+→ 401; role gate demonstrable; all tests green.
+
+**Production lesson:** verification happens once at the edge (filter), authorization
+per-route (roles/scopes); never trust the client to gate itself.
 
 ---
 

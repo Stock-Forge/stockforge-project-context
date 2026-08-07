@@ -124,7 +124,7 @@ C:\CODE\HFT Application\            (or any agreed root — must be identical on
 ├── stockforge-project-context\      ← EXISTS, separate git repo
 ├── stockforge-web\                  ← separate git repo (IMPLEMENTED, Day 4)
 ├── stockforge-api\                  ← separate git repo (IMPLEMENTED, Day 5)
-├── stockforge-auth\                 ← separate git repo (Phase 3)
+├── stockforge-auth\                 ← separate git repo (Phase 3, IMPLEMENTED)
 ├── stockforge-order-service\        ← separate git repo (Phase 4)
 ├── stockforge-risk-service\         ← separate git repo (Phase 5)
 ├── stockforge-matching-engine\      ← separate git repo (Phase 6)
@@ -143,7 +143,7 @@ C:\CODE\HFT Application\            (or any agreed root — must be identical on
 | stockforge-project-context | Project state, context, prompts, ADRs | `IN PROGRESS` |
 | stockforge-web | Trading UI (login, dashboard, market data, order entry, book, portfolio, P&L, history, WebSocket) | `IMPLEMENTED` (scaffold: Vite + React + TS shell, Day 4) |
 | stockforge-api | Client-facing API (routing, validation, auth integration, rate limiting, correlation IDs, docs) | `IMPLEMENTED` (scaffold: Spring Boot, /api/health, structured logging, correlation-ID filter, Day 5) |
-| stockforge-auth | Registration, login, logout, hashing, auth, authz, roles, tokens | `PLANNED` |
+| stockforge-auth | Registration, login, logout, hashing, auth, authz, roles, tokens | `IMPLEMENTED` (register/login bcrypt + JWT, Day 6) |
 | stockforge-order-service | Create/validate/cancel orders, lifecycle, state, events | `PLANNED` |
 | stockforge-risk-service | Balance/margin/position/quantity limits, risk rules, rejection | `PLANNED` |
 | stockforge-matching-engine | Order book, price-time priority, matching, fills, executions | `PLANNED` |
@@ -417,8 +417,8 @@ Repo creation order (progressive, each with explanation before creation):
 
 1. `stockforge-project-context` ✅ (exists)
 2. `stockforge-contracts` ✅ (Phase 1 — contracts/schemas first so services don't break each other)
-3. `stockforge-web` + `stockforge-api` (Phase 2)
-4. `stockforge-auth` (Phase 3)
+3. `stockforge-web` + `stockforge-api` ✅ (Phase 2)
+4. `stockforge-auth` ✅ (Phase 3 — Day 6 register/login; Day 7 roles + JWT verification)
 5. `stockforge-order-service` (Phase 4)
 6. `stockforge-risk-service` (Phase 5)
 7. `stockforge-matching-engine` (Phase 6)
@@ -472,8 +472,8 @@ Day 2    ✅ GitHub org + repo + git workflow practice (push done; clone on devi
 Day 3    ✅ stockforge-contracts — OpenAPI + contract thinking                       [done]
 Day 4    ✅ stockforge-web scaffold (Vite + React + TS)                              [done]
 Day 5    ✅ stockforge-api scaffold (Spring Boot, /api/health, logs, correlation ID)       [done]
-Day 6    auth — register/login (bcrypt + JWT) Part 1
-Day 7    auth — authz + roles Part 2
+Day 6    ✅ auth — register/login (bcrypt + JWT) Part 1                             [done]
+Day 7    auth — roles + JWT verification (@Authenticated, /api/auth/me) Part 2
 Day 8    order-service — create/list/cancel orders (in-memory first)
 Day 9    order-service + risk checks (mock risk)
 Day 10   PostgreSQL — schema, migrations, index lesson
