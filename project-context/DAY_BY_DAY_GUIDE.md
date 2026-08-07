@@ -148,7 +148,7 @@ C:\CODE\HFT Application\            (or agreed root; same on both devices)
 ├── stockforge-project-context\      ✅ exists        project continuity
 ├── stockforge-contracts\            ✅ Day 3          API/event contracts
 ├── stockforge-web\                  ✅ Day 4          React trading UI
-├── stockforge-api\                  Day 5            API gateway
+├── stockforge-api\                  ✅ Day 5          API gateway
 ├── stockforge-auth\                 Day 6-7          auth
 ├── stockforge-order-service\        Day 8-9          orders
 ├── stockforge-risk-service\         Phase 5          risk limits
@@ -282,7 +282,7 @@ though it talks to many backends.
 
 ---
 
-### Day 5 — `stockforge-api`: Spring Boot gateway scaffold
+### Day 5 ✅ — `stockforge-api`: Spring Boot gateway scaffold (DONE 2026-08-07)
 
 **Goal:** a Spring Boot app with `/api/health`, structured logging, a correlation ID
 filter, and a placeholder that talks to nothing yet.
@@ -295,36 +295,42 @@ lifecycle here — the concepts (filters, beans, config, tests) repeat in every 
 that owns auth, rate limiting, and correlation/tracing before requests reach services.
 Our `/api/health` + logging + correlation-ID filter is the first slice of that.
 
-**You do (on the personal PC — full admin):** clone project-context + web; install
-**JDK 21** (Temurin 21 — `https://adoptium.net`; verify `java -version`); create repo
-`stockforge-api` on GitHub. Maven is not needed — the Maven Wrapper (`mvnw`) pins its
-version. AI creates the project, explains `pom.xml`, `@RestController`, filters,
-`application.yml`, a unit test; commits, pushes.
+**You do:** create repo `stockforge-api` on GitHub. Maven is not needed — the Maven
+Wrapper (`mvnw`) pins its version. JDK 21+ required (this device now has JDK 26 — fine).
+
+**Result (done):** repo `stockforge-api` created + pushed (`3374c38` + `b0788bb`).
+Spring Boot **4.1.0** scaffold; `GET /api/health` → `{"status":"UP"}` verified with
+curl; key=value structured logging with `[correlationId=...]`; `CorrelationIdFilter`
+(MDC + echo); 4 tests pass (MockMvc health + 2 filter unit tests).
 
 **Expected result:** `./mvnw spring-boot:run` serves `http://localhost:8080/api/health`.
 
 **Production lesson:** every production API has health endpoints, structured logs and
 correlation IDs from day one — you can't add observability after the fact.
 
-**Environment note (2026-08-07):** the no-admin device has Java 17 + no Maven — it can
-only do frontend/state work. Day 5 runs on the personal PC until containers
-(Phase 12-13) make toolchains device-independent.
+**Stack update (recorded in ADR 0002):** Spring Boot **3.x → 4.1.0** — `start.spring.io`
+no longer generates 3.x scaffolds. Boot 4 moved `@AutoConfigureMockMvc` to
+`org.springframework.boot.webmvc.test.autoconfigure` and split test starters into
+per-application-type modules (`spring-boot-starter-webmvc-test`).
 
 ---
 
-### Day 6-7 — `stockforge-auth`: registration & login
+### Day 6 — `stockforge-auth`: registration & login (NEXT)
 
-**Goal (Day 6):** register + login with bcrypt password hashing and a JWT.
+**Goal (Day 6):** `POST /api/auth/register` + `POST /api/auth/login` with **bcrypt**
+password hashing and a **JWT**; wrong password → 401. Users held in memory for now
+(the DB comes at Day 10+).
 **Goal (Day 7):** roles + an `@Authenticated` check reused by the API.
 
 **What & why:** security foundation. Passwords are never stored in plain text; we issue
-signed tokens the API verifies without a DB lookup per request.
+signed tokens the API verifies without a DB lookup per request. This is the highest-risk
+area of any trading platform.
 
 **Production:** enterprises use an identity provider (Auth0, Keycloak, Azure AD);
 JWTs are the standard token format; rotation, expiry, and revocation are first-class.
 We build the *concepts* by hand so you understand what the managed services do.
 
-**You do:** create repo `stockforge-auth`; AI builds service, tests, README, CI-ready.
+**You do:** create repo `stockforge-auth`; JDK 21+ (this device has 26 — fine).
 
 **Expected result:** `POST /api/auth/register` + `/login` return a JWT; wrong password = 401;
 tests pass.

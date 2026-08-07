@@ -2,6 +2,17 @@
 
 All notable changes per project day. Format: date — Day N — summary.
 
+## 2026-08-07 — Day 5
+
+- `stockforge-api` repo created and pushed (`3374c38` + `b0788bb`): Spring Boot **4.1.0**
+  scaffold (Maven Wrapper, Java 21 language level) with `GET /api/health`
+  (→ `{"status":"UP"}`), key=value structured logging, and a correlation-ID filter
+  (MDC + `X-Correlation-Id` echo). 4 tests pass; endpoint verified with curl.
+- Stack update: Spring Boot **3.x → 4.1.0** (start.spring.io is 4.x-only) — recorded in
+  ADR 0002 and PROJECT_CONTEXT §5. Tooling gate resolved: this device now has JDK 26.
+- Day 5 issues logged in `ISSUES_LOG.md` (parent-POM version label vs Maven Central,
+  Boot 4 `@AutoConfigureMockMvc` relocation, accidental `run.log` commit).
+
 ## 2026-08-07 — Day 5 (partial, blocked at tooling gate) — 0.1% habits added
 
 - Added the **10 "0.1%" engineering practices** to the project (`PROJECT_CONTEXT.md`

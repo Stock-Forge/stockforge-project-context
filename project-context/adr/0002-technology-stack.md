@@ -1,6 +1,9 @@
 # ADR 0002 — Technology Stack
 
 **Status:** ACCEPTED (2026-08-06, Phase 0 approval)
+**Update (2026-08-07, Day 5):** Spring Boot moved **3.x → 4.1.0** — `start.spring.io`
+no longer generates 3.x scaffolds (4.x-only since the Boot 4 release). Verified running
+on Java 26 with language level 21. No other stack choices changed.
 
 ## Context
 
@@ -10,7 +13,7 @@ StockForge must be production-style (realistic, testable, deployable) yet learna
 
 | Layer | Choice | Alternatives considered |
 |---|---|---|
-| Backend | Java 21 LTS + Spring Boot 3.x + Maven | Go, Rust, C#/.NET |
+| Backend | Java 21 LTS + Spring Boot 4.x + Maven | Go, Rust, C#/.NET |
 | Frontend | React 18 + TypeScript + Vite | Vue, Svelte |
 | Realtime | WebSocket | SSE, polling |
 | Database | PostgreSQL 16 | MySQL |

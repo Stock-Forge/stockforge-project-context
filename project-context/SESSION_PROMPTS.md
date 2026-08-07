@@ -333,6 +333,88 @@ Git verification: committed (yes)  pushed (yes)  verified (yes)
 
 ---
 
+## Day 5 — `stockforge-api` Spring Boot gateway scaffold (2026-08-07)
+
+Project:        StockForge
+Current phase:  Phase 1 — Git/GitHub organization and repository foundation
+Current day:    Day 5 (DONE)
+Current repo:   stockforge-api (new) — state repo updated in parallel
+Current branch: main
+Previous commit: n/a (new repo) — first commit 3374c38, second b0788bb
+
+What was implemented:
+
+- Repo `stockforge-api` created (user made empty repo on GitHub) and pushed
+  (`3374c38` scaffold, `b0788bb` gitignore fix). Local repo is its own git repo.
+- Spring Boot **4.1.0** scaffold via `start.spring.io` (webmvc + actuator, Java 21
+  language level, Maven Wrapper pinned to Maven 3.9.16). No Maven install needed.
+- `GET /api/health` → `{"status":"UP"}` (200), verified with `curl` while running.
+- `application.yml` with key=value structured logging pattern carrying `[correlationId=...]`.
+- `CorrelationIdFilter` (`@Order(1)`): reads `X-Correlation-Id` or generates a UUID,
+  stores it in SLF4J MDC, echoes it on the response.
+- Tests: MockMvc `/api/health` + 2 filter unit tests — all 4 pass.
+- README written; stray `run.log` removed + gitignored (commit `b0788bb`).
+- Stack update recorded in ADR 0002 + PROJECT_CONTEXT §5: Spring Boot 3.x → **4.1.0**
+  (start.spring.io is 4.x-only now).
+
+What was learned:
+
+- **Spring Boot 4 changes:** `@AutoConfigureMockMvc` moved to package
+  `org.springframework.boot.webmvc.test.autoconfigure` (Boot 4 reorganized test modules
+  into per-application-type starters like `spring-boot-starter-webmvc-test`).
+- **start.spring.io version labels vs Maven Central:** the generator reported
+  `4.1.0.RELEASE`, but Maven Central has `4.1.0` — the parent POM failed to resolve
+  until we dropped the `.RELEASE` suffix. Always verify against
+  `repo.maven.apache.org` metadata.
+- The Maven Wrapper makes JDK/Maven setup portable: JDK 26 here satisfies the JDK 21+
+  requirement; the compiler targets language level 21.
+
+Current problem / open questions:
+
+- None blocking. This machine now has JDK 26 (state previously said Java 17 — resolved).
+- Personal PC toolchain (JDK 21 vs 26) not verified; both satisfy java.version=21.
+
+Incomplete work (record exactly; next session continues from here):
+
+- stockforge-api talks to nothing yet (no auth, no persistence, no routing).
+- stockforge-web still a static shell — no API wiring.
+- Device B clone of the repos not yet verified (user-owned).
+- Contract tooling + contract tests deferred (service phases / Phase 14).
+
+Exact next task:
+
+- Day 6: `stockforge-auth` — register + login with bcrypt + JWT. User: create empty
+  repo on GitHub. AI: Spring Boot service reusing the Day 5 pattern (health, correlation
+  ID), in-memory users, `POST /api/auth/register` + `/login`, wrong password → 401,
+  JWT on success, tests, push, update state here, push.
+
+Commands to run:
+
+- `git pull` in stockforge-project-context (+ any repo being touched)
+- `.\mvnw test` then `.\mvnw spring-boot:run` (JDK 21+; this device has 26)
+- `curl http://localhost:8080/api/health` (Day 5 app) / auth endpoints (Day 6)
+
+Files to inspect:
+
+- `stockforge-api/` — pom.xml, HealthController, CorrelationIdFilter, application.yml
+- `stockforge-contracts/contracts/openapi.yaml` — auth paths (`/api/auth/register`,
+  `/api/auth/login`) the Day 6 service must satisfy
+- `project-context/CURRENT_STATE.md` (Day 6 prompt), `project-context/ISSUES_LOG.md`
+
+Expected result:
+
+- `stockforge-auth` on GitHub; register → login returns a JWT; wrong password = 401.
+
+Long-term direction:
+
+- Keep contract-first: services built against `stockforge-contracts`, UI consumes the
+  same spec. GitHub Actions + Jenkins both first-class later (Phase 14-15); containers
+  (Phase 12-13) end cross-device toolchain drift.
+
+Git verification: committed (yes, both repos)  pushed (yes)  verified (yes)
+
+---
+
 ## Day 5 partial — tooling gate + prompt/features upgrade (2026-08-07)
 
 Project:        StockForge

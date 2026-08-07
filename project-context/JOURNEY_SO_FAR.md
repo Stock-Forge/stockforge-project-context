@@ -185,3 +185,22 @@ The next step on Day 2 was exactly the GitHub setup in the guide.
 8. Do not overengineer: smallest thing that teaches the concept; split with a reason.
 9. Production realism: local vs production vs difference, for every feature.
 10. A new AI session reconstructs everything from these files — zero memory assumed.
+
+---
+
+## 8. Teach-back — Day 5: what a Spring Boot service actually is
+
+Spring Boot is a framework that runs a normal Java web server (Tomcat) out of a tiny
+program: one class annotated `@SpringBootApplication` tells it "find my beans, wire
+everything, and start listening on a port". We added three moving parts to see how a
+real HTTP API is shaped: a **controller** (a plain class that maps URLs to methods —
+`GET /api/health` returns a JSON body), a **filter** (code that runs before and after
+every request, in our case to stamp each request with a correlation ID so all its log
+lines can be traced), and **structured logging** (a log format where every line carries
+named fields like `correlationId=...` instead of free-form text). The reason we build
+these from day one is that observability — knowing what a request did and where it
+failed — cannot be bolted on later; a production gateway is judged by exactly this:
+health checks for machines, correlation IDs for humans, and parseable logs for tools.
+We also learned the framework's major-version move (Boot 4) reorganized test
+annotations, which is why our first test compile failed and why verifying dependency
+versions against Maven Central matters. (Written 2026-08-07, Day 5.)
