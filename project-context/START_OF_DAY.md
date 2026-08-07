@@ -88,7 +88,7 @@ Next 30-minute task:
 
 **CENTRAL-STATE RULE: ALL project state lives in `stockforge-project-context`.**
 Even when today's work is done in a different repo (e.g. `stockforge-contracts`),
-steps 3-7 below are performed HERE, in `stockforge-project-context`, and pushed HERE.
+steps 4-10 below are performed HERE, in `stockforge-project-context`, and pushed HERE.
 The working repo only receives its own code, tests, and its own README — it never
 receives project state files. Both repos are committed and pushed each day.
 
@@ -108,14 +108,17 @@ receives project state files. Both repos are committed and pushed each day.
 8. **Here:** teach-back — write today's concept in your own words (2-5 sentences) into
    `JOURNEY_SO_FAR.md`, as if explaining to a smart friend. If you can't write it
    simply, the day is not complete (§25 habit 1).
-9. **Here:** update `CHANGELOG.md` with one line for the day.
-10. `git status` — review what changed (in this repo AND the working repo).
-11. `git diff` — review the changes themselves.
-12. `git add`
-13. `git commit` — **commit message describes the change, NOT the day number**
+9. **Here:** add a day entry to `LEARNING_LOG.md` using its template (what we built /
+   concept in one sentence / what I should remember / production-HFT relevance / teach-back).
+   This file is the user's personal study notes to re-read later — keep it plain-language.
+10. **Here:** update `CHANGELOG.md` with one line for the day.
+11. `git status` — review what changed (in this repo AND the working repo).
+12. `git diff` — review the changes themselves.
+13. `git add`
+14. `git commit` — **commit message describes the change, NOT the day number**
     (e.g. "Add OpenAPI spec for orders API", not "Day 3").
-14. `git push` — push THIS repo; push the working repo too.
-15. Verify both pushes: `git status -sb` shows up to date; confirm on GitHub if possible.
+15. `git push` — push THIS repo; push the working repo too.
+16. Verify both pushes: `git status -sb` shows up to date; confirm on GitHub if possible.
 
 Before you declare the session complete, verify the working tree is clean and the
 latest commit is on the remote. If something is intentionally uncommitted, say so

@@ -486,7 +486,7 @@ Rule of thumb: **we first build it locally and understand it, then we ask
   When we work in a different repo (e.g. `stockforge-contracts`), that repo receives
   only its own code/tests/README — state updates (`CURRENT_STATE.md`,
   `SESSION_PROMPTS.md`, `PROJECT_CONTEXT.md`, `DAY_BY_DAY_GUIDE.md`, `ISSUES_LOG.md`,
-  `CHANGELOG.md`) happen HERE and are pushed HERE. Both repos are committed and pushed each day.
+  `LEARNING_LOG.md`, `CHANGELOG.md`) happen HERE and are pushed HERE. Both repos are committed and pushed each day.
 - **Auto-update rule:** at the end of EVERY session the AI automatically updates all of
   the files above (state, prompts, guide, issues log, changelog) — it does not wait to
   be asked. If the AI finishes without updating them, the session is NOT complete.

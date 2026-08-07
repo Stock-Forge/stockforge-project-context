@@ -59,15 +59,17 @@ Rules for this session:
   confirm. Go deep on today's topic (§25 habit 2-3).
 - Teach before automating; explain WHAT/WHY/HOW/PRODUCTION.
 - End of day: update `ISSUES_LOG.md` (every issue as a mini case study: symptom,
-  detection, cause, fix, prevention, production relevance) and write the teach-back
-  paragraph into `JOURNEY_SO_FAR.md` (§25 habits 1, 7).
+  detection, cause, fix, prevention, production relevance), write the teach-back
+  paragraph into `JOURNEY_SO_FAR.md` (§25 habits 1, 7), and add a plain-language day
+  entry to `LEARNING_LOG.md` (the user's re-readable study notes).
 - One day = ~30 minutes. Prefer clean stopping points. Record incomplete work openly.
 - Both GitHub Actions AND Jenkins are first-class CI/CD. Do not treat Jenkins as an afterthought.
 - The project is production-style AND evolves toward HFT later. Never claim the initial
   microservice architecture is exchange-grade HFT.
 - End of session: stop clean → run tests → update README → update PROJECT_CONTEXT.md
   (if architecture changed) → update CURRENT_STATE.md → update SESSION_PROMPTS.md →
-  git status → git diff review → git add → git commit → git push → verify push.
+  update LEARNING_LOG.md → git status → git diff review → git add → git commit →
+  git push → verify push.
 - Never claim the session is safely saved until git push is verified.
 ```
 

@@ -2,6 +2,14 @@
 
 All notable changes per project day. Format: date — Day N — summary.
 
+## 2026-08-07 — Day 5 closeout (additions)
+
+- New `project-context/LEARNING_LOG.md`: day-wise study notes (what we built / concept
+  in one sentence / what I should remember / production-HFT relevance) covering Days 0-5.
+  Baked into `START_OF_DAY.md` Phase 3 as a mandatory end-of-day step so every future
+  day is logged; referenced in the central-state file lists (SESSION_PROMPTS,
+  DAY_BY_DAY_GUIDE, CURRENT_STATE).
+
 ## 2026-08-07 — Day 5
 
 - `stockforge-api` repo created and pushed (`3374c38` + `b0788bb`): Spring Boot **4.1.0**
