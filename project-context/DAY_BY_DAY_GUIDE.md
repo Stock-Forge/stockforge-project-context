@@ -144,8 +144,8 @@ We create folders **only when the phase needs them** — not all at once.
 C:\CODE\HFT Application\            (or agreed root; same on both devices)
 │
 ├── stockforge-project-context\      ✅ exists        project continuity
-├── stockforge-contracts\            Day 3            API/event contracts
-├── stockforge-web\                  Day 4            React trading UI
+├── stockforge-contracts\            ✅ Day 3          API/event contracts
+├── stockforge-web\                  ✅ Day 4          React trading UI
 ├── stockforge-api\                  Day 5            API gateway
 ├── stockforge-auth\                 Day 6-7          auth
 ├── stockforge-order-service\        Day 8-9          orders
@@ -252,7 +252,7 @@ wrapped in a ```yaml fence (the first version failed validation; rewritten as pu
 
 ---
 
-### Day 4 — `stockforge-web`: React trading UI scaffold
+### Day 4 ✅ — `stockforge-web`: React trading UI scaffold (DONE 2026-08-07)
 
 **Goal:** a working (ugly) web app: Vite + React + TypeScript, page shell with login
 placeholder and a dashboard that shows "connected" state.
@@ -266,6 +266,12 @@ WebSocket, behind a CDN, with feature flags and telemetry. We start tiny and gro
 **You do:** create repo `stockforge-web` on GitHub; install Node.js (`https://nodejs.org`,
 LTS) if not present. AI scaffolds the app with `npm create vite@latest`, explains each
 file, commits, pushes.
+
+**Result (done):** repo `stockforge-web` created + pushed (`8e7d075`). Vite + React 19 +
+TS scaffold; page shell with login placeholder + dashboard status cards ("API not
+connected yet"); dark StockForge theme. `npm run lint` + `npm run build` pass;
+`npm run dev` served HTTP 200 at `localhost:5173` (verified, then stopped).
+Node on this machine is v20.19.6 (LTS).
 
 **Expected result:** `npm run dev` shows a local site at `localhost:5173` with our shell.
 

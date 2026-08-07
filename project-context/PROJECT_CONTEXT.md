@@ -141,7 +141,7 @@ C:\CODE\HFT Application\            (or any agreed root — must be identical on
 | Repository | Responsibility | Status |
 |---|---|---|
 | stockforge-project-context | Project state, context, prompts, ADRs | `IN PROGRESS` |
-| stockforge-web | Trading UI (login, dashboard, market data, order entry, book, portfolio, P&L, history, WebSocket) | `PLANNED` |
+| stockforge-web | Trading UI (login, dashboard, market data, order entry, book, portfolio, P&L, history, WebSocket) | `IMPLEMENTED` (scaffold: Vite + React + TS shell, Day 4) |
 | stockforge-api | Client-facing API (routing, validation, auth integration, rate limiting, correlation IDs, docs) | `PLANNED` |
 | stockforge-auth | Registration, login, logout, hashing, auth, authz, roles, tokens | `PLANNED` |
 | stockforge-order-service | Create/validate/cancel orders, lifecycle, state, events | `PLANNED` |
@@ -469,8 +469,8 @@ Day 0  ✅ Project-context foundation (this repo)                            [do
 Day 1  ✅ Phase 0 architecture proposal + approval                          [done]
 Day 1.5✅ Approval recorded, day-by-day guide written, org created/pushed   [done]
 Day 2    ✅ GitHub org + repo + git workflow practice (push done; clone on device B)
-Day 3    stockforge-contracts — OpenAPI + contract thinking
-Day 4    stockforge-web scaffold (Vite + React + TS)
+Day 3    ✅ stockforge-contracts — OpenAPI + contract thinking                       [done]
+Day 4    ✅ stockforge-web scaffold (Vite + React + TS)                              [done]
 Day 5    stockforge-api scaffold (Spring Boot, health, logs)
 Day 6    auth — register/login (bcrypt + JWT) Part 1
 Day 7    auth — authz + roles Part 2

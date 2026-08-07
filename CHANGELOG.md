@@ -2,6 +2,12 @@
 
 All notable changes per project day. Format: date — Day N — summary.
 
+## 2026-08-07 — Day 4
+
+- `stockforge-web` repo created and pushed (`8e7d075`): Vite + React 19 + TypeScript
+  scaffold with login placeholder + dashboard shell ("API not connected yet"). Lint,
+  build, and dev server (localhost:5173) verified.
+
 ## 2026-08-06 — Day 3
 
 - `stockforge-contracts` repo created and pushed: OpenAPI v1.0.0 (10 paths, 14 schemas)

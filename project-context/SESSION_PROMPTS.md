@@ -263,6 +263,67 @@ Git verification: committed (yes, both repos)  pushed (yes)  verified (yes)
 
 ---
 
+## Day 4 — `stockforge-web` React trading UI scaffold (2026-08-07)
+
+What was implemented:
+
+- Repo `stockforge-web` created (user made empty repo on GitHub) and pushed (`8e7d075`).
+- Vite + React 19 + TypeScript scaffold (`npm create vite@latest . -- --template react-ts`),
+  template explained: `package.json` (scripts: dev/build/lint/preview), `tsconfig*`,
+  `index.html` (mounts React into `#root`), `src/main.tsx` + `App.tsx`, oxlint config.
+- Page shell: top bar with StockForge brand + "API not connected yet" badge; login
+  placeholder (disabled form); dashboard with API connection + market data status cards.
+- Replaced template demo (counter/hero) styles with a clean dark theme; removed unused assets.
+- Verified: `npm run lint` (oxlint) ✅, `npm run build` (tsc -b && vite build) ✅,
+  `npm run dev` → HTTP 200 at `http://localhost:5173` with `#root` present (server stopped after).
+- Own README written: status, getting started, scripts, structure, API contract, limitations.
+
+What was learned:
+
+- Scaffold truth on this machine: Node v20.19.6 (state previously said v24 — discrepancy
+  noted, no impact; v20 is still LTS and works with Vite 8).
+- Vite template now ships React 19 + Vite 8 + oxlint (not the older ESLint stack).
+- Frontend repo owns its UI/deploy/CI; it consumes the OpenAPI contract in stockforge-contracts.
+
+Current problem / open questions:
+
+- None blocking. Login/dashboard are static; real auth + API calls come later.
+
+Incomplete work (record exactly; next session continues from here):
+
+- stockforge-web is a static shell: no routing, no API wiring, no auth, no tests, no CI.
+- Device B clone of stockforge-web not yet verified (user-owned).
+
+Exact next task:
+
+- Day 5: `stockforge-api` — Spring Boot gateway scaffold. User: create empty repo on
+  GitHub + install JDK 21 / Maven. AI: `/api/health`, structured logging, correlation-ID
+  filter, one MockMvc test; run tests, push, update state here, push.
+
+Commands to run:
+
+- `git pull` in stockforge-project-context (+ any repo being touched)
+- `java -version` / `mvn -version` to confirm tooling
+- `./mvnw spring-boot:run` then `Invoke-WebRequest http://localhost:8080/api/health`
+
+Files to inspect:
+
+- `stockforge-web/README.md`, `src/App.tsx`, `src/index.css`
+- `stockforge-contracts/contracts/openapi.yaml` (the contract the API must satisfy)
+
+Expected result:
+
+- `stockforge-api` on GitHub; `GET /api/health` returns 200 JSON; correlation ID logged.
+
+Long-term direction:
+
+- Keep contract-first: services built against `stockforge-contracts`, UI consumes the
+  same spec. GitHub Actions + Jenkins both first-class later (Phase 14-15).
+
+Git verification: committed (yes)  pushed (yes)  verified (yes)
+
+---
+
 ## Day 3 — Upcoming: `stockforge-contracts` (next session pointer)
 
 Current state at the end of Day 2 / before Day 3 (see `CURRENT_STATE.md`):
