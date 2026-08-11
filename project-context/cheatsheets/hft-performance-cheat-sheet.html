@@ -71,6 +71,7 @@
 </header>
 
 <nav>
+  <a href="#findings">Key Findings</a>
   <a href="#why">The Problem</a>
   <a href="#gc">Garbage Collection</a>
   <a href="#jfr">JFR</a>
@@ -84,6 +85,35 @@
 </nav>
 
 <main>
+
+<!-- ================= KEY FINDINGS ================= -->
+<section id="findings">
+  <h2>Key Findings (take-aways, 2026-08-10)</h2>
+  <ul>
+    <li><strong>GC is not bad</strong> — the problem is <em>uncontrolled allocation and GC behavior
+        causing unpredictable latency and tail-latency spikes</em> (a 40 µs order randomly becomes
+        3,000 µs). Modern collectors (G1, ZGC, Shenandoah) do most work concurrently.</li>
+    <li><strong>JFR = the JVM's black-box recorder.</strong> Records GC, allocation, CPU, threads, lock
+        contention, JIT, safepoints, I/O. It does <strong>NOT fix anything</strong> — it tells you
+        <em>where to look</em>: record → observe → find bottleneck → change → re-test → compare.</li>
+    <li><strong>Lock contention = threads waiting for a shared lock.</strong> One thread waiting 1 ms on
+        a 50 µs order path ≈ 1,050 µs total → jitter at p99/p99.9. Mindset: <em>"threads waiting for
+        shared resources create unpredictable latency"</em> — not "locks are slow".</li>
+    <li><strong>Reduce contention:</strong> shrink the critical section (risk/fee/logging OUTSIDE the
+        lock), shard state, single-writer, message passing, atomics, lock-free structures, less shared
+        mutable state.</li>
+    <li><strong>Spring Boot does NOT manage GC/threads/JIT/locks — the JVM does.</strong> Spring Boot =
+        the <strong>control plane</strong> (REST, admin, config, monitoring, reporting); the hot trading
+        path should not drag Boot/DB/Kafka along.</li>
+    <li><strong>Core Trading Stack decision (ADR 0003, PROPOSED):</strong> first core-trading
+        implementation in <strong>plain Java</strong> (market data → trading engine → strategy → risk →
+        OMS → exchange gateway) to <em>deeply learn JVM performance engineering</em>. NOT a claim Java
+        &gt; C++ — a C++ equivalent is a later comparison target (latency, GC vs manual memory, CPU,
+        locking, networking, p99.99).</li>
+    <li><strong>Next practical step:</strong> JFR practical lab — small plain-Java app, controlled
+        allocation/contention problem, record with JFR, inspect GC/CPU/lock behavior.</li>
+  </ul>
+</section>
 
 <!-- ================= WHY ================= -->
 <section id="why">
