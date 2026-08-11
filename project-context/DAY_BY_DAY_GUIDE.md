@@ -346,7 +346,7 @@ least-privilege scopes are non-negotiable.
 
 ---
 
-### Day 7 — `stockforge-auth` part 2: roles + JWT verification (NEXT)
+### Day 7 — `stockforge-auth` part 2: roles + JWT verification (NEXT — review done, starting)
 
 **Goal:** make the JWT *protect* something — a `JwtAuthenticationFilter` that verifies the
 `Authorization: Bearer` token and populates the Spring SecurityContext, a protected

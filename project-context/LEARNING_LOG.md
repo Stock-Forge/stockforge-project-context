@@ -132,6 +132,29 @@
   for the same reasons — hashing, expiry, scopes. The JWT filter we add on Day 7 is exactly
   the edge-verification a gateway does: verify once at the edge, enforce roles per route.
 
+## Deep Review Ritual 1 — Days 0–6 concept review + frontend study (2026-08-11)
+
+- **What we did:** closed out the first one-on-one deep review. Went through the self-contained
+  `reviews/day-0-6-concept-review.html` section by section (stack, architecture, each day's
+  concepts, the auth code walkthrough, issues as case studies, production map, run/test playbook),
+  and added the frontend cheat sheet (React/TS/Vite) as the twin of the JVM cheat sheet.
+- **Concept in one sentence:** reviewing is how understanding sticks — and the cheat-sheet style
+  (one picture first, then plain-word findings, then a plant-the-bug-then-hunt lab) is the house
+  style for explaining any hard concept from here on.
+- **What I should remember:**
+  - The review is a *conversation*, not a changelog: AI explains → user explains back → AI
+    re-teaches gaps → homework closes the session. A day is only "understood" when it can be
+    explained simply.
+  - **Poll ≠ push on the hot path:** a poll observes the world only at its own cadence, so it
+    quantizes latency (check every 1s → up to 1s added). HFT reacts to events/heartbeats; it
+    never asks. That's the sharper perf reason behind the Day 5 health-check bonus topic.
+  - Same smell across stacks: a child re-rendering when nothing changed and a thread waiting on a
+    lock are both "resources consumed without useful progress" — the mindset transfers.
+- **Production/HFT relevance:** real firms review incidents and architecture continuously
+  (postmortems, RFC reviews); a junior who can explain the system plainly is a senior in training.
+  The poll-vs-push distinction is core to HFT design — event-driven beats polling wherever
+  latency matters.
+
 ## Day 5 — Bonus deep-dive: how health checks work in production & HFT
 
 - **What we explored:** a Q&A follow-up on Day 5 — how `/actuator/health` checks

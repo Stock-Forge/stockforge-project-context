@@ -224,3 +224,24 @@ answer is deliberate: it stops anyone from probing the system to learn which ema
 That's the same reason real trading platforms treat identity as the highest-risk area —
 once you control identity, you can control orders, positions, and money. (Written
 2026-08-08, Day 6.)
+
+---
+
+## 10. Teach-back — Deep Review Ritual 1 + the "explain it cheat-sheet style" rule
+
+We stopped building for a review day and went through everything from Days 0–6 together,
+one section at a time, using a self-contained review file
+(`reviews/day-0-6-concept-review.html`). The review is a *conversation*, not a
+changelog: I explain a concept, you explain it back in your own words, and I re-teach
+anything that wobbles. That's the Feynman habit in action — you can only know you
+understand a thing when you can explain it simply. The three strongest insights that
+came out of it: (1) **type-checking before bundling** is about running cheap correctness
+checks as early as possible — the bundler isn't the contract prover; (2) a **child
+re-rendering when nothing about it changed** and a **thread waiting on a lock** are the
+*same* engineering smell — resources being consumed without producing useful progress —
+just on opposite sides of the stack; (3) **poll vs push** on a hot path: a poll can only
+observe the world at its own cadence, which quantizes latency, so HFT reacts to events
+and heartbeats instead of asking. The review also made the teaching style official: from
+now on, hard concepts get the "cheat-sheet treatment" — one picture first, then key
+findings in plain words, then a plant-the-bug-then-hunt lab (see the JVM and frontend
+cheat sheets in `project-context/cheatsheets/`). (Written 2026-08-11, Review Ritual 1.)

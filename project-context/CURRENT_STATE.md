@@ -9,14 +9,14 @@
 ## Snapshot
 
 | Field | Value |
-|---|---|
-| Date | 2026-08-08 |
+|---|---|---|
+| Date | 2026-08-11 |
 | Phase | Phase 1 — Git/GitHub organization and repository foundation |
-| Day | **Day 6 (DONE) — next is Day 7: `stockforge-auth` part 2 (roles + JWT verification)** |
-| Status | Day 6 done & pushed: `stockforge-auth` built (Spring Boot 4.1.0) — bcrypt register + JWT login, 8 tests pass, curl verified 201/409/200/401/400. State updated & pushed here. |
+| Day | **Day 0-6 review COMPLETE — next is Day 7: `stockforge-auth` part 2 (roles + JWT verification)** |
+| Status | Deep Review Ritual 1 (Days 0–6) done & pushed: walked through `reviews/day-0-6-concept-review.html` one-on-one, user answered all homework correctly (incl. "poll ≠ push on the hot path" perf insight). Cheat-sheet teaching style adopted as a project rule. Day 7 (`JwtAuthenticationFilter` + `/api/auth/me` + role gate) is next, per `DAY_BY_DAY_GUIDE.md` Day 7. |
 | Current repository | stockforge-project-context (state repo) — Day 7 continues in `stockforge-auth` |
 | Current branch | main |
-| Current commit | stockforge-project-context: new closeout commit; stockforge-auth: `43dba23`; stockforge-api: `acb07a0`; stockforge-web: `8e7d075` |
+| Current commit | stockforge-project-context: review closeout; stockforge-auth: `6be237e`; stockforge-api: `acb07a0`; stockforge-web: `8e7d075`; stockforge-contracts: `e1d65cb` |
 
 ---
 
@@ -112,6 +112,25 @@
 - New cheat sheet: `project-context/cheatsheets/hft-performance-cheat-sheet.html` + vault
   `TechStack/JVM Performance Cheat Sheet` + vault notes GC/JFR/Lock Contention/Core Trading Stack.
 - Day 7 (auth roles + `@Authenticated`) is unchanged as the next coding day.
+
+---
+
+## Session note — 2026-08-11 (Deep Review Ritual 1 closeout + frontend study)
+
+- **Deep Review Ritual 1 COMPLETED:** walked the full Days 0–6 review one-on-one (architecture,
+  each day's concepts, the auth code walkthrough, every issue as a mini case study, the run/test
+  playbook, production mapping). User's homework answers all correct — highlights:
+  - Type-check-before-bundle = the bundler isn't the contract prover; cheap checks upstream.
+  - Re-render cascade and lock-wait are the SAME smell: resources consumed without useful progress.
+  - Poll ≠ push on the hot path: a poll can only observe at its own cadence → quantized latency.
+    HFT reacts by event/heartbeat, not ask.
+  - `test-auth.ps1` file bodies = bug workaround (PowerShell→curl strips quotes) + good hygiene.
+  - JWT is client-side ID (safe to return); password hash is server secret (never expose).
+- **Cheat-sheet teaching style is now a PROJECT_CONTEXT key rule** (user preference): one-picture
+  diagram first → key findings in plain words → map unfamiliar→familiar → plant-bug-then-hunt lab.
+- New frontend cheat sheet (React/TS/Vite) — the frontend twin of the JVM cheat sheet; frontend
+  debugging lab added to SideQuests. Vault mirrors created.
+- **Day 7 is next** (auth roles + `JwtAuthenticationFilter` + `/api/auth/me` + role gate).
 
 ---
 

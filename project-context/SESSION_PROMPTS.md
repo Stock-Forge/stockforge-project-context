@@ -147,6 +147,66 @@ End-of-session report:
 
 ---
 
+## Review Session — Deep Review Ritual 1 (Days 0–6) + frontend study (2026-08-11)
+
+Project:        StockForge
+Current phase:  Phase 1 — Git/GitHub organization and repository foundation
+Current day:    Day 0-6 review (COMPLETE) — Day 7 next
+Current repo:   stockforge-project-context (state repo); Day 7 continues in `stockforge-auth`
+Current branch: main
+Previous commit: stockforge-project-context `7e3d77d`; auth `6be237e`; api `acb07a0`;
+                 web `8e7d075`; contracts `e1d65cb`
+
+What was done (review, not build):
+
+- Completed the one-on-one walkthrough of `reviews/day-0-6-concept-review.html` (Ritual 1):
+  big picture → stack → architecture → each day 0–6 → auth code walkthrough → issues as mini
+  case studies → production map → run/test playbook. User answered every homework question
+  correctly (see "What was learned").
+- **Cheat-sheet teaching style promoted to a project rule** (PROJECT_CONTEXT §23 Key Rules):
+  one-picture diagram first → key findings in plain words → map unfamiliar→familiar → a
+  plant-the-bug-then-hunt lab. Vault Home conventions updated too.
+- New `project-context/cheatsheets/frontend-cheat-sheet.md` (React/TS/Vite) — frontend twin of
+  the JVM cheat sheet, incl. a frontend debugging lab (re-render storm / main-thread block /
+  bundle bloat, hunted with React DevTools Profiler + Lighthouse). Vault mirror +
+  `TechStack/React Vite TypeScript` link + SideQuests row added.
+- No application code changed during this session.
+
+What was learned (user's correct homework answers):
+
+- Type-check before bundle: the bundler is not the contract prover; cheap checks run upstream.
+- A child re-render when nothing changed = lock-wait = the same smell: work without useful
+  progress (performance found in both stacks).
+- Poll vs push on the hot path: a poll observes only at its own cadence → quantized latency;
+  HFT reacts by event/heartbeat, never ask (the deeper perf reason behind the Day 5 bonus topic).
+- File-based curl bodies = bug workaround for PowerShell→curl quote stripping + good hygiene.
+- JWT is client-facing ID (safe to return); a password hash is server secret (never expose).
+
+Problems encountered: none blocking (all review + doc work).
+
+Incomplete work:
+
+- Day 7 (next): `JwtAuthenticationFilter` (SecurityContext from Bearer token) + protected
+  `GET /api/auth/me` + role gate (USER vs ADMIN). Then Day 8 starts `stockforge-order-service`.
+- Device B clones of the repos still unverified (user-owned).
+
+Exact next task:
+
+- Day 7 per `DAY_BY_DAY_GUIDE.md`: `JwtAuthenticationFilter` → protected `/api/auth/me` →
+  role gate → tests → curl (login → me with/without token) → push auth → update state here → push.
+
+Commands to run:
+
+- `git pull` in stockforge-project-context and stockforge-auth
+- `.\mvnw test` then `.\mvnw spring-boot:run` (JDK 21+; this device has 26)
+- curl: login → copy JWT → `curl.exe -H "Authorization: Bearer <token>" http://localhost:8080/api/auth/me`
+
+Files to inspect:
+
+- `stockforge-auth/src/main/java/com/stockforge/auth/` — user/, auth/, dto/, security/
+
+---
+
 ## Session 6 — `stockforge-auth`: register/login with bcrypt + JWT (2026-08-08)
 
 Project:        StockForge
