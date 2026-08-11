@@ -96,7 +96,22 @@
 - stockforge-auth: no persistence (in-memory users), no logout/refresh/revocation.
 - Cross-device JVM note: this machine has JDK 26; if the personal PC has JDK 21, both are fine
   (java.version=21 targets 21+). Maven comes from the wrapper everywhere.
+- JFR PRACTICAL SIDE QUEST (2026-08-10, ADR 0003): small plain-Java app with a controlled
+  allocation/lock-contention problem → record with JFR → inspect GC/CPU/lock behavior. This is
+  the first practical step of the Core Trading Stack decision (Java-first trading engine).
 ```
+
+---
+
+## Session note — 2026-08-10 (between Day 6 and Day 7)
+
+- Deep-study session (vault Tech Stack note → LEARNING_LOG): **GC, JFR, lock contention**, Spring
+  Boot's role, and the **Core Trading Stack decision**.
+- **ADR 0003 PROPOSED** — hot path (matching, market data, strategy, risk, OMS, gateway) = **plain
+  Java**, not Spring Boot; control plane stays on Spring Boot; C++ comparison later.
+- New cheat sheet: `project-context/cheatsheets/hft-performance-cheat-sheet.html` + vault
+  `TechStack/JVM Performance Cheat Sheet` + vault notes GC/JFR/Lock Contention/Core Trading Stack.
+- Day 7 (auth roles + `@Authenticated`) is unchanged as the next coding day.
 
 ---
 

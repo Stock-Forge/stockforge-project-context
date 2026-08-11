@@ -377,6 +377,14 @@ Evolve toward: high throughput, low latency, order-book optimization, concurrenc
 
 **Explicit position:** initial microservice architecture is NOT a real exchange-grade HFT system; we progressively explain why HFT architecture looks different. Every change measured (baseline → hypothesis → change → measurement → result → conclusion).
 
+**Hot-path vs control-plane split (2026-08-10, see ADR 0003, PROPOSED):** the latency-critical
+trading core (matching engine, market data, strategy, risk, OMS, exchange gateway) is built in
+**plain Java, not Spring Boot** — the JVM's own perf engineering (GC, JFR, JIT, locks, lock-free,
+µs/ns measurement) is the learning objective, and a C++ equivalent can be compared later. Spring
+Boot, PostgreSQL, Redis, Kafka stay in the control plane (REST/admin/monitoring/reporting), off the
+hot path. First practical step: a small Java app with a controlled allocation/contention problem
+recorded with **JFR** to observe GC/CPU/lock behavior.
+
 **Status:** `APPROVED`
 
 ---

@@ -2,6 +2,23 @@
 
 All notable changes per project day. Format: date — Day N — summary.
 
+## 2026-08-10 — JVM performance engineering study + Core Trading Stack decision
+
+- Deep-study session (from the vault Tech Stack note) on **GC, JFR, lock contention**, Spring Boot's
+  role, and the core trading stack — full write-up in `LEARNING_LOG.md` (bonus entry).
+- **ADR 0003** (`adr/0003-core-trading-stack.md`, status `PROPOSED`): the latency-critical trading
+  core (matching, market data, strategy, risk, OMS, gateway) will be **plain Java, not Spring Boot**;
+  Spring Boot/DB/Kafka stay in the control plane; a C++ comparison is a later target. This is the
+  realization of the JVM-performance curriculum promised in ADR 0002.
+- `PROJECT_CONTEXT.md` §17 (HFT Evolution) updated with the hot-path vs control-plane split.
+- New cheat sheet: `project-context/cheatsheets/hft-performance-cheat-sheet.html` (self-contained,
+  offline, visual) + matching `TechStack/JVM Performance Cheat Sheet` note in the Obsidian vault.
+- New vault notes: `TechStack/GC`, `TechStack/JFR`, `TechStack/Lock Contention`,
+  `TechStack/Core Trading Stack`, vault ADR 0003, Journal teach-back; SideQuests index gains the
+  "JFR practical lab" quest.
+- **Next practical step (side quest):** small plain-Java app with a controlled allocation/contention
+  problem → record with JFR → inspect GC/CPU/lock behavior.
+
 ## 2026-08-08 — Full end-to-end verification + run/test playbook
 
 - Ran a complete verification of everything built so far (contracts, web, api, auth): all

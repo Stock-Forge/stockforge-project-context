@@ -155,6 +155,40 @@
   the same idea, implemented for different latency budgets. We need the k6 baselines and
   observability built in Days 0-25 before the HFT differences can even be measured.
 
+## Bonus deep-dive — JVM performance engineering: GC, JFR, lock contention & the Core Trading Stack decision (2026-08-10)
+
+- **What we explored:** a full study session (sparked by the Tech Stack note in the vault) on the
+  three pillars of HFT latency investigation — **garbage collection**, **lock contention**, and
+  **JFR as the diagnostic lens** — plus how Spring Boot fits, and the resulting architecture
+  decision for StockForge's core trading engine. See the cheat sheet:
+  `reviews/../cheatsheets/hft-performance-cheat-sheet.html` (and `TechStack/JVM Performance Cheat Sheet` in the vault).
+- **Concept in one sentence:** HFT latency problems are *memory-management* problems (GC), *concurrency*
+  problems (lock contention), and *visibility* problems (JFR) — and they are all measured, never assumed.
+- **What I should remember:**
+  - **GC is not bad.** The problem is *uncontrolled allocation → unpredictable pauses → tail-latency
+    spikes* (a 40 µs order randomly becomes 3,000 µs). Modern collectors (G1, ZGC, Shenandoah) do most
+    work concurrently; the question is allocation rate, GC frequency, pause length, and GC CPU cost.
+  - **JFR = the JVM's black-box recorder.** It records GC, allocation, CPU, threads, lock contention,
+    JIT, safepoints, I/O. It does NOT fix anything — it tells you *where to look*: record → observe →
+    find bottleneck → change → re-test → compare.
+  - **Lock contention = threads waiting for a shared lock.** One thread waiting 1 ms on a 50 µs order
+    path ≈ 1,050 µs total → jitter at p99/p99.9. Not "locks are slow" — *"threads waiting for shared
+    resources create unpredictable latency."*
+  - **Reducing contention:** shrink the critical section (do risk/fee/logging OUTSIDE the lock), shard
+    state, single-writer, message passing, atomics, lock-free structures, less shared mutable state.
+  - **Spring Boot does NOT manage GC/threads/JIT** — the JVM does. Spring Boot is the **control plane**
+    (REST, admin, config, monitoring, reporting); the hot trading path should NOT drag Boot/DB/Kafka along.
+  - **Core Trading Stack decision (ADR 0003, PROPOSED):** first core-trading implementation in **plain
+    Java** (market data → trading engine → strategy → risk → OMS → exchange gateway) so we *deeply learn
+    JVM performance engineering* (GC, JFR, JIT, threads, locks, lock-free, CPU/memory, latency). We are
+    NOT claiming Java > C++ — the decision is Java-first for the curriculum, with a C++ equivalent later
+    to compare latency, GC vs manual memory, CPU, locking, networking, p99/p99.9/p99.99.
+- **Production/HFT relevance:** this is the exact mental model HFT firms use — profile (JFR) before
+  tuning, and separate the latency-critical path from the "everything else" path. Our roadmap already
+  defers the HFT phase (§17 / Phase 26); this session defined HOW the hot path will be built and why
+  Java-first. Next practical step: a small Java app with a controlled allocation/contention problem,
+  recorded with JFR, to see GC/CPU/lock behavior with our own eyes.
+
 ---
 
 ## How the next day continues

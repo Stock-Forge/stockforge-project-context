@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StockForge — HFT Performance Cheat Sheet</title>
+<style>
+  :root {
+    --bg: #0f1420; --panel: #161d2e; --panel2: #1c2539; --border: #2a3550;
+    --text: #e8edf7; --muted: #93a0bd; --accent: #4f9dff; --green: #3ddc97;
+    --yellow: #ffd166; --red: #ff6b6b; --purple: #b388ff;
+    --mono: "Cascadia Code", Consolas, "Courier New", monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.7 "Segoe UI", system-ui, sans-serif; }
+  header { padding:40px 32px 24px; border-bottom:1px solid var(--border);
+    background:linear-gradient(135deg,#101a33,#0f1420 60%); }
+  header h1 { margin:0 0 6px; font-size:30px; letter-spacing:.5px; }
+  header p { margin:0; color:var(--muted); max-width:900px; }
+  .badge { display:inline-block; padding:2px 10px; border-radius:20px; font-size:12px;
+    background:var(--accent); color:#08111f; font-weight:600; margin-right:8px; }
+  nav { position:sticky; top:0; background:#0b101c; border-bottom:1px solid var(--border);
+    padding:10px 32px; z-index:10; overflow-x:auto; white-space:nowrap; }
+  nav a { color:var(--accent); text-decoration:none; margin-right:18px; font-size:14px; }
+  nav a:hover { text-decoration:underline; }
+  main { max-width:980px; margin:0 auto; padding:24px 32px 80px; }
+  section { margin:40px 0; }
+  h2 { font-size:24px; border-left:4px solid var(--accent); padding-left:12px; margin-top:56px; }
+  h3 { font-size:19px; color:var(--accent); margin-top:28px; }
+  h4 { font-size:16px; color:var(--yellow); margin:20px 0 8px; }
+  p, li { color:var(--text); }
+  .muted { color:var(--muted); }
+  code { font-family:var(--mono); font-size:.88em; background:var(--panel2);
+    padding:1px 6px; border-radius:4px; color:var(--green); }
+  pre { background:#0b101c; border:1px solid var(--border); border-radius:8px; padding:14px 16px;
+    overflow-x:auto; font-size:13.5px; line-height:1.55; }
+  pre code { background:none; padding:0; color:var(--text); }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:14.5px; }
+  th, td { border:1px solid var(--border); padding:8px 12px; text-align:left; }
+  th { background:var(--panel2); color:var(--accent); }
+  tr:nth-child(even) td { background:var(--panel); }
+  .card { background:var(--panel); border:1px solid var(--border); border-radius:10px;
+    padding:18px 20px; margin:16px 0; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:760px){ .grid2{grid-template-columns:1fr;} main{padding:16px;} }
+  .flow { background:#0b101c; border:1px solid var(--border); border-radius:8px;
+    padding:14px; font-family:var(--mono); font-size:13px; white-space:pre; overflow-x:auto; }
+  .ok { color:var(--green); font-weight:600; }
+  .bad { color:var(--red); font-weight:600; }
+  details { background:var(--panel); border:1px solid var(--border); border-radius:8px;
+    padding:12px 16px; margin:10px 0; }
+  summary { cursor:pointer; color:var(--accent); font-weight:600; }
+  .callout { border-left:3px solid var(--yellow); background:var(--panel);
+    padding:12px 16px; border-radius:0 8px 8px 0; margin:16px 0; }
+  .callout.green { border-left-color:var(--green); }
+  .callout.red { border-left-color:var(--red); }
+  .callout.purple { border-left-color:var(--purple); }
+  .bar-chart { display:flex; align-items:flex-end; gap:14px; height:180px; margin:16px 0; }
+  .bar { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
+  .bar .rect { width:100%; border-radius:6px 6px 0 0; }
+  .bar span { margin-top:8px; font-size:12px; color:var(--muted); }
+  .bar b { font-size:13px; margin-top:2px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>HFT Performance Cheat Sheet <span class="badge">GC · JFR · Locks</span></h1>
+  <p>The three pillars of latency investigation in a trading platform — what they are, why HFT cares,
+     and the decision this drove for StockForge. Self-contained, offline, visual. Day of study: 2026-08-10.</p>
+</header>
+
+<nav>
+  <a href="#why">The Problem</a>
+  <a href="#gc">Garbage Collection</a>
+  <a href="#jfr">JFR</a>
+  <a href="#locks">Locks &amp; Contention</a>
+  <a href="#fix">Fixing Contention</a>
+  <a href="#together">How They Connect</a>
+  <a href="#spring">Spring Boot vs Hot Path</a>
+  <a href="#stack">Core Trading Stack</a>
+  <a href="#checklist">Investigate Checklist</a>
+  <a href="#next">Next Step</a>
+</nav>
+
+<main>
+
+<!-- ================= WHY ================= -->
+<section id="why">
+  <h2>The Problem HFT Cares About</h2>
+  <p>Normal order processing is ~40–50 µs. Occasionally an order takes <strong>milliseconds</strong>.
+     The average looks fine. <strong>p99 / p99.9 does not.</strong></p>
+  <div class="bar-chart">
+    <div class="bar"><div class="rect" style="height:8%;background:var(--green)"></div><span>Order 1</span><b>40 µs</b></div>
+    <div class="bar"><div class="rect" style="height:8.5%;background:var(--green)"></div><span>Order 2</span><b>42 µs</b></div>
+    <div class="bar"><div class="rect" style="height:8.2%;background:var(--green)"></div><span>Order 3</span><b>41 µs</b></div>
+    <div class="bar"><div class="rect" style="height:100%;background:var(--red)"></div><span>Order 4</span><b>3,000 µs</b></div>
+    <div class="bar"><div class="rect" style="height:10%;background:var(--green)"></div><span>Order 5</span><b>50 µs</b></div>
+  </div>
+  <div class="callout red"><strong>The whole field in one chart:</strong> one latency <em>spike</em>
+    among thousands of normal orders is a tail-latency problem. HFT performance engineering is about
+    finding and removing the spikes, not about average speed.</div>
+  <p>Three suspects cause most spikes: <strong>GC</strong> (memory), <strong>lock contention</strong>
+     (concurrency), and everything else that <strong>JFR</strong> can see (CPU, threads, JIT, I/O).</p>
+</section>
+
+<!-- ================= GC ================= -->
+<section id="gc">
+  <h2>1. Garbage Collection (GC)</h2>
+  <h3>What it is</h3>
+  <p>A <strong>JVM mechanism</strong> that finds objects no longer reachable and reclaims their heap
+     memory.</p>
+  <div class="flow">app creates objects → objects occupy heap → objects become unreachable
+   → garbage accumulates → GC reclaims it → memory free again</div>
+  <h3>Why HFT cares</h3>
+  <p>High <strong>allocation rate</strong> → heap pressure → GC activity → pauses / CPU / memory
+     pressure → latency spike.</p>
+  <div class="callout green"><strong>GC is NOT bad.</strong> The problem is <em>uncontrolled
+    allocation and GC behavior causing unpredictable latency and tail-latency spikes</em>. Modern
+    collectors (G1, ZGC, Shenandoah) do most of their work concurrently — GC does not mean "everything
+    stops."</div>
+  <h3>Questions to ask when investigating</h3>
+  <ul>
+    <li>How much are we allocating? What is the allocation rate?</li>
+    <li>How frequently is GC occurring?</li>
+    <li>Which GC is being used?</li>
+    <li>How long are pauses?</li>
+    <li>Is GC consuming significant CPU?</li>
+    <li>What happens to p99 / p99.9 latency?</li>
+  </ul>
+</section>
+
+<!-- ================= JFR ================= -->
+<section id="jfr">
+  <h2>2. JFR — Java Flight Recorder</h2>
+  <p><strong>JFR = the JVM's black-box recorder.</strong> A JVM-level recording tool that captures what
+     happens inside the JVM while a latency problem occurs.</p>
+  <div class="flow">latency problem → start JFR recording → reproduce problem → stop → inspect events
+   → find bottleneck → change code/config/architecture → re-test → compare latency</div>
+  <h3>What JFR can see</h3>
+  <p>GC activity · object allocation · CPU usage · thread activity · <strong>lock contention</strong> ·
+     exceptions · safepoints · JIT compilation · class loading · I/O · JVM pauses.</p>
+  <div class="callout purple"><strong>JFR does not fix anything.</strong> It tells you <em>where to
+    look</em>. Example: p99 spikes → JFR → "lock contention" → trading thread waiting → identify the
+    lock → find why it's held too long → optimize.</div>
+</section>
+
+<!-- ================= LOCKS ================= -->
+<section id="locks">
+  <h2>3. Locks &amp; Lock Contention</h2>
+  <h3>What a lock is</h3>
+  <p>A synchronization mechanism that gives <strong>one thread</strong> exclusive access to a critical
+     section.</p>
+  <pre><code>synchronized (account) {
+    account.balance -= orderValue;
+}</code></pre>
+  <h3>Why we need them</h3>
+  <p>Two threads updating the same balance without a lock = <strong>race condition</strong>. With a lock,
+     one waits while the other works.</p>
+  <h3>Lock contention</h3>
+  <p>Multiple threads want the same lock; some must <strong>wait</strong> because another thread owns it.</p>
+  <div class="flow">Thread 1 → 🔒 PROCESSING          normal = 50 µs
+Thread 2 → ⏳ WAITING           lock wait = 1,000 µs
+Thread 3 → ⏳ WAITING           total ≈ 1,050 µs
+Thread 4 → ⏳ WAITING</div>
+  <div class="callout red"><strong>Don't think "locks are slow."</strong> Think <em>"threads waiting
+    for shared resources create unpredictable latency."</em> That's what destroys p99/p99.9.</div>
+</section>
+
+<!-- ================= FIX ================= -->
+<section id="fix">
+  <h2>4. Reducing Lock Contention</h2>
+  <h4>Shrink the critical section (the big win)</h4>
+  <div class="grid2">
+    <div class="card">
+      <h4 class="bad">Bad — everything inside the lock</h4>
+      <div class="flow">LOCK
+  risk calculation
+  fee calculation
+  response creation
+  logging
+  update state
+UNLOCK</div>
+    </div>
+    <div class="card">
+      <h4 class="ok">Better — only the state change</h4>
+      <div class="flow">risk calculation
+fee calculation
+response preparation
+      LOCK
+  update state
+      UNLOCK</div>
+    </div>
+  </div>
+  <h4>Structural approaches</h4>
+  <table>
+    <tr><th>Approach</th><th>Idea</th></tr>
+    <tr><td>Partition / shard state</td><td>Split one hot map into N maps keyed by something (e.g. per-symbol)</td></tr>
+    <tr><td>Single-writer architecture</td><td>One thread owns mutation; others send it work</td></tr>
+    <tr><td>Message passing</td><td>Threads don't share state — they exchange immutable messages</td></tr>
+    <tr><td>Atomic operations</td><td><code>AtomicInteger</code>/<code>LongAdder</code> instead of a lock</td></tr>
+    <tr><td>Lock-free structures</td><td>Concurrent collections designed to minimize waiting</td></tr>
+    <tr><td>Less shared mutable state</td><td>Thread-local / immutable data where possible</td></tr>
+  </table>
+</section>
+
+<!-- ================= TOGETHER ================= -->
+<section id="together">
+  <h2>5. How GC, JFR and Lock Contention Connect</h2>
+  <p>Not three unrelated topics — one investigation tree:</p>
+  <div class="flow">              HFT latency spike
+                      ↓
+                     JFR
+              ┌───────────────┴───────────────┐
+              ↓                               ↓
+         GC activity                    Lock contention
+              ↓                               ↓
+      Memory/GC behavior             Threads waiting
+              └───────────────┬───────────────┘
+                              ↓
+                         Root cause
+                              ↓
+                        Optimize → Re-test</div>
+  <table>
+    <tr><th>Topic</th><th>Type of problem</th></tr>
+    <tr><td>GC</td><td>Memory-management problem</td></tr>
+    <tr><td>Lock contention</td><td>Concurrency problem</td></tr>
+    <tr><td>JFR</td><td>Visibility / diagnosis tool</td></tr>
+  </table>
+</section>
+
+<!-- ================= SPRING ================= -->
+<section id="spring">
+  <h2>6. Spring Boot vs the Hot Path</h2>
+  <p><strong>Spring Boot does NOT manage GC, threads, JIT, or locks — the JVM does.</strong> Spring Boot
+     is a framework that makes services easy to build (REST, DI, config, DB, security, metrics).</p>
+  <div class="flow">Application
+     ↓
+Spring Boot (framework — control plane)
+     ↓
+Java / JVM  (heap, GC, threads, JIT, locks — this is the perf engine)
+     ↓
+Operating System → Hardware</div>
+  <h3>The architecture decision this drives</h3>
+  <p><strong>Control plane</strong> on Spring Boot: REST APIs, admin, configuration, monitoring,
+     reporting. <strong>Hot path</strong> in plain Java: market data, matching, strategy, risk, OMS,
+     exchange gateway — no Boot/DB/Kafka dragged along.</p>
+</section>
+
+<!-- ================= STACK ================= -->
+<section id="stack">
+  <h2>7. Core Trading Stack Decision (ADR 0003 — PROPOSED)</h2>
+  <div class="flow">Market Data
+     ↓
+Java Trading Engine
+     ↓
+Strategy → Risk → Order Management → Exchange Gateway</div>
+  <div class="callout green"><strong>Why Java first?</strong> The learning objective is <em>JVM
+    performance engineering</em>: GC → JFR → JIT → threads → locks → lock-free programming → CPU/memory
+    → latency optimization. We are <strong>not</strong> concluding Java is universally the best HFT
+    language.</div>
+  <p><strong>Later:</strong> an equivalent <strong>C++</strong> implementation to compare — latency, GC
+     vs manual memory management, CPU usage, memory behavior, locking/concurrency, networking,
+     p99/p99.9/p99.99.</p>
+</section>
+
+<!-- ================= CHECKLIST ================= -->
+<section id="checklist">
+  <h2>8. Investigate-a-Latency-Spike Checklist</h2>
+  <ol>
+    <li>Confirm the spike with a latency histogram (p50/p95/p99/p99.9).</li>
+    <li>Record with <strong>JFR</strong> (black-box recorder — no blind guessing).</li>
+    <li>Check <strong>GC</strong>: allocation rate, GC frequency, pause length, GC CPU.</li>
+    <li>Check <strong>locks</strong>: which thread waited, on which lock, for how long.</li>
+    <li>Check CPU hotspots, JIT, safepoints, I/O.</li>
+    <li>Shrink the critical section / shard / atomics / message-passing.</li>
+    <li>Re-test, re-record, compare p99/p99.9. Every change = baseline → hypothesis → measure → conclude.</li>
+  </ol>
+</section>
+
+<!-- ================= NEXT ================= -->
+<section id="next">
+  <h2>Next Step — JFR Practical Lab (side quest)</h2>
+  <div class="callout green"><strong>Do it with our own hands:</strong> start a small plain-Java
+    application → create a controlled performance problem (e.g. high allocation rate + a hot lock) →
+    record it with JFR → inspect the recording → identify GC/CPU/lock behavior → understand what each
+    JFR result means. This is the first practical step of the Core Trading Stack decision.</div>
+  <p class="muted">Source of this session: <code>project-context/LEARNING_LOG.md</code> bonus entry
+     (2026-08-10) · ADR 0003 · vault: <code>TechStack/JVM Performance Cheat Sheet</code> (Mermaid version).</p>
+</section>
+
+</main>
+</body>
+</html>
