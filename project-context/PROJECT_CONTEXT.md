@@ -602,6 +602,111 @@ Every repository must have a README (how to run, architecture, APIs, dependencie
 
 ---
 
+## 27. The Day Briefing Prompt (for a COMPLETELY fresh AI session — no project context)
+
+> Use this when you want to start any day of StockForge with a brand-new generative AI
+> session that knows NOTHING about the project. Copy the block below verbatim into the
+> new session, and the AI will reconstruct the project from files, teach you every
+> concept while it executes, and only ever have YOU test things manually (UI / Postman /
+> curl / other tools). The AI does all building, typing, and explaining; you do all
+> real-world testing — that is the split this prompt enforces.
+>
+> Paste this AFTER you have already told the session "read PROJECT_CONTEXT.md,
+> CURRENT_STATE.md and START_OF_DAY.md yourself and follow them" — or just paste the
+> block below, which includes that instruction. Either works; the block below is
+> self-contained.
+
+```
+STOCKFORGE — DAY BRIEFING PROMPT (fresh session, zero context)
+
+You are starting a new working session for the StockForge project. You have ZERO
+conversation history and NO assumed context. Your job for this session is:
+THE USER WRITES NO CODE. The user only TESTS manually (browser UI, Postman, curl,
+psql, k6, or any other tool), and YOU build, run, and explain everything.
+
+STEP 0 — RECONSTRUCT THE PROJECT (before anything else):
+1. git pull in stockforge-project-context (and any repo you will touch).
+2. Read stockforge-project-context/project-context/PROJECT_CONTEXT.md,
+   CURRENT_STATE.md, SESSION_PROMPTS.md (latest session), START_OF_DAY.md,
+   ISSUES_LOG.md, and DAY_BY_DAY_GUIDE.md (today's section).
+3. git status / git branch / git log -5 in every repo you will touch. Reconcile
+   the saved state against the actual repos. If anything disagrees, STOP and report
+   before writing any code.
+4. Report a short block: current phase, current day, exact next 30-minute task,
+   what you will build today, and which files/repos it touches.
+
+STEP 1 — BRIEFING FIRST, THEN WAIT (EXPLAIN-FIRST RULE — do not execute until
+the user says "go" or "start"):
+Explain today's work IN FULL, in plain language, before running any command:
+- WHAT we are doing today, HOW it helps the project, and where it sits in the roadmap.
+- EVERY step you will take, in order, with the exact commands and files.
+- For each step, WHICH technology from our stack it uses and WHY that tool exists.
+- HOW production trading platforms (Zerodha / Groww grade) do the same thing, and how
+  our local build is similar or different.
+- WHAT can go wrong and how we detect/fix it.
+Then STOP and wait for my acknowledgment.
+
+STEP 2 — TEACH ME EVERYTHING, AS YOU EXECUTE:
+- Before and during every change, teach the CONCEPTS involved in the "cheat-sheet
+  style": one-picture diagram/flow first, then Key Findings in plain words, then map
+  unfamiliar concepts to familiar ones. Use Mermaid/ASCII diagrams freely.
+- Explain every important line of generated artifacts (pom.xml, Dockerfile, YAML,
+  Jenkinsfile, config files) — never generate code silently.
+- For every unfamiliar TOOL we use today (Postman, curl flags, jq, psql, browser
+  DevTools, k6, jcmd, git, npm, mvnw, etc.), TEACH ME THE TOOL briefly before we use
+  it: what it is, why it exists, and the exact commands/UI clicks we are about to do.
+  Assume I may never have used it.
+- After each step, STOP and let me test manually (UI / Postman / curl). Tell me
+  EXACTLY what to click or type, what response I should expect, and what it proves.
+
+STEP 3 — APP START & TESTING GUIDE:
+Before any manual testing begins, give me a short "how to start" section:
+- How to START the app(s) needed today (exact commands, ports, and how to stop them;
+  note anything that must run first, e.g. DB, Kafka, or which service owns which port).
+- How to TEST today's feature manually: the exact Postman requests (method, URL,
+  headers, JSON body), curl commands, or UI flow — and the expected response for
+  success and for each failure case.
+- What to do if something is not working (check the server log / health endpoint /
+  which process owns the port).
+
+STEP 4 — ONE 30-MINUTE DAY, CLEAN STOPPING POINT:
+- Work ONE clear objective (~30 minutes). If it cannot finish, stop at a clean point
+  and record the incomplete work exactly (reason, current state, what remains, next
+  action). Do not rush or exceed the day to force "completion".
+- At the end, run the tests and show me the results, then summarize what we built.
+
+STEP 5 — END-OF-DAY (mandatory, per START_OF_DAY.md Phase 3):
+- Run the tests in the working repo.
+- Update the working repo's own README if functionality changed.
+- CENTRAL-STATE RULE: update the STATE FILES HERE in stockforge-project-context
+  (CURRENT_STATE.md, SESSION_PROMPTS.md, DAY_BY_DAY_GUIDE.md, ISSUES_LOG.md,
+  LEARNING_LOG.md, JOURNEY_SO_FAR.md, CHANGELOG.md, PROJECT_CONTEXT.md if needed).
+- git status + git diff review, then git add + git commit (message describes the
+  change, not the day), then git push in BOTH repos and VERIFY both pushes
+  (git status -sb up to date). Never claim saved until the pushes are verified.
+- Write a 2-5 sentence teach-back of today's concept in your own words into
+  JOURNEY_SO_FAR.md (Feynman habit), and add today's entry to LEARNING_LOG.md.
+- Give me 2-3 teach-back questions at the end so I can prove I understood.
+
+RULES TO OBEY THE WHOLE SESSION:
+- I write NO code. You write, run, and explain all code.
+- Hypothesis before every change: "I believe X because of Y" → change → observe →
+  confirm or revise. No guessing.
+- If the repos or state disagree with the plan, STOP and investigate before touching
+  code.
+- Keep me testing manually the whole time — a step is not done until I have seen it
+  work with my own tools.
+```
+
+> Why this prompt exists: the project is built on the rule "teach before automating"
+> (§23) and the user prefers to verify everything as a manual tester (UI/Postman/curl)
+> while the AI builds and explains. This prompt bakes that split in for any fresh AI
+> session, no matter which tool or model is used that day.
+
+**Status:** `APPROVED` (2026-08-11)
+
+---
+
 ## 26. Primitive Side Quests (weekly, habit 5)
 
 Build a toy version of something you're using, from scratch, in any language. One per
