@@ -561,6 +561,12 @@ Stored in `project-context/adr/`. One file per decision: Context, Decision, Alte
 - **Phase 0 architecture must be approved before implementation begins.**
 - The 10 "0.1%" practices in §25 are part of the project, not optional extras — they are
   enforced daily in `START_OF_DAY.md` and on dedicated roadmap days (40-43).
+- **Explain hard concepts "cheat-sheet style" (user preference).** When teaching a difficult topic
+  (e.g. GC, JFR, lock contention, React re-renders, JWT), explain it like the cheat sheets in
+  `project-context/cheatsheets/`: start with the WHOLE PICTURE in one picture (Mermaid diagram),
+  then Key Findings (the take-aways in plain words), map unfamiliar concepts to familiar ones
+  (backend pillars ↔ frontend mirrors), and end with a practical "plant the bug → hunt it" lab plan.
+  Simplify before automating; a diagram + one-sentence idea beats a paragraph of jargon.
 
 ---
 
