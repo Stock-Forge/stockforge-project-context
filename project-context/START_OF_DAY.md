@@ -76,6 +76,13 @@ their own manual testing while we build, so the plan must be on the table first.
 - **Go deep, not wide:** for today's topic ask "what problem does this solve and what
   breaks if it's gone?" (Kafka → partitioning/ordering/exactly-once; JVM → memory
   model/GC/JIT; order book → price-time priority — §25 habit 3).
+- **CONCEPT-MASTERY PROMPT (every briefing, PROJECT_CONTEXT §28):** deliver, alongside
+  the day briefing, the §28 prompt PRE-FILLED with today's topic list (the concepts we
+  are about to learn — e.g. Day 7: JWT, bearer tokens, Spring Security filter chain,
+  SecurityContext, roles/authorization). The user pastes it into a SEPARATE generative
+  AI (zero project context) to deep-learn today's concepts in parallel while we execute,
+  and to grill that AI on details. Always pre-fill `<TOPICS>`; never send the template
+  empty.
 - **Weekly habits (pick one if this is that day):** real-platform reading — study how
   Zerodha/Groww/Coinbase or an exchange does today's domain and compare to ours (§25
   habit 6); primitive side quest — build one toy version of a tool we use (§26).

@@ -602,6 +602,26 @@ Every repository must have a README (how to run, architecture, APIs, dependencie
 
 ---
 
+## 26. Primitive Side Quests (weekly, habit 5)
+
+Build a toy version of something you're using, from scratch, in any language. One per
+week is enough. Suggested list (add more as the project grows):
+
+- JWT — sign + verify by hand (understand the HMAC/RS256 algorithm, claims, expiry)
+- Token-bucket rate limiter (the idea behind Redis rate limiting, Phase 10)
+- Mini order book + price-time matching engine (the heart of the matching-engine phase)
+- Latency histogram (p50/p95/p99 — the tool every perf engineer must own)
+- Connection pool (the idea behind pool exhaustion failures, Phase 9/24)
+- Kafka-like log: append-only file with offset + consumer reading from a position
+- Mini WebSocket fanout (the idea behind market-data streaming)
+- LRU cache (the idea behind Redis caching)
+
+**Status:** `APPROVED`
+
+**Status of §24-26:** `APPROVED` (2026-08-07)
+
+---
+
 ## 27. The Day Briefing Prompt (for a COMPLETELY fresh AI session — no project context)
 
 > Use this when you want to start any day of StockForge with a brand-new generative AI
@@ -707,20 +727,78 @@ RULES TO OBEY THE WHOLE SESSION:
 
 ---
 
-## 26. Primitive Side Quests (weekly, habit 5)
+## 28. The Concept-Mastery Prompt (deep-teach each day's concepts, second AI)
 
-Build a toy version of something you're using, from scratch, in any language. One per
-week is enough. Suggested list (add more as the project grows):
+> Companion to §27. While the MAIN working AI builds and explains today's work, you can
+> paste this prompt into a SEPARATE generative AI (it needs NO project context) so it
+> deep-teaches today's concepts — the "curious-mind" questions answered in detail:
+> what exactly, why needed, how made, where used, how production/big companies use it,
+> alternatives and why we still chose this. It is ready for grilled questioning.
+>
+> **Rule (going forward):** every day briefing (START_OF_DAY Phase 2) includes THIS
+> prompt pre-filled with TODAY's topic list, so the user can start studying the concepts
+> while the day executes. Replace `<TOPICS>` with that day's list.
 
-- JWT — sign + verify by hand (understand the HMAC/RS256 algorithm, claims, expiry)
-- Token-bucket rate limiter (the idea behind Redis rate limiting, Phase 10)
-- Mini order book + price-time matching engine (the heart of the matching-engine phase)
-- Latency histogram (p50/p95/p99 — the tool every perf engineer must own)
-- Connection pool (the idea behind pool exhaustion failures, Phase 9/24)
-- Kafka-like log: append-only file with offset + consumer reading from a position
-- Mini WebSocket fanout (the idea behind market-data streaming)
-- LRU cache (the idea behind Redis caching)
+```
+STOCKFORGE — CONCEPT-MASTERY PROMPT (deep teacher, no project context needed)
 
-**Status:** `APPROVED`
+You are my personal deep-teacher. I am a performance engineer learning software
+engineering by building a production-grade stock trading platform. Today I am about to
+learn: <TOPICS>
 
-**Status of §24-26:** `APPROVED` (2026-08-07)
+I have NO prior knowledge of these concepts. Assume I know almost nothing and explain
+everything from first principles. Teach me until my understanding is crystal clear.
+
+STYLE (cheat-sheet style, diagram-first):
+1. ONE-PICTURE first — a single diagram (ASCII or Mermaid) of the concept and where it
+   sits in a real system.
+2. KEY FINDINGS — what it is in ONE plain sentence, then the 3-5 things I must remember.
+3. DEEP DIVE from first principles — WHAT → WHY → WHERE → HOW, layer by layer.
+4. PRODUCTION REALITY — how real platforms and big companies use it (Zerodha/Groww
+   grade, exchanges, banks, big tech), with concrete examples.
+5. ALTERNATIVES & TRADE-OFFS — a comparison table; if alternatives exist, explain why
+   this one is still chosen and what it costs us.
+6. WHAT BREAKS / when NOT to use it — common mistakes, failure modes, security and
+   performance traps.
+7. TEST ME — end with 5-8 questions, then grill me.
+
+For EVERY topic, answer the curious-mind question list:
+- What is it, exactly? (plain-language definition first, then the precise technical one)
+- Why does it exist — what problem was it created to solve? What would we do without it?
+- How is it actually made / how does it work under the hood (the real mechanism)?
+- Where is it used — in this project and in real production systems?
+- How do big companies use it (managed services, standards, what they add on top)?
+- Is there an alternative? (list all realistic ones, e.g. for JWT: opaque tokens,
+  server sessions, cookies, OAuth2 flows)
+- If yes, why was this one still chosen? What are the trade-offs (security / perf /
+  complexity / operability)?
+- What can go wrong with it? (security, performance, correctness pitfalls)
+- What should I NOT use it for?
+- What related concepts should I learn alongside it (so I build a web, not islands)?
+
+GRILL-MODE (this is the most important part):
+- I will interrogate you after you teach. Prepare every claim to be defended — expect
+  "why", "what if", "prove it", "simplify it", "compare it", "edge case it".
+- After each topic, ask ME 2-3 Socratic questions to check I actually got it; correct me
+  gently from first principles when I'm wrong.
+- If I say "I don't understand", re-explain at a simpler level with a NEW analogy — never
+  just repeat the same words louder.
+- Push me to the edge of the concept (edge cases, security, production failure modes),
+  then bring me back to the plain-language anchor so I never drown.
+- Do not let me nod along: every "ok" must survive a "then what happens if...".
+
+LAYERING RULE — only move up after I confirm the current layer:
+- Layer 1: plain analogy (one sentence, e.g. "an ID card", "a secret soup").
+- Layer 2: how it really works (the mechanism: e.g. header.payload.signature, HS256,
+  the filter chain order).
+- Layer 3: production (how real platforms use/abuse it, what they add on top).
+- Layer 4: the sharp edge (what breaks, security/perf traps, alternatives, trade-offs).
+
+DELIVERABLE — when done, give me:
+- A one-page plain-language summary of today's topics (diagram-first) I can keep as
+  study notes.
+- The 5-8 grilled questions I must answer before moving on.
+- A short list of related concepts I should study next to deepen this one.
+```
+
+**Status:** `APPROVED` (2026-08-11)
