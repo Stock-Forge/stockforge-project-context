@@ -12,11 +12,10 @@
 |---|---|---|
 | Date | 2026-08-11 |
 | Phase | Phase 1 — Git/GitHub organization and repository foundation |
-| Day | **Day 0-6 review COMPLETE — next is Day 7: `stockforge-auth` part 2 (roles + JWT verification)** |
-| Status | Deep Review Ritual 1 (Days 0–6) done & pushed: walked through `reviews/day-0-6-concept-review.html` one-on-one, user answered all homework correctly (incl. "poll ≠ push on the hot path" perf insight). Cheat-sheet teaching style adopted as a project rule. Day 7 (`JwtAuthenticationFilter` + `/api/auth/me` + role gate) is next, per `DAY_BY_DAY_GUIDE.md` Day 7. |
-| Current repository | stockforge-project-context (state repo) — Day 7 continues in `stockforge-auth` |
-| Current branch | main |
-| Current commit | stockforge-project-context: review closeout; stockforge-auth: `6be237e`; stockforge-api: `acb07a0`; stockforge-web: `8e7d075`; stockforge-contracts: `e1d65cb` |
+| Day | **Day 7 COMPLETE — next is Day 8: `stockforge-order-service` (order lifecycle, in-memory)** |
+| Status | Day 7 (`JwtAuthenticationFilter` + roles in JWT + `GET /api/auth/me` + ADMIN role gate) done & pushed (`3255bab`). JWT now actually protects endpoints: valid token → 200, missing/invalid/expired → 401, USER on ADMIN path → 403. Real bug found + fixed: anonymous requests returned 403 not 401 (no AuthenticationEntryPoint after disabling httpBasic/formLogin). 19 tests green. Live curl matrix verified USER + ADMIN paths. Day 8 starts `stockforge-order-service` per `DAY_BY_DAY_GUIDE.md`. |
+| Current repository | stockforge-project-context (state repo) — Day 8 continues in a NEW repo `stockforge-order-service` |
+| Current commit | stockforge-project-context: Day 7 closeout (this commit); stockforge-auth: `3255bab`; stockforge-api: `acb07a0`; stockforge-web: `8e7d075`; stockforge-contracts: `e1d65cb` |
 
 ---
 
@@ -32,8 +31,8 @@
 | 4 | `stockforge-web` — React trading UI scaffold | ✅ done |
 | 5 | `stockforge-api` — Spring Boot gateway scaffold | ✅ done |
 | 6 | `stockforge-auth` — registration/login (bcrypt + JWT), roles | ✅ done (register/login) |
-| 7 | `stockforge-auth` part 2 — roles + JWT verification (`@Authenticated`) reused by the API | ⏭️ **NEXT** |
-| 8-9 | `stockforge-order-service` — order lifecycle (in-memory), risk mock | planned |
+| 7 | `stockforge-auth` part 2 — roles + JWT verification (`JwtAuthenticationFilter` + `/api/auth/me` + role gate) | ✅ done |
+| 8-9 | `stockforge-order-service` — order lifecycle (in-memory), risk mock | ⏭️ **NEXT** |
 | 10+ | PostgreSQL → risk → matching → market-data → portfolio → notification → integration → … → HFT (roadmap §21) | planned |
 
 ---
@@ -72,19 +71,50 @@
   day briefing BEFORE any code and WAIT for acknowledgment — the user tests manually
   alongside, so the plan comes first every day.
 
+## What Day 7 completed
+
+- **`JwtService` gained role claims:** `generateToken(subject, roles)` now embeds
+  `roles` in the token; `parseClaims` returns a `JwtClaims(subject, roles)` record;
+  `parseSubject` delegates to it. Roles ride inside the JWT (self-contained) so
+  `stockforge-api` can reuse the same verification from Day 8 without touching `UserStore`.
+- **`JwtAuthenticationFilter`** (a `OncePerRequestFilter`): reads `Authorization: Bearer`,
+  verifies via `JwtService`, builds a Spring `UsernamePasswordAuthenticationToken`
+  (principal = email, authorities = `ROLE_`-prefixed roles) and sets the SecurityContext.
+  On ANY verification failure it clears the context and does NOT throw — the security
+  machinery answers 401.
+- **`SecurityConfig`**: `@EnableMethodSecurity` (turns on `@PreAuthorize`), the JWT filter
+  inserted before `UsernamePasswordAuthenticationFilter`, stateless, CSRF off,
+  httpBasic/formLogin disabled.
+- **401/403 bug found + fixed (the day's sharp edge):** anonymous requests to protected
+  endpoints returned **403, not 401**, because disabling httpBasic/formLogin removed the
+  default `AuthenticationEntryPoint` (Spring falls back to `Http403ForbiddenEntryPoint`).
+  Fix: explicit `authenticationEntryPoint` that answers 401. Tests caught it; curl confirmed
+  the fix live. This is exactly the authn (401) vs authz (403) split from the day's concepts.
+- **`GET /api/auth/me`** — reads identity from the SecurityContext (never from the request
+  body/headers) and returns the `UserResponse`; missing/invalid/expired token → 401.
+- **`GET /api/auth/admin/ping`** with `@PreAuthorize("hasRole('ADMIN')")` — role gate demo:
+  ADMIN token → 200, USER token → 403, anonymous → 401.
+- **`AdminBootstrap`** `CommandLineRunner`: seeds `admin@stockforge.dev` (ADMIN) from
+  `auth.admin.email/password` in `application.yml`, idempotent (never overwrites an
+  existing user). Passwords are still bcrypt-hashed.
+- **Tests: 19 pass** (12 controller incl. 7 new Day 7 cases, 4 JWT incl. roles, 2 bootstrap,
+  1 context). Live curl matrix verified end-to-end: USER path (me 200/401/401, admin/ping
+  403) and ADMIN path (login → me 200 + roles[ADMIN] → admin/ping 200 "ADMIN access granted").
+- A stale Day 6 server process was still holding :8080 — stopped it, restarted the new build.
+
 ## What is deliberately NOT done
 
-- **Day 7 (next):** roles + a `JwtAuthenticationFilter` (populates Spring SecurityContext
-  from the bearer token) + a protected `/api/auth/me` endpoint, so `stockforge-api` can
-  later reuse the same verification. Not yet started.
+- **Day 8 (next):** `stockforge-order-service` — order lifecycle (NEW → ACCEPTED → FILLED /
+  CANCELLED) in-memory; mocked risk check comes Day 9. Repo does not exist yet (user creates it).
 - **Device B clone still unverified** (user-owned) — clone this repo on the other device:
   ```
   git clone https://github.com/Stock-Forge/stockforge-auth.git
   ```
-- Auth service has no persistence (in-memory users) and no logout/refresh/revocation yet
-  (expiry exists via JWT exp). Tokens are single-service for now — cross-service reuse is
-  Day 7.
-- The API still talks to nothing: no routing to auth, no JWT-protected business endpoints.
+- Auth service has no persistence (in-memory users) and no logout/refresh/revocation yet.
+  Roles take effect on the next login — an already-issued JWT keeps its roles until expiry
+  (that's why prod uses short-lived access tokens + refresh tokens).
+- `stockforge-api` still does NOT reuse the JWT verification yet (that's Day 8+): the
+  filter lives in `stockforge-auth`; cross-service token trust is the next step.
 - No CI yet (Phase 14); no rate limiting (a Day 15+ concern).
 
 ## Incomplete work (open items carried forward)
@@ -93,7 +123,9 @@
 - Device B clone verification (user-owned, do anytime).
 - Contract tooling + contract tests (deferred to service phases / Phase 14).
 - stockforge-web is a static shell with no API wiring; stockforge-api has no real endpoints.
-- stockforge-auth: no persistence (in-memory users), no logout/refresh/revocation.
+- stockforge-auth: no persistence (in-memory users), no logout/refresh/revocation yet; roles
+  apply at next login (issued JWTs keep their roles until expiry).
+- stockforge-api does not yet reuse the auth JWT verification (Day 8+ step).
 - Cross-device JVM note: this machine has JDK 26; if the personal PC has JDK 21, both are fine
   (java.version=21 targets 21+). Maven comes from the wrapper everywhere.
 - JFR PRACTICAL SIDE QUEST (2026-08-10, ADR 0003): small plain-Java app with a controlled
@@ -134,59 +166,72 @@
 
 ---
 
-## NEXT DAY PROMPT — DAY 7: `stockforge-auth` part 2 (roles + JWT verification)
+## Session note — 2026-08-11 (Day 7 — auth roles + JWT verification, DONE)
+
+- **Day 7 executed and closed out:** `JwtService` role claims → `JwtAuthenticationFilter`
+  → `@EnableMethodSecurity` + `@PreAuthorize("hasRole('ADMIN')")` → `GET /api/auth/me` →
+  `GET /api/auth/admin/ping` → `AdminBootstrap` seed. Committed `3255bab`, pushed.
+- **The day's sharp edge — 401 vs 403:** tests failed because anonymous requests got 403,
+  not 401. Root cause: with httpBasic/formLogin disabled, Spring Security has no default
+  `AuthenticationEntryPoint` and falls back to `Http403ForbiddenEntryPoint`. Fix: explicit
+  entry point → 401 for unauthenticated, 403 for authenticated-but-denied. Verified live.
+- **Manual-testing lessons re-confirmed live:** PowerShell→curl mangled inline JSON bodies
+  again (file bodies fixed it — the Day 0-6 lesson holds); a stale Day 6 server was still
+  on :8080 (stopped it; this is the 2nd time this exact issue recurred — see ISSUES_LOG).
+- **19 tests green** (12 controller, 4 JWT, 2 bootstrap, 1 context). Full curl matrix
+  verified: me 200/401/401, admin/ping 403 (USER) + 200 (ADMIN).
+- **Day 8 next:** `stockforge-order-service` — user creates the empty GitHub repo; AI
+  scaffolds Spring Boot 4.1.0, in-memory order store, lifecycle state machine, tests.
+
+---
+
+## NEXT DAY PROMPT — DAY 8: `stockforge-order-service` (orders, in-memory first)
 
 **How to start:** copy-paste the FULL content of
 `stockforge-project-context\project-context\START_OF_DAY.md` into the new AI session.
 Below is the day-specific plan the AI must follow.
 
-### Day 7 — `stockforge-auth`: roles + `@Authenticated` (JWT-protected endpoints)
+### Day 8 — `stockforge-order-service`: orders with a lifecycle (in-memory)
 
-**Goal:** make the JWT actually *protect* something. Add a **`JwtAuthenticationFilter`**
-that reads the `Authorization: Bearer <token>` header, verifies it, and populates the
-Spring **SecurityContext**; add a protected **`GET /api/auth/me`** endpoint returning the
-current user from the token; and exercise it with roles (`USER`, `ADMIN`). This is the
-mechanism `stockforge-api` will reuse on Day 8+ so every business endpoint can trust the
-token without re-verifying it per service by hand.
+**Goal:** a new service for the core trading domain — create/list/cancel orders with an
+explicit state machine (**NEW → ACCEPTED → FILLED / CANCELLED**), stored in memory,
+with REST endpoints and tests. The mock risk check is Day 9. This is where the trading
+business logic starts living.
 
-**Why / production thinking:** a token you can verify but never use to protect anything is
-useless. Real platforms put an auth filter/gateway in front of every protected endpoint;
-the filter verifies the JWT ONCE per request and lets the endpoint read the identity from
-context. Least privilege + role checks are how trading platforms stop a user seeing
-another user's orders/positions.
+**Why / production thinking:** orders are the heart of a trading platform and every
+state transition matters — this is where firms get fined for bugs. We keep it in memory
+first so the 30-minute unit stays small; PostgreSQL comes at Day 10.
 
-**Step 1 — You (manual):** nothing to create — `stockforge-auth` exists. (Optional: create
-empty repo `stockforge-order-service` if we finish early and time allows.)
+**Step 1 — You (manual):** create empty repo **`stockforge-order-service`** on GitHub
+(`Stock-Forge/stockforge-order-service`), no README/license (we add them locally).
 
 **Step 2 — AI session does:**
 1. Startup protocol (pull both repos, read context/state/prompts, reconcile).
 2. **Briefing first, then WAIT for acknowledgment (EXPLAIN-FIRST RULE).**
-3. Add `JwtAuthenticationFilter` (a `OncePerRequestFilter`, `@Order(2)` — after the
-   correlation-ID filter): parse the Bearer token via `JwtService`, build a Spring
-   `Authentication` from the subject + roles, set the SecurityContext; on failure leave
-   the context unauthenticated (don't throw — endpoints decide).
-4. Move role membership where the filter can read it: `JwtService` gains role claims
-   (e.g. `roles=USER,ADMIN`) OR the filter loads the user from `UserStore` by email.
-5. Add `@Authenticated` annotation + a check that only lets authenticated requests through
-   on chosen endpoints; protect `GET /api/auth/me` (returns `UserResponse` for the token's
-   subject). Demonstrate a role gate (e.g. an `ADMIN`-only path or `@PreAuthorize("hasRole('ADMIN')")`).
-6. Tests: `/api/auth/me` with valid token → 200 + the right user; missing/invalid/expired
-   token → 401; role-protected path allows ADMIN, denies USER. Keep all existing tests green.
-7. Run tests; verify with curl (login → take JWT → call `/api/auth/me` with and without
-   the header).
-8. Commit + push to `Stock-Forge/stockforge-auth` (message describes the change).
-9. **CENTRAL-STATE RULE:** update state HERE — `CURRENT_STATE.md` (Day 7 done → Day 8),
-   `SESSION_PROMPTS.md` (Session 7 entry), `DAY_BY_DAY_GUIDE.md` (mark Day 7 done),
-   `ISSUES_LOG.md`, `LEARNING_LOG.md`, `JOURNEY_SO_FAR.md` (teach-back), `CHANGELOG.md`,
-   `PROJECT_CONTEXT.md` (auth status if changed).
+3. Local repo as a sibling (never nested); scaffold Spring Boot 4.1.0 (web + actuator +
+   validation) via `start.spring.io` with Maven Wrapper, Java 21 language level; reuse the
+   Day 5/6 pattern (health, structured logging, correlation ID, `test-auth`-style file
+   bodies for curl). Port **8081** (8080 is auth).
+4. Domain: `Order` (id, clientOrderId, symbol, side, quantity, price, status, timestamps),
+   an in-memory thread-safe `OrderStore`, an `OrderService` with explicit state transitions
+   (invalid transitions rejected), `OrderController` (create/list/get/cancel).
+5. Contract-first: define the order endpoints in the OpenAPI before coding, per the
+   `stockforge-contracts` contract.
+6. Tests: create → ACCEPTED, cancel → CANCELLED, FILLED via a simulated fill (Day 9 risk
+   gate later), invalid transition rejected, not-found 404, validation 400.
+7. Run tests; verify with curl (create/list/cancel).
+8. Commit + push to `Stock-Forge/stockforge-order-service`.
+9. **CENTRAL-STATE RULE:** update state HERE — `CURRENT_STATE.md` (Day 8 done → Day 9),
+   `SESSION_PROMPTS.md` (Session 8 entry), `DAY_BY_DAY_GUIDE.md`, `ISSUES_LOG.md`,
+   `LEARNING_LOG.md`, `JOURNEY_SO_FAR.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md` (services map).
 10. Commit + push this repo. Verify BOTH pushes.
 
-**Expected result:** `stockforge-auth` on GitHub has a protected `/api/auth/me`; a valid
-JWT returns the current user, an invalid/missing one gets 401; role gate demonstrable;
-tests pass; Day 8 starts `stockforge-order-service`.
+**Expected result:** `stockforge-order-service` on GitHub with a working order lifecycle
+state machine, REST create/list/get/cancel, unit tests green; a real order survives its
+transitions and invalid ones are rejected.
 
-**Environment note:** JDK 21+ required (this device has JDK 26 — fine). Maven comes from
-the wrapper. Keep the stateless security setup; do NOT add sessions or form login.
+**Environment note:** JDK 21+ (this device has JDK 26 — fine). Maven comes from the wrapper.
+Same Spring Boot 4.1.0 as auth/api — reuse their pom pattern.
 
 ---
 
@@ -194,7 +239,7 @@ the wrapper. Keep the stateless security setup; do NOT add sessions or form logi
 
 ```
 git status        # clean in all repos
-git log --oneline # project-context → closeout commit; auth → 43dba23; api → acb07a0; web → 8e7d075
+git log --oneline # project-context → Day 7 closeout; auth → 3255bab; api → acb07a0; web → 8e7d075
 ```
 
 ---

@@ -25,6 +25,62 @@
 
 ---
 
+## Day 7 — `stockforge-auth` (2026-08-11)
+
+### Day 7 — Protected endpoints answered 403 to anonymous requests instead of 401
+
+- **Symptom:** the new Day 7 tests failed: `/api/auth/me` and `/api/auth/admin/ping` with a
+  missing, invalid, or expired token all returned **403** (expected 401).
+- **Detection:** the test suite (`meRejectsMissingToken`, `meRejectsInvalidToken`,
+  `meRejectsExpiredToken`, `adminEndpointRejectsAnonymous`) failed with "Status expected:<401>
+  but was:<403>".
+- **Cause:** Spring Security's 401 answer does not come from the filter chain we wrote — it comes
+  from an **`AuthenticationEntryPoint`**, and the default one is installed by enabling
+  httpBasic/formLogin. Once BOTH are disabled, no default entry point exists, and Spring falls
+  back to `Http403ForbiddenEntryPoint`. Result: "not authenticated" was reported as "forbidden".
+- **Fix:** configured an explicit entry point in `SecurityConfig`
+  (`exceptionHandling(... authenticationEntryPoint(...)` answering
+  `HttpServletResponse.SC_UNAUTHORIZED`). Tests went green; curl confirmed 401 live.
+- **Prevention:** a test per "unauthenticated → 401" and "authenticated-but-denied → 403" case;
+  remember the rule: disabling form/basic login removes the default entry point, so any stateless
+  API must define its own 401 handler.
+- **Production relevance:** 401 vs 403 is a real API contract (RFC 9110 semantics). Clients
+  (and SLOs, and auth middleware) treat them differently — wrong statuses break token-refresh
+  flows, logs, and security dashboards. Trading APIs must never leak "the resource exists but
+  you're not allowed" to anonymous callers.
+
+### Day 7 — Stale Day 6 auth JVM was still squatting port 8080 (recurrence)
+
+- **Symptom:** fresh `spring-boot:run` failed: "Port 8080 was already in use".
+- **Detection:** `Get-NetTCPConnection -LocalPort 8080 -State Listen` → a leftover `java`
+  (old stockforge-auth) from the Day 6 session; it even answered `/api/auth/register`.
+- **Cause:** the Day 6 server was never stopped; it kept the port after we moved on.
+- **Fix:** stopped the stale process (verified it was ours via its own endpoints first),
+  restarted the new build cleanly.
+- **Prevention:** at the end of every verification, either stop the server or note in state
+  that it stays up; before starting a run, check the port and identify the owner before
+  killing. This is the SECOND time this exact recurrence happened (Day 6 logged it too).
+- **Production relevance:** real deployments solve this with process supervision (systemd),
+  health/readiness probes, and fixed ports per service — port collisions between microservices
+  are a classic dev-to-prod drift signal.
+
+### Day 7 — PowerShell→curl inline JSON mangling (recurrence)
+
+- **Symptom:** live curl of `POST /api/auth/register` returned 400 Bad Request with a
+  perfectly valid-looking inline body.
+- **Detection:** the Day 0-6 lesson applied immediately: the inline JSON quotes were stripped
+  by PowerShell 5.1 native-argument handling.
+- **Cause:** same root cause as Day 6 — PowerShell mangles embedded quotes when passing
+  arguments to native `curl.exe`.
+- **Fix:** used file-based bodies (`curl.exe --data-binary "@body.json"`) — worked first try.
+- **Prevention:** file bodies only (the committed `test-auth.ps1` pattern); never inline JSON.
+  Note the pattern now recurred twice — bake "file bodies always" into the run/test playbook.
+- **Production relevance:** API testing from shell scripts is fragile; real teams test from
+  fixtures/frameworks (Postman collections, REST Assured) with a CI pipeline, so quoting
+  quirks never reach a shared script.
+
+---
+
 ## Day 6 — `stockforge-auth` (2026-08-08)
 
 ### Day 6 — Every auth request returned 403: two compounding causes (mangled curl body + secured /error)

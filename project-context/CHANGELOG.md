@@ -5,6 +5,11 @@
 
 ---
 
+- **2026-08-11** — Day 7: `stockforge-auth` roles + JWT verification (`3255bab`): `JwtService`
+  role claims, `JwtAuthenticationFilter` (Bearer → SecurityContext), protected `GET /api/auth/me`,
+  `@PreAuthorize("hasRole('ADMIN')")` role gate, `AdminBootstrap` seed. Fixed anonymous→401 bug
+  (missing AuthenticationEntryPoint). 19 tests green, curl matrix verified (me 200/401/401,
+  admin/ping 403/200). State files updated; Day 8 starts `stockforge-order-service`.
 - **2026-08-11** — Deep Review Ritual 1 (Days 0–6) closed out: walkthrough complete, homework
   passed. Added "explain hard concepts cheat-sheet style" as a Key Rule (PROJECT_CONTEXT §23);
   added frontend cheat sheet (React/TS/Vite) + frontend debugging lab; updated state files.

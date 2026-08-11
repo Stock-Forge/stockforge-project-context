@@ -346,7 +346,7 @@ least-privilege scopes are non-negotiable.
 
 ---
 
-### Day 7 — `stockforge-auth` part 2: roles + JWT verification (NEXT — review done, starting)
+### Day 7 — `stockforge-auth` part 2: roles + JWT verification (DONE)
 
 **Goal:** make the JWT *protect* something — a `JwtAuthenticationFilter` that verifies the
 `Authorization: Bearer` token and populates the Spring SecurityContext, a protected
@@ -363,6 +363,14 @@ orders/positions).
 protected API; OAuth2/Keycloak for big deployments; role checks at the API + UI layers.
 
 **You do:** nothing to create — `stockforge-auth` exists.
+
+**Result (done):** commit `3255bab`. `JwtService` role claims → `JwtAuthenticationFilter`
+(`OncePerRequestFilter`, never throws, clears context on failure) → `@EnableMethodSecurity`
++ `@PreAuthorize("hasRole('ADMIN')")` → protected `GET /api/auth/me` (identity from
+SecurityContext) + `GET /api/auth/admin/ping` → `AdminBootstrap` seed. **19 tests pass.**
+Live curl matrix: me 200/401/401; admin/ping 403 (USER) + 200 "ADMIN access granted" (ADMIN).
+Sharp edge found + fixed: anonymous → 403 not 401 (no default AuthenticationEntryPoint once
+httpBasic/formLogin are disabled) — explicit entry point → 401.
 
 **Expected result:** valid JWT → `/api/auth/me` returns 200 + user; missing/invalid/expired
 → 401; role gate demonstrable; all tests green.

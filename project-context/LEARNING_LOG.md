@@ -132,6 +132,36 @@
   for the same reasons — hashing, expiry, scopes. The JWT filter we add on Day 7 is exactly
   the edge-verification a gateway does: verify once at the edge, enforce roles per route.
 
+## Day 7 — `stockforge-auth`: roles + JWT verification (2026-08-11)
+
+- **What we built:** made the Day 6 JWT actually *protect* something. `JwtService` now embeds
+  roles in the token; a `JwtAuthenticationFilter` verifies the `Authorization: Bearer` header on
+  every request and turns it into an in-memory identity (Spring SecurityContext); protected
+  `GET /api/auth/me` returns the current user; `GET /api/auth/admin/ping` is an ADMIN-only gate
+  via `@PreAuthorize("hasRole('ADMIN')")`; an `AdminBootstrap` seeds a local admin. 19 tests pass.
+- **Concept in one sentence:** a request is *authenticated once at the edge* — a filter verifies
+  the JWT and hands the endpoint a trusted identity — and *authorized per route* by roles;
+  that split is the whole security model.
+- **What I should remember:**
+  - **401 vs 403 is a real bug, not trivia.** We saw anonymous requests get 403. With
+    httpBasic/formLogin disabled, Spring has no default `AuthenticationEntryPoint` and falls back
+    to `Http403ForbiddenEntryPoint`. Fix: explicit entry point that answers 401. Rule of thumb:
+    401 = "who are you?", 403 = "I know who you are — you're not allowed".
+  - **The auth filter never throws.** Bad/missing/expired token → clear the SecurityContext and
+    let Spring answer 401. Throwing leaks internals and breaks the error contract.
+  - **Roles ride inside the JWT.** Verification needs only the secret — no database lookup per
+    request. The trade-off: a role change applies only at the next login (until the token
+    expires), which is exactly why production uses short-lived access tokens + refresh tokens.
+  - **`hasRole('ADMIN')` really means "has authority `ROLE_ADMIN`"** — our filter builds that
+    `ROLE_`-prefixed authority from the token's roles claim.
+  - **`OncePerRequestFilter`** guarantees the security logic runs once per request even if the
+    servlet container re-enters the chain (e.g. forward dispatch).
+- **Production/HFT relevance:** identity and least privilege are the front door of any trading
+  platform; the "verify once at the edge, authorize per route" pattern is exactly how real
+  platforms (Zerodha/Groww-style) gate every API. Never trust the client to gate itself.
+
+---
+
 ## Deep Review Ritual 1 — Days 0–6 concept review + frontend study (2026-08-11)
 
 - **What we did:** closed out the first one-on-one deep review. Went through the self-contained

@@ -207,6 +207,87 @@ Files to inspect:
 
 ---
 
+## Session 7 — `stockforge-auth`: roles + JWT verification (2026-08-11)
+
+Project:        StockForge
+Current phase:  Phase 1 — Git/GitHub organization and repository foundation
+Current day:    Day 7 (COMPLETE) — Day 8 next: `stockforge-order-service`
+Current repo:   stockforge-auth (built) → next day starts a NEW repo `stockforge-order-service`
+Current branch: main
+Previous commit: stockforge-project-context `b02331d`; auth `6be237e`
+
+What was implemented:
+
+- **`JwtService` role claims:** `generateToken(subject, roles)` embeds `roles` in the JWT;
+  new `JwtClaims(subject, roles)` record + `parseClaims`; `parseSubject` delegates.
+- **`JwtAuthenticationFilter`** (`OncePerRequestFilter`): verifies the Bearer token, builds a
+  Spring `Authentication` (principal = email, authorities = `ROLE_` + role) and sets the
+  SecurityContext; on ANY failure clears context and never throws.
+- **`SecurityConfig`:** `@EnableMethodSecurity`, filter before `UsernamePasswordAuthenticationFilter`,
+  explicit `authenticationEntryPoint` → 401, httpBasic/formLogin disabled.
+- **`GET /api/auth/me`** (identity from SecurityContext → `UserResponse`) and
+  **`GET /api/auth/admin/ping`** (`@PreAuthorize("hasRole('ADMIN')")`).
+- **`AdminBootstrap`** `CommandLineRunner` — idempotent seed of `admin@stockforge.dev` (ADMIN)
+  from `auth.admin.*` in `application.yml`; passwords bcrypt-hashed.
+- Tests: **19 pass** (12 controller, 4 JWT, 2 bootstrap, 1 context); live curl matrix verified
+  me 200/401/401, admin/ping 403 (USER) + 200 (ADMIN). Committed `3255bab` + pushed.
+
+What was learned (the day's sharp edge + recurring pitfalls):
+
+- **401 vs 403 bug:** anonymous requests returned 403, not 401. With httpBasic/formLogin
+  disabled there is no default `AuthenticationEntryPoint`; Spring falls back to
+  `Http403ForbiddenEntryPoint`. Fix: explicit entry point → 401. Rule: 401 = "who are you?",
+  403 = "I know you, you're not allowed".
+- The filter never throws: verification failure → clearContext → let the security machinery
+  answer 401. Throwing would leak internals and break the error contract.
+- Roles ride in the JWT (self-contained verification, no UserStore per request) — trade-off:
+  role changes apply at next login / token expiry, hence short-lived access tokens in prod.
+- `hasRole('ADMIN')` = "has authority `ROLE_ADMIN`" — the filter builds that authority.
+- Recurring: PowerShell→curl mangles inline JSON (use file bodies); a stale Day 6 server was
+  still holding :8080 (stopped it — see ISSUES_LOG, it happened before).
+
+Problems encountered: none blocking (the 401-vs-403 was caught by tests, fixed, re-verified).
+
+Incomplete work:
+
+- Day 8 (next): `stockforge-order-service` — order lifecycle NEW → ACCEPTED → FILLED/CANCELLED,
+  in-memory, REST + tests; user creates the empty GitHub repo first.
+- `stockforge-api` does not yet reuse the JWT verification (Day 8+ step).
+- Auth still has no persistence / logout / refresh / revocation.
+- Device B clones of the repos still unverified (user-owned).
+
+Exact next task:
+
+- Day 8 per `DAY_BY_DAY_GUIDE.md`: user creates empty repo `stockforge-order-service`; AI
+  scaffolds Spring Boot 4.1.0 (port 8081), order state machine + store + REST + tests, pushes,
+  then updates state here and pushes.
+
+Commands to run:
+
+- `git pull` in stockforge-project-context
+- `git clone`/init `stockforge-order-service`; `.\mvnw test` then `.\mvnw spring-boot:run`
+- curl: create order → list → cancel (file-based JSON bodies)
+
+Files to inspect:
+
+- `stockforge-order-service/src/main/java/com/stockforge/order/` (after scaffold)
+- `stockforge-contracts/contracts/openapi.yaml` (order endpoint contract)
+- `stockforge-auth/src/main/java/com/stockforge/auth/security/JwtAuthenticationFilter.java` (the
+  verification pattern stockforge-api will reuse)
+
+Expected result:
+
+- `stockforge-order-service` on GitHub; REST create/list/get/cancel works; state transitions
+  enforced; tests green.
+
+Long-term direction:
+
+- Day 9 risk mock → Day 10 PostgreSQL → contract tooling (Phase 14) → containers (Phase 12-13).
+
+Git verification: committed (yes)  pushed (yes)  verified (yes)
+
+---
+
 ## Session 6 — `stockforge-auth`: register/login with bcrypt + JWT (2026-08-08)
 
 Project:        StockForge

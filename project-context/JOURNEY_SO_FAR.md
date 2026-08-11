@@ -245,3 +245,27 @@ and heartbeats instead of asking. The review also made the teaching style offici
 now on, hard concepts get the "cheat-sheet treatment" — one picture first, then key
 findings in plain words, then a plant-the-bug-then-hunt lab (see the JVM and frontend
 cheat sheets in `project-context/cheatsheets/`). (Written 2026-08-11, Review Ritual 1.)
+
+---
+
+## 11. Teach-back ??" Day 7: what the JWT filter actually does
+
+On Day 7 we made the JWT from Day 6 stop being a certificate and start being a keycard.
+Every request that hits a protected endpoint first passes through a **filter** ??" a small
+piece of code that runs before the controller ??" which reads the `Authorization: Bearer`
+header, checks the token's signature with the secret only the server knows, and then puts
+a trusted identity into a per-request holder called the **SecurityContext**. From that
+moment the controller never looks at the raw token again: it asks "who am I?" and Spring
+answers from the context. That split is the whole security model: **authentication happens
+once at the edge** (the filter proves who you are), and **authorization happens per route**
+(the controller decides if that identity is allowed to do the thing). The filter also
+refuses to throw errors on bad tokens ??" a bad or expired token just clears the context and
+Spring answers 401. Roles (USER, ADMIN) travel *inside* the JWT, so any service can
+verify a request with only the secret ??" no database lookup per request. The trade-off is
+that a role change only matters after the next login (old tokens keep their roles until
+they expire), which is why production tokens are short-lived. We even found a real bug
+while testing: anonymous requests were coming back 403 instead of 401, because with form
+and basic login disabled, Spring had no default entry point to say "you're not logged in" ??"
+we had to add one. That bug was worth more than a lesson: it's the difference between
+"who are you?" (401) and "I know who you are, you're not allowed" (403). (Written
+2026-08-11, Day 7.)
