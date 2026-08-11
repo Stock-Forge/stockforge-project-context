@@ -88,6 +88,7 @@
   <a href="#production">Production Map</a>
   <a href="#run-test">Run &amp; Test Playbook</a>
   <a href="#next">What's Next</a>
+  <a href="#debug">Debugging Lab</a>
 </nav>
 
 <main>
@@ -634,6 +635,48 @@ powershell -ExecutionPolicy Bypass -File .\test-auth.ps1</div>
     it writes bodies to files instead of passing JSON inline. Then answer: "why is it safe to return a
     JWT but unsafe to return a password hash?" If you can explain both in one sentence each, Day 6 is
     complete.
+  </div>
+</section>
+
+<!-- ================= DEBUGGING LAB ================= -->
+<section id="debug">
+  <h2>After the App Is Set Up — The Practical Debugging Lab</h2>
+  <p><strong>When:</strong> once our StockForge services are running end-to-end (a working register →
+     login → order flow, all on their ports), we stop reading about GC / JFR / locks and start
+     <em>causing</em> the problems ourselves — then find them with the same tools real HFT engineers
+     use. This is where the [[Day 0–6 review HTML]], the cheat sheet findings
+     (<code>cheatsheets/jvm-performance-cheat-sheet.md</code>), and the JFR side quest
+     (SideQuests index) come together.</p>
+
+  <h3>The rule we will follow for every experiment</h3>
+  <div class="flow">baseline → hypothesis → create the issue → measure → find it → fix → re-measure → conclude</div>
+
+  <h3>The lab plan (we plant the bugs, then hunt them)</h3>
+  <table>
+    <tr><th>#</th><th>What we do</th><th>What we learn / which tool proves it</th></tr>
+    <tr><td>1</td><td>Baseline latency histogram on register/login/order (p50/p95/p99) BEFORE touching anything</td><td>The numbers we will compare every fix against</td></tr>
+    <tr><td>2</td><td><strong>Plant GC pressure:</strong> a code path that creates throwaway objects on every request</td><td>JFR "Allocation" events / GC logs show the allocation rate climbing; p99 spikes appear</td></tr>
+    <tr><td>3</td><td><strong>Plant lock contention:</strong> a long-held <code>synchronized</code> block or hot <code>ConcurrentHashMap</code> with heavy work inside the lock</td><td>JFR "Java Monitor Blocked"/lock-contention events: threads waiting; order latency jitters</td></tr>
+    <tr><td>4</td><td><strong>Plant a CPU hotspot:</strong> a naive loop or boxing-heavy calculation on the request path</td><td>JFR CPU sampling flags the hot method; async-profiler later confirms</td></tr>
+    <tr><td>5</td><td>Fix each planted issue (shrink critical section, pool/avoid allocations, replace hotspot), re-record, re-measure</td><td>The p99/p99.9 before/after numbers — proof the findings work</td></tr>
+  </table>
+
+  <h3>The tools we use to debug ourselves</h3>
+  <ul>
+    <li><strong>JFR:</strong> <code>jcmd &lt;pid&gt; JFR.start / JFR.dump</code> (or JMC GUI) — the
+        black-box recorder while we reproduce the problem.</li>
+    <li><strong>GC logs:</strong> <code>-Xlog:gc*</code> on the JVM flags — allocation rate, GC
+        frequency, pause lengths.</li>
+    <li><strong>Latency histogram:</strong> the p50/p95/p99 story (side quest already on the list).</li>
+    <li><strong>Later:</strong> async-profiler + jmh microbenchmarks for the C++ comparison phase.</li>
+  </ul>
+
+  <div class="callout purple">
+    <strong>Why plant bugs on purpose?</strong> Because debugging a problem you created is the safest way
+    to learn the tools: you already know the answer, so you learn exactly which JFR event or GC log line
+    reveals it. By the time we hit a <em>real</em> latency mystery in our own trading path, the workflow
+    is already muscle memory — and every finding gets logged back into the cheat sheet and ISSUES_LOG as
+    a case study.
   </div>
 </section>
 
