@@ -12,10 +12,10 @@
 |---|---|---|
 | Date | 2026-08-11 |
 | Phase | Phase 1 — Git/GitHub organization and repository foundation |
-| Day | **Day 7 COMPLETE — next is Day 8: `stockforge-order-service` (order lifecycle, in-memory)** |
-| Status | Day 7 (`JwtAuthenticationFilter` + roles in JWT + `GET /api/auth/me` + ADMIN role gate) done & pushed (`3255bab`). JWT now actually protects endpoints: valid token → 200, missing/invalid/expired → 401, USER on ADMIN path → 403. Real bug found + fixed: anonymous requests returned 403 not 401 (no AuthenticationEntryPoint after disabling httpBasic/formLogin). 19 tests green. Live curl matrix verified USER + ADMIN paths. Day 8 starts `stockforge-order-service` per `DAY_BY_DAY_GUIDE.md`. |
-| Current repository | stockforge-project-context (state repo) — Day 8 continues in a NEW repo `stockforge-order-service` |
-| Current commit | stockforge-project-context: Day 7 closeout (this commit); stockforge-auth: `3255bab`; stockforge-api: `acb07a0`; stockforge-web: `8e7d075`; stockforge-contracts: `e1d65cb` |
+| Day | **Day 8 COMPLETE — next is Day 9: `stockforge-order-service` risk mock** |
+| Status | Day 8 (`stockforge-order-service`: order lifecycle state machine + idempotent create, in-memory) done & pushed (`0fd1654`; contracts `c9a7300`). NEW → ACCEPTED → FILLED / CANCELLED enforced with 409 on invalid transitions, 201/200 idempotent create, 404/400 handled. 23 tests green (incl. a 20-thread fill-vs-cancel race test). Live curl verified full lifecycle. Day 9 adds a mocked risk check before accept. |
+| Current repository | stockforge-project-context (state repo) — Day 9 continues in `stockforge-order-service` |
+| Current commit | stockforge-project-context: Day 8 closeout (this commit); stockforge-order-service: `0fd1654`; stockforge-contracts: `c9a7300`; stockforge-auth: `c1b5277`; stockforge-api: `acb07a0`; stockforge-web: `8e7d075` |
 
 ---
 
@@ -32,7 +32,8 @@
 | 5 | `stockforge-api` — Spring Boot gateway scaffold | ✅ done |
 | 6 | `stockforge-auth` — registration/login (bcrypt + JWT), roles | ✅ done (register/login) |
 | 7 | `stockforge-auth` part 2 — roles + JWT verification (`JwtAuthenticationFilter` + `/api/auth/me` + role gate) | ✅ done |
-| 8-9 | `stockforge-order-service` — order lifecycle (in-memory), risk mock | ⏭️ **NEXT** |
+| 8 | `stockforge-order-service` — order lifecycle (in-memory) | ✅ done |
+| 9 | `stockforge-order-service` — mocked risk check before accept | ⏭️ **NEXT** |
 | 10+ | PostgreSQL → risk → matching → market-data → portfolio → notification → integration → … → HFT (roadmap §21) | planned |
 
 ---
@@ -102,19 +103,50 @@
   403) and ADMIN path (login → me 200 + roles[ADMIN] → admin/ping 200 "ADMIN access granted").
 - A stale Day 6 server process was still holding :8080 — stopped it, restarted the new build.
 
+## What Day 8 completed
+
+- **NEW REPO `stockforge-order-service`** created by the user on GitHub (initial name had a
+  leading `-`; renamed to the correct `stockforge-order-service` after we flagged it). Cloned,
+  scaffolded Spring Boot 4.1.0 (web + actuator + validation, Maven Wrapper, Java 21) on port
+  **8081**; root commit `0fd1654` pushed.
+- **Contract-first (OpenAPI 1.1.0, `c9a7300`):** updated `stockforge-contracts` orders section
+  to reflect the Day 8 subset — `CreateOrderRequest` (clientOrderId idempotency key, symbol,
+  side, quantity, price), explicit `/accept` `/fill` `/cancel` action endpoints, and roadmap
+  notes (security, MARKET/LIMIT, partial fills, REJECTED, history still to come).
+- **Domain:** immutable `Order` record (+ `withStatus` copy), `OrderStatus` enum documenting the
+  graph NEW → ACCEPTED → FILLED / CANCELLED, `Side`.
+- **`OrderStore`** (thread-safe `ConcurrentHashMap`, two maps: by id + by clientOrderId):
+  `saveIfAbsent` guards duplicates; every transition goes through `update` → `compute`, so a
+  check-then-change is ATOMIC — two racing transitions cannot both win.
+- **`OrderService`** — the ONLY place the state machine is enforced: `transition(id, action,
+  allowedFrom, to)` rejects anything else with 409. Idempotent create: same clientOrderId →
+  same order, 201 first / 200 replay.
+- **`OrderController`**: `POST /api/orders` (201/200/400), `GET /api/orders`, `GET
+  /api/orders/{id}` (200/404), `POST .../accept|fill|cancel` (200/404/409).
+- **Tests: 23 pass** — 11 controller (lifecycle, 409s, 404, validation 400, idempotent replay,
+  health) + 11 service (incl. **20-thread fill-vs-cancel race: exactly one wins**, plus a
+  deterministic-order fix) + 1 context.
+- **Two test bugs found + fixed:** (1) the Spring context caches the shared in-memory `OrderStore`
+  across test classes, so the list test must assert *membership*, not index 0 (the Day 6
+  test-isolation lesson again); (2) two creates in the same millisecond have EQUAL `createdAt`,
+  so timestamp-only sort was unstable — added `clientOrderId` tiebreaker in `findAll()`.
+- **Live curl verified on 8081:** create 201 NEW → replay 200 same id → accept 200 → fill 200 →
+  cancel-after-fill 409; list 200, get 200, unknown 404, health UP, invalid body 400.
+- README added. Server stopped after verification (port 8081 free).
+
 ## What is deliberately NOT done
 
-- **Day 8 (next):** `stockforge-order-service` — order lifecycle (NEW → ACCEPTED → FILLED /
-  CANCELLED) in-memory; mocked risk check comes Day 9. Repo does not exist yet (user creates it).
+- **Day 9 (next):** `stockforge-order-service` part 2 — a **mocked risk check** before an order
+  is accepted: risk rejection → order becomes REJECTED (status added to the enum/contract).
 - **Device B clone still unverified** (user-owned) — clone this repo on the other device:
   ```
-  git clone https://github.com/Stock-Forge/stockforge-auth.git
+  git clone https://github.com/Stock-Forge/stockforge-order-service.git
   ```
-- Auth service has no persistence (in-memory users) and no logout/refresh/revocation yet.
-  Roles take effect on the next login — an already-issued JWT keeps its roles until expiry
-  (that's why prod uses short-lived access tokens + refresh tokens).
-- `stockforge-api` still does NOT reuse the JWT verification yet (that's Day 8+): the
-  filter lives in `stockforge-auth`; cross-service token trust is the next step.
+- Order service has no persistence (in-memory, PostgreSQL at Day 10), no events yet, no security
+  on its own endpoints (JWT verification is still the auth service's; wiring the API gateway /
+  cross-service token trust is a later step).
+- Order API is the Day 8 subset: no MARKET/LIMIT types, no partial fills, no REJECTED yet,
+  no history endpoint.
 - No CI yet (Phase 14); no rate limiting (a Day 15+ concern).
 
 ## Incomplete work (open items carried forward)
@@ -125,7 +157,9 @@
 - stockforge-web is a static shell with no API wiring; stockforge-api has no real endpoints.
 - stockforge-auth: no persistence (in-memory users), no logout/refresh/revocation yet; roles
   apply at next login (issued JWTs keep their roles until expiry).
-- stockforge-api does not yet reuse the auth JWT verification (Day 8+ step).
+- stockforge-order-service: in-memory only, no events, no security on its own endpoints; API is
+  the Day 8 subset (no MARKET/LIMIT, partial fills, REJECTED, history).
+- stockforge-api does not yet reuse the auth JWT verification (later step).
 - Cross-device JVM note: this machine has JDK 26; if the personal PC has JDK 21, both are fine
   (java.version=21 targets 21+). Maven comes from the wrapper everywhere.
 - JFR PRACTICAL SIDE QUEST (2026-08-10, ADR 0003): small plain-Java app with a controlled
@@ -185,53 +219,77 @@
 
 ---
 
-## NEXT DAY PROMPT — DAY 8: `stockforge-order-service` (orders, in-memory first)
+## Session note — 2026-08-12 (Day 8 — order lifecycle, DONE)
+
+- **Day 8 executed and closed out:** new repo `stockforge-order-service` (Spring Boot 4.1.0,
+  port 8081) — immutable `Order` record, `OrderStatus` graph NEW → ACCEPTED → FILLED / CANCELLED,
+  thread-safe `OrderStore` (transitions via `ConcurrentHashMap.compute` = atomic), `OrderService`
+  as the single enforcer of the state machine (409 on invalid transitions), `OrderController`
+  (create/list/get/accept/fill/cancel). Idempotent create via `clientOrderId` (201 / 200 replay).
+  Committed `0fd1654`, pushed.
+- **Contract-first:** OpenAPI bumped to 1.1.0 (`c9a7300`) reflecting the Day 8 subset + roadmap
+  notes; order endpoints documented as actions (/accept /fill /cancel).
+- **Two test bugs found + fixed:** shared in-memory store across cached test contexts (the Day 6
+  test-isolation lesson again — assert membership, not index 0); equal-`createdAt` creates made
+  the timestamp sort unstable (added `clientOrderId` tiebreaker).
+- **23 tests green** (11 controller + 11 service + 1 context), including a **20-thread
+  fill-vs-cancel race test proving exactly one transition wins**.
+- **Live curl matrix verified:** create 201 → replay 200 (same id) → accept → fill →
+  cancel-after-fill 409; list/get/404/health/400 all correct.
+- **Day 9 next:** mocked risk check before accept (REJECTED status joins the enum/contract).
+
+---
+
+## NEXT DAY PROMPT — DAY 9: `stockforge-order-service` part 2 (mocked risk check)
 
 **How to start:** copy-paste the FULL content of
 `stockforge-project-context\project-context\START_OF_DAY.md` into the new AI session.
 Below is the day-specific plan the AI must follow.
 
-### Day 8 — `stockforge-order-service`: orders with a lifecycle (in-memory)
+### Day 9 — `stockforge-order-service`: mocked risk check before accept
 
-**Goal:** a new service for the core trading domain — create/list/cancel orders with an
-explicit state machine (**NEW → ACCEPTED → FILLED / CANCELLED**), stored in memory,
-with REST endpoints and tests. The mock risk check is Day 9. This is where the trading
-business logic starts living.
+**Goal:** add the first business rule: an order may NOT be ACCEPTED unless it passes a
+**mocked risk check**. Risk rejection → order becomes **REJECTED** (a new status in the
+enum + contract). This is the first step toward the standalone `stockforge-risk-service`
+(Phase 5).
 
-**Why / production thinking:** orders are the heart of a trading platform and every
-state transition matters — this is where firms get fined for bugs. We keep it in memory
-first so the 30-minute unit stays small; PostgreSQL comes at Day 10.
+**Why / production thinking:** in a real platform an order is checked against balance,
+margin, position limits and hard-rule filters BEFORE it reaches the exchange. We mock
+the risk service on Day 9 (a component with a deterministic rule) and swap in the real
+service later — the ORDER side (what happens to an order when risk rejects it) is what
+we're learning today. Trading firms get fined when a rejected-by-risk order still goes
+to the market, so the transition must be explicit and guarded like every other one.
 
-**Step 1 — You (manual):** create empty repo **`stockforge-order-service`** on GitHub
-(`Stock-Forge/stockforge-order-service`), no README/license (we add them locally).
+**Step 1 — You (manual):** nothing to create — `stockforge-order-service` exists.
 
 **Step 2 — AI session does:**
-1. Startup protocol (pull both repos, read context/state/prompts, reconcile).
+1. Startup protocol (pull stockforge-order-service + project-context, read context/state).
 2. **Briefing first, then WAIT for acknowledgment (EXPLAIN-FIRST RULE).**
-3. Local repo as a sibling (never nested); scaffold Spring Boot 4.1.0 (web + actuator +
-   validation) via `start.spring.io` with Maven Wrapper, Java 21 language level; reuse the
-   Day 5/6 pattern (health, structured logging, correlation ID, `test-auth`-style file
-   bodies for curl). Port **8081** (8080 is auth).
-4. Domain: `Order` (id, clientOrderId, symbol, side, quantity, price, status, timestamps),
-   an in-memory thread-safe `OrderStore`, an `OrderService` with explicit state transitions
-   (invalid transitions rejected), `OrderController` (create/list/get/cancel).
-5. Contract-first: define the order endpoints in the OpenAPI before coding, per the
-   `stockforge-contracts` contract.
-6. Tests: create → ACCEPTED, cancel → CANCELLED, FILLED via a simulated fill (Day 9 risk
-   gate later), invalid transition rejected, not-found 404, validation 400.
-7. Run tests; verify with curl (create/list/cancel).
+3. Add `OrderStatus.REJECTED`; contract (openapi.yaml) adds REJECTED to the enum + a
+   `rejectReason` field (roadmap note: real risk service returns the reason).
+4. `RiskCheck` interface + `MockRiskCheck` component with a deterministic, documented rule
+   (e.g. reject if symbol is a blacklist, or if order value = quantity × price exceeds a
+   hard cap). Keep it tiny and testable.
+5. Wire it into `OrderService`: `accept(id)` now runs the risk check first; failure → order
+   becomes REJECTED (200 + REJECTED, or 422?). Decide + document the status code choice
+   (contract-first) — recommended: transition endpoint returns 200 with status REJECTED
+   (the transition HAPPENED), because the order moved NEW → REJECTED successfully. Expose
+   the reason in the response.
+6. Tests: order passes → ACCEPTED; order fails → REJECTED (with reason) and then cannot be
+   accepted/filled/cancelled-from-ACCEPTED; REJECTED is terminal (like FILLED). Add a unit
+   test for the risk rule itself. Keep all 23 existing tests green.
+7. Run tests; verify with curl (create an order that fails risk → 200 REJECTED + reason).
 8. Commit + push to `Stock-Forge/stockforge-order-service`.
-9. **CENTRAL-STATE RULE:** update state HERE — `CURRENT_STATE.md` (Day 8 done → Day 9),
-   `SESSION_PROMPTS.md` (Session 8 entry), `DAY_BY_DAY_GUIDE.md`, `ISSUES_LOG.md`,
-   `LEARNING_LOG.md`, `JOURNEY_SO_FAR.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md` (services map).
+9. **CENTRAL-STATE RULE:** update state HERE — `CURRENT_STATE.md` (Day 9 done → Day 10),
+   `SESSION_PROMPTS.md` (Session 9 entry), `DAY_BY_DAY_GUIDE.md`, `ISSUES_LOG.md`,
+   `LEARNING_LOG.md`, `JOURNEY_SO_FAR.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`.
 10. Commit + push this repo. Verify BOTH pushes.
 
-**Expected result:** `stockforge-order-service` on GitHub with a working order lifecycle
-state machine, REST create/list/get/cancel, unit tests green; a real order survives its
-transitions and invalid ones are rejected.
+**Expected result:** a risk-rejected order becomes REJECTED with a reason and can never be
+ACCEPTED/FILLED; a passing order still goes NEW → ACCEPTED; tests green; curl shows REJECTED.
 
-**Environment note:** JDK 21+ (this device has JDK 26 — fine). Maven comes from the wrapper.
-Same Spring Boot 4.1.0 as auth/api — reuse their pom pattern.
+**Environment note:** JDK 21+ (this device has JDK 26 — fine). Maven from the wrapper.
+Day 10 introduces PostgreSQL persistence.
 
 ---
 

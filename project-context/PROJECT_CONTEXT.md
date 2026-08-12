@@ -125,7 +125,7 @@ C:\CODE\HFT Application\            (or any agreed root — must be identical on
 ├── stockforge-web\                  ← separate git repo (IMPLEMENTED, Day 4)
 ├── stockforge-api\                  ← separate git repo (IMPLEMENTED, Day 5)
 ├── stockforge-auth\                 ← separate git repo (Phase 3, IMPLEMENTED)
-├── stockforge-order-service\        ← separate git repo (Phase 4)
+├── stockforge-order-service\        ← separate git repo (Phase 4, IMPLEMENTED, Day 8)
 ├── stockforge-risk-service\         ← separate git repo (Phase 5)
 ├── stockforge-matching-engine\      ← separate git repo (Phase 6)
 ├── stockforge-market-data\          ← separate git repo (Phase 7)
@@ -143,8 +143,8 @@ C:\CODE\HFT Application\            (or any agreed root — must be identical on
 | stockforge-project-context | Project state, context, prompts, ADRs | `IN PROGRESS` |
 | stockforge-web | Trading UI (login, dashboard, market data, order entry, book, portfolio, P&L, history, WebSocket) | `IMPLEMENTED` (scaffold: Vite + React + TS shell, Day 4) |
 | stockforge-api | Client-facing API (routing, validation, auth integration, rate limiting, correlation IDs, docs) | `IMPLEMENTED` (scaffold: Spring Boot, /api/health, structured logging, correlation-ID filter, Day 5) |
-| stockforge-auth | Registration, login, logout, hashing, auth, authz, roles, tokens | `IMPLEMENTED` (register/login bcrypt + JWT, Day 6) |
-| stockforge-order-service | Create/validate/cancel orders, lifecycle, state, events | `PLANNED` |
+| stockforge-auth | Registration, login, logout, hashing, auth, authz, roles, tokens | `IMPLEMENTED` (register/login bcrypt + JWT Day 6; roles + JWT verification `/api/auth/me` + ADMIN gate Day 7) |
+| stockforge-order-service | Create/validate/cancel orders, lifecycle, state, events | `IMPLEMENTED` (Day 8: lifecycle NEW→ACCEPTED→FILLED/CANCELLED, idempotent create, in-memory store; risk check Day 9, DB Day 10) |
 | stockforge-risk-service | Balance/margin/position/quantity limits, risk rules, rejection | `PLANNED` |
 | stockforge-matching-engine | Order book, price-time priority, matching, fills, executions | `PLANNED` |
 | stockforge-market-data | Simulated market, price gen, bid/ask, LTP, volume, depth, WS | `PLANNED` |
@@ -427,7 +427,7 @@ Repo creation order (progressive, each with explanation before creation):
 2. `stockforge-contracts` ✅ (Phase 1 — contracts/schemas first so services don't break each other)
 3. `stockforge-web` + `stockforge-api` ✅ (Phase 2)
 4. `stockforge-auth` ✅ (Phase 3 — Day 6 register/login; Day 7 roles + JWT verification)
-5. `stockforge-order-service` (Phase 4)
+5. `stockforge-order-service` ✅ (Phase 4 — Day 8 order lifecycle, in-memory)
 6. `stockforge-risk-service` (Phase 5)
 7. `stockforge-matching-engine` (Phase 6)
 8. `stockforge-market-data` (Phase 7)
