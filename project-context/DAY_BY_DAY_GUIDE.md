@@ -380,11 +380,11 @@ per-route (roles/scopes); never trust the client to gate itself.
 
 ---
 
-### Day 8-9 — `stockforge-order-service`: orders (in-memory first)
+### Day 8 ✅ — `stockforge-order-service`: order lifecycle state machine (DONE 2026-08-12)
 
-**Goal (Day 8):** create/list/cancel orders with a state machine
-(NEW → ACCEPTED → FILLED / CANCELLED), stored in memory.
-**Goal (Day 9):** add a mocked risk check before accepting.
+**Goal:** create/list/get orders with a state machine (NEW → ACCEPTED → FILLED /
+CANCELLED), in-memory store, idempotent create via `clientOrderId`, explicit action
+endpoints (/accept /fill /cancel), thread-safe transitions.
 
 **What & why:** the core domain. Orders have a lifecycle; state must be explicit and
 testable. In-memory first keeps the 30-minute unit small; the DB comes at Day 10.
@@ -393,13 +393,62 @@ testable. In-memory first keeps the 30-minute unit small; the DB comes at Day 10
 are the heart of trading systems. Real order services persist every state change and
 emit events (Kafka) for downstream systems.
 
-**You do:** create repo `stockforge-order-service`; AI builds, tests, README.
+**You do:** create repo `stockforge-order-service` on GitHub. AI scaffolds, builds, tests.
 
-**Expected result:** REST create/list/cancel works; unit tests pass; state transitions
-logged.
+**Result (done):** repo `stockforge-order-service` created + pushed (`0fd1654`). Spring
+Boot 4.1.0 (port 8081); immutable `Order` record; `OrderStatus` enum (NEW/ACCEPTED/
+FILLED/CANCELLED); thread-safe `OrderStore` (transitions via `ConcurrentHashMap.compute`
+= atomic); `OrderService` as single state-machine enforcer (409 on invalid); idempotent
+create (201 first / 200 replay); 23 tests green (incl. 20-thread fill-vs-cancel race).
+Contract bumped to 1.1.0 (`c9a7300`). Postman collection + newcomer-friendly README
+(order book / lifecycle / idempotency explained) added.
 
 **Production lesson:** correctness of state transitions and idempotency beat clever code —
 this is where trading firms get fined for bugs.
+
+---
+
+### Day 9 — `stockforge-order-service` part 2: mocked risk check (PENDING)
+
+**Goal:** add the first business rule: an order may NOT be ACCEPTED unless it passes a
+mocked risk check. Risk rejection → order becomes **REJECTED** (new terminal status in
+the enum + contract). This is the first step toward the standalone `stockforge-risk-service`
+(Phase 5).
+
+**What & why:** in a real platform an order is checked against balance, margin, position
+limits and hard-rule filters BEFORE it reaches the exchange. We mock the risk service on
+Day 9 (a component with a deterministic rule) and swap in the real service later. The ORDER
+side (what happens to an order when risk rejects it) is what we're learning today. Trading
+firms get fined when a rejected-by-risk order still goes to the market, so the transition
+must be explicit and guarded like every other one.
+
+**Production:** Zerodha/Groww have a dedicated Risk Management System (RMS) that runs
+BEFORE the order reaches the exchange gateway — checking available margin, position
+limits, circuit filters, banned scrips, leverage limits, all in real-time per-order. Our
+mock uses a simple notional cap (qty × price > threshold). The architecture is the same:
+order service calls risk → risk says yes/no → order transitions accordingly.
+
+**You do:** nothing to create — `stockforge-order-service` exists.
+
+**AI session does:**
+1. Add `OrderStatus.REJECTED` to the enum; update the state graph.
+2. Add `rejectReason` field to the `Order` record + `OrderResponse` DTO.
+3. `RiskCheck` interface + `MockRiskCheck` component with a deterministic rule
+   (reject if notional value = quantity × price > 1,000,000).
+4. Wire into `OrderService.accept()`: risk check first; failure → NEW → REJECTED (200
+   with REJECTED status + reason in the response).
+5. Update OpenAPI contract (REJECTED implemented, `rejectReason` field).
+6. Tests: pass → ACCEPTED; fail → REJECTED with reason; REJECTED is terminal; unit test
+   for the risk rule itself. All existing tests stay green.
+7. Run tests, verify with curl, commit + push both repos.
+
+**Expected result:** a risk-rejected order becomes REJECTED with a reason and can never
+be ACCEPTED/FILLED; a passing order still goes NEW → ACCEPTED; tests green; curl shows
+REJECTED.
+
+**Production lesson:** the order service doesn't "know" risk rules — it asks a separate
+component and obeys the answer. This separation of concerns is critical at scale. When
+risk rejects, the transition is explicit and auditable (never swallowed silently).
 
 ---
 
